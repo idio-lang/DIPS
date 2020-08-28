@@ -1,0 +1,121 @@
+/*
+ * idio.css_t
+ * ~~~~~~~~~~
+ */
+
+@import url("alabaster.css");
+
+/* https://stackoverflow.com/questions/14622698/customize-sphinxdoc-theme */
+
+.strike {
+    text-decoration: line-through;
+}
+
+body {
+    font-family: Verdana, serif;
+    font-size: unset;
+}
+
+@media screen and (max-width: 875px) {
+    /* cf. .sidebar */
+    aside {
+	float: right;
+	clear: right;
+	margin: 0 0 0.5em 0.5em;
+	width: 40%;
+    }
+}
+
+@media screen and (min-width: 876px) {
+    div.document {
+	width: 1200px;
+    }
+
+    div.bodywrapper {
+	width: 720px;
+    }
+
+    aside {
+	position: absolute;
+	margin-left: 690px;
+	width: 260px;
+    }
+}
+
+div.sidebar {
+    font-size: smaller;
+    margin: 0 0 0.5em 0.5em;
+    padding: 0;
+    border: none;
+}
+
+div.sidebar p {
+    margin: 0;
+    padding: 0.5em;
+    line-height: 1.1em;
+}
+
+aside {
+    background: antiquewhite;
+}
+
+div.body aside p {
+    margin: 0;
+    padding: 0.5em;
+    font-size: smaller;
+    line-height: 1.1em;
+}
+
+div.sidebox {
+    float: right;
+    clear: right;
+    background: #ffe;		/* see sidebar */
+    margin: 0 0 0.5em 0.5em;
+    width: 40%;
+}
+
+div.sidebox p {
+    margin: 0;
+    padding: 0.5em;
+    font-size: smaller;
+    line-height: 1.1em;
+}
+
+.center {
+	text-align: center;
+}
+
+code {
+     padding-left: 0.3em;
+     padding-right: 0.3em;
+}
+
+.lname {
+    font-style: italic;
+}
+
+.pname {
+    font-style: italic;
+}
+
+.vname {
+    font-style: italic;
+}
+
+.ref-author {
+}
+
+.ref-title {
+    font-style: italic;
+}
+
+.ref-journal {
+}
+
+.ref-pub {
+}
+
+a.reference.external {
+    font-family: monospace;
+    font-size: smaller;
+}
