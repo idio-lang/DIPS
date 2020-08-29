@@ -18,7 +18,7 @@ References
 
 .. [D07]	:ref-author:`R. Kent Dybvig`
 		:ref-title:`Syntactic Abstraction: The syntax-case expander`
-		:ref-journal:`From Beautiful Code: Leading Programmers Explain How They Think, edited by Andy Oram and Greg Wilson. O'Reilly and Associated, 2007.`
+		:ref-journal:`From Beautiful Code: Leading Programmers Explain How They Think, edited by Andy Oram and Greg Wilson. O'Reilly and Associates, 2007.`
 		
 		http://www.cs.indiana.edu/~dyb/pubs/bc-syntax-case.pdf
 
@@ -73,3 +73,8 @@ References
 		http://srfi.schemers.org
 
 
+.. only:: html
+
+   .. rubric:: Bibliography
+
+.. bibliography:: refs.bib

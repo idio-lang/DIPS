@@ -45,13 +45,16 @@ ones are under version control!
 
 On the other hand I also write software for engineers to use.
 Generally, software that roams around the computing infrastructure,
-interacting with other systems, gathering information, applying some
-change.
+interacting with other systems, querying a database, poking a REST
+interface, gathering information, applying some change.
 
 These *always* start with a shell script.  I know to :pname:`netcat`
 -this, or :pname:`ssh` with a particular key to obtain some bespoke
 behaviour -that.  Most commands print unstructured text to *stdout*
-which we can "screen scrape" to find out our facts.  Need
+which we can "screen scrape" to find out our facts.  :pname:`sed`,
+:pname:`grep` and :pname:`awk` are our best friends although we can do
+a fair amount of twirling and twiddling directly in the shell with
+``IFS`` and arrays and pattern matching and parameter expansion.  Need
 :lname:`Expect` to poke about in a bespoke User Interface to find some
 status?  No problem.
 
@@ -60,13 +63,13 @@ information from more than one source and I need an ostensibly simple
 list of lists or hash of arrays or, in fact, anything that reveals the
 shell's great computing problem.  If computing is algorithms and data
 structures, the shell can ``if`` and ``while`` with the best of them
-but it only has unnamed flat lists for data structures.
+but it only has flat arrays for data structures.
 
 Suddenly, we're goosed.  Our world-conquering shell script has thrown
-us at the first hurdle.
+us off at the first hurdle.
 
-Real programmers will turn to :lname:`Perl` (in my youth) or
-:lname:`Python` (in my attempts to appear young) or some other
+Programmers will turn to :lname:`Perl` (in my youth) or
+:lname:`Python` (in my attempts to remain young) or some other
 "proper" programming language and that's great.  We can gloss over the
 problem of running all those commands interacting with the environment
 by calling ``system`` (or whatever will, in turn, simply invoke the
@@ -83,7 +86,7 @@ the output!*
 
 Of course, everybody has to handle the command pipeline failing
 outright or even failing to produce the expected output, there are no
-short cuts there.
+short cuts for anyone.
 
 However, we've traded a succinct abstraction for a lot more systems
 code (interaction with the operating system) with attendant error
@@ -128,24 +131,23 @@ So that is the purpose of this treatise.  I'm going to look at the
 shell and argue for the things I like and ignore the things I don't.
 I'm also going to throw in some things I think would be useful for
 someone like me to have in a shell.  I'm then going to look at my
-programming language of choice, :lname:`Scheme` (the *horror*, the
-*horror*), and argue as to why it does what we need it do.
-:lname:`Scheme` does an awful lot more besides which we can benefit
-from although there is a decent argument that it does too much and
-that we should hold back from some of its more baroque and entangled
-features.  We'll then look at how to implement a Scheme-ish language
-from basic interpretation through to byte compilation.  If
-:lname:`Scheme` could do the things we want then the smart people
-behind :lname:`Scheme` would already have done so, so we need to
-discuss, *ahem*, how to butcher it until it bends to our will!  That
-leads to some tricky compromises.
+programming language of choice, :lname:`Scheme`, and argue as to why
+it does what we need it do.  :lname:`Scheme`, it transpires, does an
+awful lot more besides which we can benefit from although there is a
+decent argument that it does too much and that we should hold back
+from some of its more baroque and entangled features.  We'll then look
+at how to implement a Scheme-ish language from basic interpretation
+through to byte compilation.  If :lname:`Scheme` could do the things
+we want then the smart people behind :lname:`Scheme` would already
+have done so, so we need to discuss how to, *ahem*, butcher it until
+it bends to our will!  That leads to some tricky compromises.
 
 There's another, more reflective, reason for this rambling.  In my
 experience when I have tried to explain what I have done in written
 prose using examples I had not tried myself I discover that my casual
 understanding is, in fact, an abject misunderstanding -- and, often as
 not, a poor implementation.  If I can satisfactorily explain how
-:lname:`Idio` works then there's a decent chance it actually doing
+:lname:`Idio` works then there's a decent chance it's actually doing
 what it says on the side of the tin.
 
 .. rst-class:: center
@@ -155,7 +157,7 @@ what it says on the side of the tin.
 One obvious question is, why am I writing a new shell at all?  Aren't
 there lots of perfectly good shells already out there and even more
 perfectly good programming languages?  Why don't I hack away at
-:lname:`Bash`, say, and look to support nested data structures or if
+:lname:`Bash`, say, and look to support nested data structures or, if
 I'm really determined to have my shell abstractions, couldn't I look
 into the bowels of :lname:`Python` and see if I can't slip a ``|``
 into the code reader?
@@ -165,9 +167,9 @@ into the code reader?
 	     as I don't want to use it for the programming part of my
 	     programmable shell.  YMMV
 
-Well, yes, I *could* have pursued either approach but we're back to
-that business of not having an intimate understanding of the design of
-the language -- and an understanding of the implementation, for that
+Well, yes, I could have pursued either approach but we're back to that
+business of not having an intimate understanding of the design of the
+language -- and an understanding of the implementation, for that
 matter.  There's also that problem we know from experience where the
 minor task of changing some perceived simple function of the code
 unearths untold assumptions across the piece that you've now broken.
@@ -182,13 +184,14 @@ across either of those!  Of course, those repos are not all code but
 you'll need to update the documentation and Internationalisation as
 well, so count it all in.
 
-Most importantly of all, I want to know *how* things work.  I want to
-know how *all* the things work.  That means everything.  We start with
-nothing, we use nothing from anyone else that we haven't *re-imagined*
+Most importantly, I want to know *how* things work.  In fact, I want
+to know how *all* the things work.  That means everything.  We start
+with nothing and we use nothing from anyone else that we haven't
+:strike:`nicked` :strike:`borrowed` :strike:`ported` *re-imagined*
 ourselves.
 
 The downside of this *Not Invented Here* approach is at best we don't
-have world class implementations and at worst we suffer our own
+have world class implementations and at worst we suffer from our own
 incompetence and misunderstanding -- there's a price to pay for
 everything.
 
@@ -196,9 +199,132 @@ everything.
 
 ---
 
-.. topic:: Influences
+Roaming the Internet looking for inspiration on implementing a
+programming language I hit on three inspirational sources.
 
-	   These things
+In the first case, like many people, I read :ref-author:`Abelson and
+Sussman with Sussman`'s :ref-title:`Structure and Interpretation of
+Computer Programs` (SICP) :cite:`SICP` which served as the basis of
+MIT's entry-level computer science subject from the 80s.
 
-.. todo: influences
+Skipping the computer science bit, Chapter 4,
+:ref-title:`Metalinguistic Abstraction` implements a *metacircular
+evaluator*, the basic meaning of which is that if your programming
+language is worth its salt you should be able to implement (a probably
+weedier, much less efficient version of) your programming language or
+some other programming language *in* your programming language.  You
+use your programming language to create other programming languages.
+
+To be fair, no-one is going to get excited that we used :lname:`C` to
+implement :lname:`Idio` but there's a sense of "having made it" when
+you reach the stage of being able to implement other languages in
+yours.  After all, you basically need to be able to read characters,
+one at a time, and decide whether to bundle them up into names or
+numbers or strings etc. then have a mechanism to evaluating them
+maintaining some sense of "memory" where values can be set and
+retrieved from.
+
+Chapter 5, :ref-title:`Computing with Register Machines` then goes on
+to discuss the transformation of your evaluator (your *interpreter*)
+into a language suitable for a traditional computer, a *register
+machine*.  This isn't any real world computer but rather a
+hypothetical machine whose assembly code is suited to your language.
+It has a program counter and registers for shuffling data to and from
+"memory" like real world computers but the units of operation are more
+abstract.
+
+This is the start of the rabbit hole for *Virtual Machines* in a
+programming language sense -- we're not talking about virtual machines
+as in something to run an operating system on, here we mean something
+more like a `Turing machine`_ which will process our instructions.
+Almost every language these days uses a virtual machine, a proper
+advance from evaluation/interpretation.
+
+.. _`Turing machine`: https://en.wikipedia.org/wiki/Turing_machine
+
+:ref-title:`SICP` uses :lname:`Scheme` as its core implementation
+language -- much like we will use :lname:`C` -- and the metacircular
+evaluator operates on a Scheme-ish language which can become a bit
+confusing.  The problem here, though, is that the implementation
+relies on behaviour supplied by the core implementation's
+:lname:`Scheme`.  That behaviour we don't have as we're (deliberately)
+starting from nothing.
+
+My next influence was the discovery of :ref-author:`Bill Hails`'
+(seemingly?) unpublished book :ref-title:`Exploring Programming
+Language Architecture in Perl` (EPLAiP) :cite:`EPLA` which implements
+a :lname:`Scheme` interpreter in :lname:`Perl`.  I felt a lot more
+comfortable following the working here than I did with
+:ref-title:`SICP` and it throws in a few more interesting titbits like
+an object system and continuations.  In fact, his Figure 13.6, of all
+things, is the one that finally made continuations click for me.
+
+So thoroughly influenced, not only did I go through building all his
+increasing-levels-of-complexity interpreters in :lname:`Perl` I
+actually went back and did them all again in :lname:`C`!  Madness!
+
+And great fun!  I felt I was getting somewhere.  :ref-title:`EPLAiP`
+is (obviously?) using :lname:`Perl` as its core implementation
+language and, like :ref-title:`SICP`, relies on some behaviour from
+the underlying :lname:`Perl`.  Again, we can't rely on that as we're
+starting from nothing.
+
+My final inspiration source actually costs money (I'm showing
+commitment here!)  in the form of what many might describe as the
+bible for implementing, certainly, :lname:`Scheme`,
+:ref-author:`Christian Queinnec`'s :ref-title:`Lisp in Small Pieces`
+(LiSP) :cite:`LiSP`.  :ref-title:`LiSP` takes you through a dozen
+variations of a :lname:`Scheme` engine from basic evaluation through
+byte compilation for a virtual machine and even production of
+:lname:`C` code to be compiled as a fixed executable.
+
+:ref-title:`LiSP` uses :lname:`Scheme` as its core implementation
+language and a Scheme-ish language is the one it is
+evaluating/compiling.  So, again, we can't use "it" (given the number
+of evaluators/compilers I presumably mean a later one) directly.
+
+However, :lname:`Idio` is derived from :ref-title:`LiSP` by the simple
+expedient of me figuring out what I needed to do to bootstrap enough
+framework to get going.
+
+At some point, though, I decided I'd had enough implementing something
+to interpret/compile a dialect of :lname:`Scheme` and it was time to
+wield the language cleaver of destiny and start butchering this
+Scheme-ish language into something that did what I want.
+
+I made a mistake at this point, though.  I didn't put the
+:lname:`Scheme` code to one side and introduce some parallel
+interpreter/compiler, I just hacked the :lname:`Scheme` engine to
+bits.  Very satisfying but on reflection a bit stupid.  It turns out
+that :lname:`Idio` is, on reflection, *this close* to :lname:`Scheme`
+and :lname:`Scheme` has had a lot of software written for it.  So I've
+found myself porting software written for :lname:`Scheme` and, more or
+less, changing the syntax and a few structural elements.  It's not a
+case of thinking that this is something that could be automated it's
+the realisation that I could have simply left the :lname:`Scheme`
+engine in there and just read it in direct.
+
+What a waste.  So if there's one lesson you can learn...
+
+
    
+:cite:`Cox-IRE`
+      
+
+
+:cite:`syntax-case`
+      
+:cite:`syntactic-abstraction`
+
+:cite:`S9fES`
+
+:cite:`up-vs-c`
+
+
+
+:cite:`me-rt`
+
+:cite:`up-portable`
+
+:cite:`PCL`
+

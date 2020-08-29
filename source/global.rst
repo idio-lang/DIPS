@@ -25,3 +25,10 @@
    :class: ref-journal
 .. role:: ref-pub
    :class: ref-pub
+
+.. termcap-ish
+.. role:: rev
+   :class: rev
+
+.. role:: yellow-highlight
+   :class: yellow-highlight

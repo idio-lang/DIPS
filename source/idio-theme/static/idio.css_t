@@ -82,12 +82,12 @@ div.sidebox p {
 }
 
 .center {
-	text-align: center;
+    text-align: center;
 }
 
 code {
-     padding-left: 0.3em;
-     padding-right: 0.3em;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
 }
 
 .lname {
@@ -95,6 +95,7 @@ code {
 }
 
 .pname {
+    font-family: Courier, monospace;
     font-style: italic;
 }
 
@@ -115,7 +116,20 @@ code {
 .ref-pub {
 }
 
+dl.citation a.reference.external {
+    font-size: smaller;
+}
+
 a.reference.external {
     font-family: monospace;
-    font-size: smaller;
+}
+
+pre {
+    background: #282828;
+    color: #33ff00;
+}
+
+.rev {
+    background: #282828;
+    color: #fff;
 }

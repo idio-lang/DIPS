@@ -33,6 +33,7 @@ release = '0.0'
 # ones.
 extensions = [
     'sphinx.ext.todo',
+    'sphinxcontrib.bibtex',
     'aside'
 ]
 
