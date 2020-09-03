@@ -13,7 +13,7 @@ Welcome to DIPS's documentation!
    :caption: Contents:
 
    introduction
-   the-unix-shell
+   the-unix-shell/index
    scheme
    scheme-review
    implementing-scheme-1

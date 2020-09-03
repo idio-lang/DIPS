@@ -11,6 +11,16 @@
     text-decoration: line-through;
 }
 
+.underline {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.underbold {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
 body {
     font-family: Verdana, serif;
     font-size: unset;
@@ -91,7 +101,7 @@ code {
 }
 
 .lname {
-    font-style: italic;
+    font-family: sans-serif;
 }
 
 .pname {
@@ -100,6 +110,10 @@ code {
 }
 
 .vname {
+    font-style: italic;
+}
+
+.question {
     font-style: italic;
 }
 
@@ -133,3 +147,8 @@ pre {
     background: #282828;
     color: #fff;
 }
+
+p strong.program {
+    font-family: monospace;
+}
+

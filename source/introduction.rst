@@ -48,15 +48,15 @@ Generally, software that roams around the computing infrastructure,
 interacting with other systems, querying a database, poking a REST
 interface, gathering information, applying some change.
 
-These *always* start with a shell script.  I know to :pname:`netcat`
--this, or :pname:`ssh` with a particular key to obtain some bespoke
+These *always* start with a shell script.  I know to :command:`netcat`
+-this, or :command:`ssh` with a particular key to obtain some bespoke
 behaviour -that.  Most commands print unstructured text to *stdout*
-which we can "screen scrape" to find out our facts.  :pname:`sed`,
-:pname:`grep` and :pname:`awk` are our best friends although we can do
-a fair amount of twirling and twiddling directly in the shell with
-``IFS`` and arrays and pattern matching and parameter expansion.  Need
-:lname:`Expect` to poke about in a bespoke User Interface to find some
-status?  No problem.
+which we can "screen scrape" to find out our facts.  :command:`sed`,
+:command:`grep` and :command:`awk` are our best friends although we
+can do a fair amount of twirling and twiddling directly in the shell
+with ``IFS`` and arrays and pattern matching and parameter expansion.
+Need :lname:`Expect` to poke about in a bespoke User Interface to find
+some status?  No problem.
 
 But then I always do have a problem when I start to gather similar
 information from more than one source and I need an ostensibly simple
@@ -185,22 +185,24 @@ you'll need to update the documentation and Internationalisation as
 well, so count it all in.
 
 Most importantly, I want to know *how* things work.  In fact, I want
-to know how *all* the things work.  That means everything.  We start
-with nothing and we use nothing from anyone else that we haven't
-:strike:`nicked` :strike:`borrowed` :strike:`ported` *re-imagined*
-ourselves.
+to know how *all* the things work.  That means everything.  I'm going
+to suggest that we start with nothing, the proverbial blank sheet of
+paper, or empty directory in this case, and we use nothing from anyone
+else that we haven't :strike:`nicked` :strike:`borrowed`
+:strike:`ported` *re-imagined* ourselves such that we can document it
+as though we had implemented it ourselves.
 
 The downside of this *Not Invented Here* approach is at best we don't
 have world class implementations and at worst we suffer from our own
-incompetence and misunderstanding -- there's a price to pay for
-everything.
+incompetence and misunderstanding and the codebase becomes a festering
+pit of despair -- and they say there's a price to pay for everything.
 
 .. rst-class:: center
 
 ---
 
 Roaming the Internet looking for inspiration on implementing a
-programming language I hit on three inspirational sources.
+programming language I hit on three key sources.
 
 In the first case, like many people, I read :ref-author:`Abelson and
 Sussman with Sussman`'s :ref-title:`Structure and Interpretation of
@@ -208,12 +210,13 @@ Computer Programs` (SICP) :cite:`SICP` which served as the basis of
 MIT's entry-level computer science subject from the 80s.
 
 Skipping the computer science bit, Chapter 4,
-:ref-title:`Metalinguistic Abstraction` implements a *metacircular
-evaluator*, the basic meaning of which is that if your programming
-language is worth its salt you should be able to implement (a probably
-weedier, much less efficient version of) your programming language or
-some other programming language *in* your programming language.  You
-use your programming language to create other programming languages.
+:ref-title:`Metalinguistic Abstraction` implements a
+:term:`metacircular evaluator`, the basic meaning of which is that if
+your programming language is worth its salt you should be able to
+implement (a probably weedier, much less efficient version of) your
+programming language or some other programming language *in* your
+programming language.  You use your programming language to create
+other programming languages.
 
 To be fair, no-one is going to get excited that we used :lname:`C` to
 implement :lname:`Idio` but there's a sense of "having made it" when
@@ -247,8 +250,8 @@ language -- much like we will use :lname:`C` -- and the metacircular
 evaluator operates on a Scheme-ish language which can become a bit
 confusing.  The problem here, though, is that the implementation
 relies on behaviour supplied by the core implementation's
-:lname:`Scheme`.  That behaviour we don't have as we're (deliberately)
-starting from nothing.
+:lname:`Scheme`.  That's behaviour we don't have as we're
+(deliberately) starting from nothing.
 
 My next influence was the discovery of :ref-author:`Bill Hails`'
 (seemingly?) unpublished book :ref-title:`Exploring Programming
@@ -266,8 +269,7 @@ actually went back and did them all again in :lname:`C`!  Madness!
 And great fun!  I felt I was getting somewhere.  :ref-title:`EPLAiP`
 is (obviously?) using :lname:`Perl` as its core implementation
 language and, like :ref-title:`SICP`, relies on some behaviour from
-the underlying :lname:`Perl`.  Again, we can't rely on that as we're
-starting from nothing.
+the underlying :lname:`Perl`.  
 
 My final inspiration source actually costs money (I'm showing
 commitment here!)  in the form of what many might describe as the
@@ -296,18 +298,44 @@ I made a mistake at this point, though.  I didn't put the
 :lname:`Scheme` code to one side and introduce some parallel
 interpreter/compiler, I just hacked the :lname:`Scheme` engine to
 bits.  Very satisfying but on reflection a bit stupid.  It turns out
-that :lname:`Idio` is, on reflection, *this close* to :lname:`Scheme`
-and :lname:`Scheme` has had a lot of software written for it.  So I've
-found myself porting software written for :lname:`Scheme` and, more or
-less, changing the syntax and a few structural elements.  It's not a
-case of thinking that this is something that could be automated it's
-the realisation that I could have simply left the :lname:`Scheme`
-engine in there and just read it in direct.
+that :lname:`Idio` is, on reflection, *this close* (put your thumb and
+forefinger up close to your eye and them squeeze them together) to
+:lname:`Scheme` and :lname:`Scheme` has had a lot of software written
+for it.  So I've found myself porting software written for
+:lname:`Scheme` and, more or less, changing the syntax and a few
+structural elements.  It's not a case of thinking that this is
+something that could be automated it's the realisation that I could
+have simply left the :lname:`Scheme` engine in there and just read it
+in direct.
 
 What a waste.  So if there's one lesson you can learn...
 
+.. rst-class:: center
 
+---
+
+.. todo:: Audience
    
+.. rst-class:: center
+
+---
+
+.. todo:: Structure
+   
+.. rst-class:: center
+
+---
+
+.. todo:: Typography
+   
+
+
+
+
+
+
+
+
 :cite:`Cox-IRE`
       
 
