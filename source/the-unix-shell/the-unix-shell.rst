@@ -549,8 +549,7 @@ subtle combination of statement terminators and logical operands.
 For logical operands, :lname:`Bash` uses ``&&`` and ``||`` although I
 personally prefer :lname:`Perl`'s ``and`` and ``or`` -- which,
 coincidentally, match :lname:`Scheme`'s ``and`` and ``or`` -- but also
-free up ``&&`` and ``||`` for more nefarious purposes (*mwa hah hah
-haa!*).
+free up ``&&`` and ``||`` for other uses.
 
 ``;`` terminates a statement/pipeline as does a newline.  I'm not so
 keen on ``;`` as I don't use it anywhere other than mandated syntax
@@ -660,10 +659,10 @@ Let Expression
 ^^^^^^^^^^^^^^
 
 I have to assume that ``(( ... ))`` is only meant to be used in an
-``if`` or ``while`` conditional expression as it explicitly returns a
-non-zero status if the arithmetic result is zero.  So that's of no use
-whatsoever in general flow with any kind of error handling (``set -e``
-or ``trap ... ERR``).
+``if``` or ``while`` conditional expression as it explicitly
+returns a non-zero status if the arithmetic result is zero.  So that's
+of no use whatsoever in general flow with any kind of error handling
+(``set -e`` or ``trap ... ERR``).
 
 If I want to do sums I use :ref:`arithmetic expansion`.
 
@@ -791,8 +790,8 @@ substitution <command substitution>`:
 Trapped If
 """"""""""
 
-Of interest is that ``if`` will not issue trigger an error trap.
-That's obviously what you want, at least I think it is obvious:
+Of interest is that ``if`` will not trigger an error trap.  That's
+obviously what you want, at least I think it is obvious:
 
 .. code-block:: bash
 
@@ -807,7 +806,7 @@ conditional test.  Compare that with:
 
 .. code-block:: bash
 
- # for debug!
+ # helpful debug!
  something | grep foo
  
  if something | grep foo ; then
@@ -816,7 +815,13 @@ conditional test.  Compare that with:
 
 where you'll not reach the ``if`` statement because the failure to
 match :samp:`foo` will cause :program:`grep` to exit non-zero, ``set
--e`` will then exit your script and you'll be none-the-wiser.
+-e`` will then exit your script and you'll be none-the-wiser having
+seen nothing printed out.
+
+Similarly, ``while`` and the logical operators ``&&`` and ``||`` also
+mask any error trap.
+
+.. _while:
 
 While
 ^^^^^
@@ -1531,36 +1536,61 @@ Job Control
 ===========
 
 Job control is the idea of selectively stopping and resuming processes
-that you have backgrounded.  A job, here, means a pipeline.  You can't
-have a foreground *job* in the sense that anything running in the
-foreground is receiving input from the controlling terminal and the
-shell and any backgrounded jobs are not.
+that you have backgrounded.  A job, here, means a pipeline.  When a
+pipeline is launched all the processes in the pipeline share a
+*process group*.  If the pipeline/job is in the foreground then that
+process group is associated with the terminal such that any keyboard
+signals raised go to that process group -- and **not** to the shell
+nor any of the backgrounded or stopped jobs.
+
+You can't have a foreground *job* in the sense that anything running
+in the foreground is receiving input from the controlling terminal and
+the shell (and any backgrounded jobs) are not.  If the shell isn't
+getting any input then it's not controlling anything, let alone a job.
 
 You can't, therefore, have the shell do anything until the foreground
-command completes.  The shell was waiting for the foreground process
-to complete, so it will then re-arrange signals and the terminal and
-continue.
+command completes or is stopped.  The shell's very purpose in life is
+to hang about waiting for its children, in this case the foreground
+process, to complete/stop, so it will then re-arrange signals and the
+terminal and will continue doing shell-like things.
 
 .. sidebox:: Technically, not always :kbd:`Ctrl-C` but whatever your
              terminal thinks is the ``VINTR`` character and only if
              ``ISIG`` is set.
 
-	     But you know your terminals, right?
+	     But you know your terminals, right?  (I don't but
+	     :manpage:`termios(3)` suggests that's correct.  I did say
+	     that dealing with the terminal was hard.)
 
 When you have a foreground pipeline running and you hit :kbd:`Ctrl-C`
-the ``SIGINT`` is sent to the process group associated with the
-terminal -- so not the shell or backgrounded jobs -- which will act as
-they see fit.
+(or other signal-raising keystroke) the ``SIGINT`` is sent to the
+*process group* associated with the terminal and the processes within
+that process group will act as they see fit.
 
 The shell, for example, has a ``SIGINT`` handler -- primarily to
 interrupt ``wait`` -- but it is functionally ignored.  Thus, when the
 shell itself is "foreground", :kbd:`Ctrl-C` doesn't do much.
 
+If you did run a pipeline in the foreground you can raise a "terminal
+stop" signal, ``SIGTSTP``, slightly confusingly called the terminal
+suspend character, usually, :kbd:`Ctrl-Z`.  Assuming it is not ignored
+(a shell usually ignores it!) then the default signal disposition
+means the pipeline will stop, the shell is signalled that a child
+process has changed state (``SIGCHLD``) and can handle the pipeline as
+a job.
+
+Note that the pipeline/job you just stopped is still stopped.  In most
+shells you can immediately ``bg`` the pipeline/job to let it carry on
+processing.
+
+.. _`online Job Control`: https://www.gnu.org/software/libc/manual/html_node/Job-Control.html#Job-Control
+
 Foregrounding and backgrounding involves careful manipulation of
 process groups, signals and the state of the controlling terminal.
 It's quite complicated but, to the relief of all, there's a handy
 description of most requirements in the :manpage:`info(1)` pages for
-:program:`libc` under the menu item ``Job Control``.
+:program:`libc` under the menu item ``Job Control`` or try the
+equivalent `online Job Control`_ web pages.
 
 Much of the complexity of job control is for interactive sessions.
 Non-interactive shell scripts can still background jobs and the

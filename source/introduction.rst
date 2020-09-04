@@ -314,7 +314,19 @@ What a waste.  So if there's one lesson you can learn...
 
 ---
 
+.. todo:: Influential Languages
+   
+.. rst-class:: center
+
+---
+
 .. todo:: Audience
+   
+.. rst-class:: center
+
+---
+
+.. todo:: Requirements
    
 .. rst-class:: center
 
@@ -328,7 +340,9 @@ What a waste.  So if there's one lesson you can learn...
 
 .. todo:: Typography
    
-
+Man pages, see :manpage:`man(1)`, are most likely to refer to whatever
+primary development system I happen to be using -- almost certainly a
+Linux variant.  Solaris and BSDs may vary.
 
 
 

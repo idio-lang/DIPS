@@ -10,6 +10,17 @@ Glossary
 
 	Common Lisp Object System -- see CLOS_.
 
+   marmite
+
+	.. _Marmite: https://www.marmite.co.uk
+
+        As the `Wikipedia <https://en.wikipedia.org/wiki/Marmite>`_
+        page on Marmite_ notes:
+
+	    Such is its prominence in British popular culture that the
+	    product's name is often used as a metaphor for something
+	    that is an acquired taste or tends to polarise opinions.
+
    metacircular evaluator
 
         An evaluator that can evaluate itself!  First described in the
