@@ -68,11 +68,6 @@ References
 
 		http://www.gigamonkeys.com/book/
 
-.. [SRFI]	:ref-title:`Scheme Requests For Implementation`
-
-		http://srfi.schemers.org
-
-
 .. only:: html
 
    .. rubric:: Bibliography

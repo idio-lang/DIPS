@@ -147,8 +147,9 @@ is supposed to help me with.
 
 I think what I want is something to grovel around *somewhere* and
 figure out what the :lname:`C` code would look like if I'd written my
-code like the :ref:`tcsetpgrp example`, above.  It can then be
-compiled up and added as a linkable module (however that works).
+code like the :ref:`tcsetpgrp example <tcsetpgrp example>`, above.  It
+can then be compiled up and added as a linkable module (however that
+works).
 
 sb-grovel
 ---------
@@ -320,7 +321,7 @@ It feels like the :ref:`here-document` issue we've mentioned before.
 .. aside:: Do I recall correctly that Ant_ was created because someone
            was having too hard a time with makefiles?
 
-	   And they used XML to improvement things?
+	   And they used XML to improve things?
 
 Now, I hesitate to suggest that replacing the extensive features of
 :program:`make` would be trivial but it got me thinking.
@@ -352,6 +353,8 @@ its horrors).
 .. rst-class:: center
 
 ---
+
+screen / tmux
 
 Security - ssh - keys
 

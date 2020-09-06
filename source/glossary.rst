@@ -10,6 +10,20 @@ Glossary
 
 	Common Lisp Object System -- see CLOS_.
 
+   homoiconicity
+
+        `Homoiconicity <https://en.wikipedia.org/wiki/Homoiconicity>`_
+        is defined as:
+
+	    A language is homoiconic if a program written in it can be
+	    manipulated as data using the language, and thus the
+	    program's internal representation can be inferred just by
+	    reading the program itself.
+
+	Although whether :lname:`Lisp`\ s are actually homoiconic and
+	quite what homoiconic actually means is often a cause for
+	debate.
+
    marmite
 
 	.. _Marmite: https://www.marmite.co.uk

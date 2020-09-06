@@ -14,8 +14,7 @@ DIPS
 
    introduction
    the-unix-shell/index
-   scheme
-   scheme-review
+   scheme/index
    implementing-scheme-1
    implementing-scheme-2
    implementing-scheme-3
