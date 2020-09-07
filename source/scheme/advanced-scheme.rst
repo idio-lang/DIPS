@@ -36,7 +36,14 @@ let
 Just to make you hate the parenthesis a little bit more, our
 evaluation model for :lname:`Scheme` says that functions are invoked
 when they are the first element in a list and we've said that
-``lambda`` is a function constructor.  Let's combine the two:
+``lambda`` is a function constructor.  Let's combine the two.  So the
+``func`` in:
+
+.. parsed-literal:: 
+
+ (*func* *args*)
+
+can be replaced with a ``(lambda ...)`` construction:
 
 .. parsed-literal:: 
 
@@ -58,15 +65,16 @@ or, in a more common styling:
  (lambda (a b)
   (+ a b))
 
-This is creating a function which takes two formal parameters, ``a``
-and ``b``, to be in scope for the extent of the body forms.  It has a
-single body form, ``(+ a b)`` the result of which is what the function
-will return.
+This is constructing a function value which takes two formal
+parameters, ``a`` and ``b``, to be in scope for the extent of the body
+forms.  It has a single body form, ``(+ a b)`` the result of which is
+what the function will return.
 
-Like, ``(+ 1 2)``, had this function been bound to the symbol ``add``
-we would have happily invoked ``(add 1 2)`` where ``add`` is going to
-evaluate to a function value.  Wait, a function value is just the
-thing we created with ``lambda``.  So put it all together:
+Like a more obvious example, say, ``(+ 1 2)``, had this function been
+bound to the symbol ``add`` we would have happily invoked ``(add 1
+2)`` where ``add`` is going to evaluate to a function value.  A
+function value is just the thing we created with ``lambda``.  So put
+it all together:
 
 .. code-block:: scheme
 
@@ -82,14 +90,16 @@ There's a lot of visual clutter there to figure out it is saying:
 
 and we haven't made the arguments complicated expressions at all!
 
-But that's what it *is* saying and so the function value, created on
+But that *is* what it is saying and so the function value, created on
 the hoof, is applied to the arguments and we get a result.
 (Hopefully, 3!).
 
 Where does this errant nonsense with on-the-fly function values get
 us?
 
-``let``, of course!  Consider a ``let`` statement:
+``let``, of course!  (The clue was in the heading...)
+
+Consider a ``let`` statement:
 
 .. code-block:: scheme
 
@@ -99,8 +109,8 @@ us?
 
 In the ``bindings`` we said each binding was a list containing a
 symbol and an expression, so our symbols are the ``car``\ s of each
-binding (``a`` and ``b``) and the expressions are the ``cdr``\ s
-(``1`` and ``(* 2 3)``).
+binding, ``a`` and ``b``, and the expressions are the ``cdr``\ s,
+``1`` and ``(* 2 3)``.
 
 So a syntactic transformation of ``let`` could walk down the list of
 bindings putting the ``car`` of each binding into a list of symbols
@@ -119,7 +129,8 @@ firstly, partly into a function definition:
 
 .. parsed-literal::
 
- (lambda (*formal1* *formal2*) (begin *body+*))
+ (lambda (*formal1* *formal2*)
+  (begin *body+*))
 
 and then into a function call form by putting the function definition
 as the first element and the arguments to be evaluated as the
@@ -184,17 +195,28 @@ gets transformed into:
 		body+))
   (foo e1 e2))
 
-:question:`Eh?  What's that doing?` What we've done is declared a
-(usually self-recursive, hence ``letrec``) function called ``foo``
-which takes formal parameters, ``f1`` and ``f2``, and we automatically
-called it with arguments, ``e1`` and ``e2``.
+:question:`Eh?  What's happened there and what's that doing?`
+
+Look carefully.  We've done a similar trick with the bindings.
+Firstly, the symbols have become the formal arguments again but,
+rather than for an anonymous function, this time for a *named*
+function, ``foo``.  Secondly, rather than apply the anonymous function
+to the arguments we've called the named function with those arguments.
+
+What we've done is declared a (usually self-recursive, hence
+``letrec``) function called ``foo`` which takes formal parameters,
+``f1`` and ``f2``, and we *automatically called* it with arguments,
+``e1`` and ``e2``.
 
 So we've declared and invoked a function in one statement.  It seems a
-bit... *exciting* ...but it's actually really useful.  You recall that
-:lname:`Scheme` prefers a recursive loop and there's any number of
-occasions when we want to loop over something, counting, filtering,
-whatever and this ``let`` form allows us to declare a loop function
-(that can self-recurse) and kick it off with some starting values.
+bit... *exciting* ...although not a million miles removed from the
+standard ``let``.
+
+However, it's actually really useful.  You recall that :lname:`Scheme`
+prefers a recursive loop and there's any number of occasions when we
+want to loop over something, counting, filtering, whatever and this
+``let`` form allows us to declare a loop function (that can
+self-recurse) and kick it off with some starting values.
 
 .. code-block:: scheme
 
@@ -314,10 +336,10 @@ and a predicate:
  )
 
 and whatever else is necessary for every class where all the ``...``
-are identical-across-classes tracts of code and you already have
-``name``, ``parent`` and all the field names in your hands?  The
-``define-class`` call has been given everything it needs to know, the
-rest of it should get built automatically.
+are tracts of code that are identical across all classes when you
+already have ``name``, ``parent`` and all the field names in your
+hands?  The ``define-class`` call has been given everything it needs
+to know, the rest of it should get built automatically.
 
 To help create those chunks of code the Schemers have come up with
 :ref:`quasiquoting <quasiquoting>` and, normally, a macro will return
@@ -350,7 +372,9 @@ You could try:
  (let ((a 1))
    (list a 2 3))
 
-which is fine but will itself start to get rather long winded.
+which is fine but will itself start to get rather long winded and
+you'll have to explicitly quote all of the other arguments that don't
+want evaluating.
 
 Instead we can *quasiquote* things where, like variable interpolation
 in strings in the shell, eg.:
@@ -428,8 +452,40 @@ returns ``(a (1 2 3) c)`` whereas:
 
 returns ``(a 1 2 3 c)``.
 
-Note that macros are expanded "at compile time" which should really
-say that macros are expanded (recursively and in a separate
+It goes without saying that real macros are not trivial examples like this.  In practice the ``a`` in
+
+.. code-block:: scheme
+
+ `(,a 2 3)
+
+is likely to be an expression and surprisingly commonly it is a
+``map`` where each time round the loop you will be generating another
+quasiquoted expression.  Think about the ``field+`` from the class
+suggestion above.  The engine doesn't know how many field names you're
+passing in so it must use a loop.  Of course, ``,`` isn't ideal for
+handling the list of results from ``map``, we probably want ``,@`` to
+splice in the results to the output of the macro:
+
+.. code-block:: scheme
+
+ (define-macro (define-class name parent field+)
+  ...class prep work...
+  `(
+    ...quasiquote with ,name ,parent etc...
+    ,@(map (lambda (field)
+            ...field prep work...
+	    `(...quasiquote with ,field ,name etc...))
+	    field+)
+   ...
+   ))
+
+(The prep work is likely to be creating symbols from combining the
+symbols for the *name* and *field* variables and so on.)
+
+Probably the most subtle misstep people take is that macros are
+expanded "at compile time" (whatever that is but you get the
+impression that it's not an ideal time).  Which, in turn, should
+really say that macros are expanded (recursively and in a separate
 evaluation-space) before the resultant program is evaluated.  In fact,
 it's even more complicated than that as if a macro defines and uses
 macros itself then those macro-macros live in a meta-evaluation space
@@ -439,12 +495,14 @@ macros....
 Macro Issues
 ^^^^^^^^^^^^
 
+.. sidebox:: Yes, I'm looking at myself.
+
 The primary problems with macros are:
 
 - you forget its arguments are not evaluated -- so you can't pass a
   variable you've calculated
 
-- you forget it is run at compile -- your variable wouldn't exist
+- you forget it is run at compile time -- your variable wouldn't exist
   anyway
 
 - you're a dirty hacker
@@ -506,14 +564,14 @@ will expand to:
        tmp
        "that"))
 
-which is still good until someone types:
+which wins all the plaudits until someone types:
 
 .. code-block:: scheme
 
  (let ((tmp "foo"))
    (my-or #f tmp))
 
-The macro is expanded:
+The macro is expanded thusly:
 
 .. code-block:: scheme
 
@@ -526,11 +584,11 @@ Yikes!  ``(if tmp tmp tmp)``?  We might just have lost track of which
 
 This problem is solved by using *hygienic* macros -- actually macros
 are still macros but rather the macro writer uses a little code trick
-to invent a unique variable name in the prep work:
+to inject a unique variable name in the prep work:
 
 .. code-block:: scheme
 
- (definemacro (my-or e1 e2)
+ (define-macro (my-or e1 e2)
    (let ((tmp (gensym)))
      `(let ((,tmp ,e1))
         (if ,tmp
@@ -538,11 +596,12 @@ to invent a unique variable name in the prep work:
             ,e2)))
 
 Here, we used ``gensym`` (generate symbol!) to come up with a unique
-symbol that cannot conflict with anything else.  ``tmp``, a regular
-locally introduced symbol during the evaluation of ``my-or`` (albeit
-in "compile-time macro-space"), is now bound to that symbol value and,
-having been defined in the outer ``let``, can be evaluated inside the
-``quasiquote`` expression.
+symbol that cannot conflict with anything else.  ``tmp``, now a
+regular locally-introduced symbol during the evaluation of ``my-or``
+(albeit in "compile-time macro-space" -- do keep up at the back!), is
+bound to that unique symbol value and, having been defined in the
+outer ``let``, can be unquoted and evaluated (becoming the unique
+symbol) inside the ``quasiquote`` expression.
 
 So, ``tmp`` will have the symbol value ``G707``, say, and the result
 of the macro, the last form, the ``quasiquote`` expression will look
@@ -569,10 +628,10 @@ Mind you, the latter is so complicated that it requires a 30,000 line
 pre-built version of itself to bootstrap!
 
 The broad idea of both is to re-imagine macros as syntax transformers
-(which they always were...) within strict limitations.  Elements of
-the macro calls are tagged and the tags are managed so that no
-unhygienic variables are introduced.  (Unless you really really want
-to!)
+(which they always were...) within strict limitations (that's the
+key).  Elements of the macro calls are tagged and the tags are managed
+so that no unhygienic variables are introduced.  (Unless you really
+really want to!)
 
 Closures
 ========
@@ -635,33 +694,432 @@ Clearly you can't return multiple function definitions from a single
   (set! that (lambda ...)))
 
 Both of the functions bound to ``this`` and ``that`` have global scope
-and both have access to ``private`` to which no-one else has access
-other than through the interfaces, ``this`` and ``that``.
+(because the names were declared at top level with ``define``) and
+both of the function values have access to ``private`` (because they
+were created in the scope of ``private``).  No-one else has access to
+``private`` other than through the interfaces, ``this`` and ``that``.
 
 This is about as complicated as it gets!  (Well, when I say that...)
 
-On the one hand this is immensely complex, functions returning
-functions that expect to be passed functions that will be applied to
-(effectively) the original arguments!  Who can keep up?
+Error Handling
+==============
 
-One the other hand: 
+.. sidebox:: I guess the name comes from the program state being in a
+             particular condition, I'm not sure.
 
-* anonymous functions mean there's no naming clashes for these
-  "helper" functions -- we can keep firing them out left right and
-  centre, they are all independent, created on the fly and closing
-  over the arguments that were passed to them
+:lname:`Lisp`\ s do things a little differently, here.  Rather than
+have "errors" or "exceptions" they have *conditions*.  Which have a
+sort of class hierarchy feel to them as the different types of
+conditions are (*looks for a better word but fails*) sub-classed from
+one another.  *A* difference is that they are not restricted to errors
+but users can create their own condition type (hierarchies) and such a
+condition can be *signalled* (ie. raised) whenever the user deems that
+a particular state of processing has occurred.
 
-* functions are first class values, i.e. can be passed around just
-  like numbers or strings
+Mostly errors and exceptions, though.
 
-* the ability to close over variables means we don't need functions to
-  communicate values between one another via global objects
+A second, somewhat more profound difference, is where in the
+evaluation the condition handler is run.  For most languages that have
+some kind of exception mechanism, say :lname:`Python`'s ``try``
+mechanism:
 
-* it is very concise!
+.. code-block:: python
 
-There's an conceptual step up here from many regular languages and
-hand in hand with that are some clear proficiency improvements.  It's
-a heady mix!
+ try:
+     risky_command ()
+ except Exception as e:
+     print ("ERROR: risky_command() said: {0}".format (e)
+
+you don't really know, and probably don't care, quite what
+``risky_command`` was doing when it ``raise``\ ed the exception.  What
+you do know is that, however deep into its evaluation stack it has
+gone (think: how deeply nested the function calls in the ``risky``
+library got), the evaluation stack is truncated back to here, we call
+``print`` and more on with our lives.
+
+:lname:`Lisp`\ s don't go in for that, rather, the condition handler
+is run *instead of* the failed function (that raised the condition).
+It can choose how to proceed: return an appropriate value on behalf of
+the failed function; call the next condition handler up; raise a
+different condition.
+
+Sometimes you do want to truncate processing in which case you need
+continuations.
+
+Continuations
+=============
+
+Continuations are the greatest idea in computing... that you've never
+heard of -- despite using continuations all day every day!
+
+They are also, possibly, the last thing you should be allowed to
+touch.  So, let's dive in!
+
+I think I have an example that explains the idea of a continuation to
+a non-continuation audience -- if not, it's going to be tricky.
+Consider a little snippet of :lname:`C`:
+
+.. code-block:: c
+
+ ...
+ int i = a + b * c;
+ ...
+
+There are (arguably) four continuations there, *four*!  Let's break it
+down.  As a starter for ten, we know from :lname:`C`'s operator
+precedence rules that ``a + b * c`` is really ``a + (b * c)`` that is,
+the calculation of ``b * c`` is performed first and the result passed
+to the next sub-expression, ``a + []`` -- with ``[]`` standing in for
+the result of the previous sub-expression, ``b * c``.
+
+In turn, the initialisation of ``i`` is waiting for the result of the
+addition, so, in this style, it looks like ``int i = []``.  If we were
+to rewrite our original snippet it might look like:
+
+.. parsed-literal:: 
+
+ ...
+ b * c
+ a + *[]*
+ int i = *[]*
+ ...
+
+This is now looking like a little chain of sub-expressions where each
+sub-expression generates a (single!) value ready for the next
+sub-expression to use in turn.  Form the perspective of the ``b * c``
+sub-expression, it will calculate its value then *continue* (aha!)
+onto ``a + []``.  ``a + []`` is described as being the continuation of
+``b * c``.
+
+``a + []``, in turn will calculate its value and continue onto ``int i
+= []``.  ``int i = []`` is ``a + []``'s continuation.
+
+:question:`You said four continuations?` Yes.  The continuation of the
+line *before* ``b * c`` has a continuation too: it is ``b * c`` except
+``b * c`` chooses not to do anything with the value provided by the
+line before.
+
+Similarly, ``int i = []`` has a continuation as well, the line after
+it.  We can't see from this snippet whether the line after chooses to
+use the value that ``int i = []`` provides.  (Which is itself an
+interesting question, what is the *result* of an assignment?
+Discuss.)
+
+Each of these sub-expressions is a bit of code that is expecting an
+argument then calls another bit of code, like a chain of
+(continuation) functions.  We can re-fashion our snippet as (the
+vastly uglier):
+
+.. parsed-literal:: 
+
+ ...
+ k_l(v) { k_m(b * c); }
+ k_m(v) { k_n(a + v); }
+ k_n(v) { k_o(int i = v); }
+ ...
+
+Again, exactly the same thing is happening, ``b * c`` is now encoded
+in ``k_l()`` and ignores the parameter, ``v``.  It calls ``k_m()``
+with its calculated value.
+
+``a + []`` is now ``k_m()``, it does use the parameter ``v`` and call
+``k_n()`` with the result.
+
+``int i = []`` is now ``k_n()``, assigns the parameter ``v`` to ``i``
+and (assuming you've figured out what the result of an assignment is)
+passes its result to ``k_o()`` and the chain continues.
+
+.. _`continuation-passing style`: https://en.wikipedia.org/wiki/Continuation-passing_style
+
+There's a variation called `continuation-passing style`_ (CPS) which
+might look a bit like:
+
+.. parsed-literal:: 
+
+ ...
+ k_l(v, k) { k(b * c, *k_n*); }
+ k_m(v, k) { k(a + v, *k_o*); }
+ k_n(v, k) { k(int i = v, *k_p*); }
+ ...
+
+where the continuation that you should pass your result to is passed
+to you and you have to tell your continuation whom to call in turn.
+That's looks "difficult" but it turns out to be easier than you think.
+
+.. sidebox:: At one point I went through the process of transforming
+             my :lname:`C` implementation of :ref-author:`Bill Hails`'
+             :lname:`Perl` interpreter and transformed it into a CPS
+             version.
+
+	     You don't want to do that *too* often.
+
+You can even go through a process of transforming your, say,
+:lname:`C` code into a CPS program which, with your :lname:`C` hat on,
+looks like you are in a never-ending chain of callbacks.  
+
+Which is *exactly* what you are in!
+
+Of course, you can't *be* in a never ending chain of callbacks because
+your program will clearly(?) be in a tight loop.  At the end of the
+chain is a NULL pointer (or some other sentinel value) which tells you
+to stop!
+
+In order to generate the chain, the way I like to think about it is
+you start will your end-of-chain sentinel value.  Each splodge of code
+you add is like a balloon inflating between where you are now and the
+sentinel, with the new code scribbled over the (arbitrarily expandable)
+surface.  For the next bit of code you again squeeze it in before the
+sentinel but with the addition that the last code balloon no longer
+points at the sentinel as its continuation but now points at the start
+of the new balloon.
+
+OK, back on course.  So now we have a seemingly pointless rewrite of
+our code into the tiniest sub-expressions each of which are doomed to
+call the next sub-expression.  :question:`What have we achieved?` To
+be honest?  Not much.
+
+However, and this is the trick.  These continuation functions, taking
+a value at a time, they look quite a lot like regular functions,
+taking a value at a time.  Suppose I could ask for one of these
+continuation functions then I could call it with some value of my
+choosing, right?
+
+Let's take, ``a + []``.  If I had access to ``k_m()`` then I could
+call ``k_m(37)`` and then the program would continue from that point
+onwards -- because everything is chained together and the links in the
+chain cannot be changed -- with ``k_m()`` calculating ``a + 37`` and
+passing that result onto ``k_n()``.  I have dived into the middle of
+the chain and inserted a value that ignores the (immediately) previous
+calculation?  What happened to ``b * c``?  Don't care, we're
+continuing with 37.
+
+Apart from that immediately previous calculation everything else is
+the same.  The code still accesses the same lexical and global
+variables, will call the same functions in due course, it's all
+hard-coded into the program.  It has the same *state* every time you
+(re-)call it.  *Meh!* Except not *quite* the same state if you have
+modified one of those variables in the meanwhile.
+
+.. sidebox:: I can understand if you don't quite *grok* this.  It
+             takes a while.
+
+*Whoa!* That's a bit weird.  So weird, in fact, that most languages
+don't give you access to them.  Although, to be honest, it's because
+they can (and probably will) create *causal* havoc.
+
+Once you've got a continuation (function) you can keep calling it.
+*Wooo!*  Although that will get boring after a while.
+
+.. _generators: https://en.wikipedia.org/wiki/Generator_(computer_programming)
+
+Except when it's really cool.  Think about generators_ where you want
+to go back and ask for the next value from a loop.  Those require that
+the generating function stop processing and yield a value and then
+when you next call it the generator continues (hint, hint) from where
+it left off.
+
+The greater use of continuations is not, however, repeatedly calling
+the same thing but rather for being able to jump to another point in
+the program -- indeed, continuations have been called *programmatic
+gotos* with all the baggage that that incurs.
+
+Jumping to another point in the code sounds awful but talk to me again
+about:
+
+- ``return`` in a function
+
+- ``next``/``last`` or ``break``/``continue`` in ``while`` and ``for``
+  loops
+
+- ``try``/``except``
+
+where you mess about with the natural control flow of the code?  Of
+course, you might be so attuned to something like ``return`` that it
+has never occurred to you that you are prematurely jumping out of the
+flow of the code.  But they're only jumping about in the
+loop/function?  Sure, but they're still jumping about.
+
+In fact, continuations are capable of creating *any* control flow
+structure.  *Any*.
+
+:question:`OK, it sounds like a dangerous free-for-all, there must be
+some constraints?` Yes, thankfully, you have to be able to get hold of
+a continuation (function).
+
+call/cc
+-------
+
+You can't get any old continuation -- that would be madness (though
+there's probably some programming languages where you can).  In
+:lname:`Scheme` you have to have passed *through* the continuation you
+want to capture.  On top of that it is caught with a slightly
+confusing function, ``call-with-current-continuation`` or ``call/cc``
+(to everyone's relief).
+
+``call/cc`` does exactly what it says on the tin.  It figures out *its
+own* continuation and passes that to the function you supplied.  It
+has called your function with the current continuation.  Can't fault
+the name!
+
+``call/cc`` calls the function with the continuation and, sort of like
+a single form'ed body of a function, will return the value that the
+function returns.  Confusing, eh?
+
+Actually, that's even more annoying than at first blush.  What on
+earth can I do with a continuation if it is just a parameter in a
+function?  That's the least of your worries.  Your first problem is
+which continuation are you capturing?
+
+Remember our snippet of :lname:`C` where we had four continuations,
+albeit just the two in our single line of code?
+
+.. parsed-literal:: 
+
+ ...
+ b * c
+ a + *[]*
+ int i = *[]*
+ ...
+
+If we want to capture ``k_m()`` -- so we can jump in at ``a + []``
+with a value -- we need to back-track a little and ask, whose
+continuation is ``k_m()``?  Here, as we know, ``k_m()`` is the
+continuation of ``b * c``.
+
+Now, this is where it gets tricky.  We said ``call/cc`` will return
+its own continuation to the supplied function and we want it to be the
+continuation of ``b * c`` so we need to insert ``call/cc`` where ``b *
+c`` currently is.
+
+OK, so what happens to ``b * c``?  Recall that ``call/cc`` will call
+the supplied function with the continuation and return the value the
+function returns.  Aha!  So we can put ``b * c`` in the body of the
+supplied function and that calculation will be returned by ``call/cc``
+to its continuation which is ``k_m()``, ie. ``a + []``.
+
+That sounds like a mess!  It is but it's a well-structured mess -- and
+you get used to it.
+
+Let's see if we can visualise that:
+
+.. parsed-literal:: 
+
+ func(k) { b * c; }
+
+ ...
+ call/cc (func)
+ a + *[]*
+ int i = *[]*
+ ...
+
+I've got a unary function (one-argument!), ``func``, whose body is the
+calculation ``b * c`` so that's the value the function should return.
+
+We've also slipped in ``call/cc`` into the sub-expression stream in
+place of ``b * c`` so that ``call/cc``'s continuation is ``k_m()``.
+
+``call/cc`` should now call ``func`` with the argument ``k_m()``.
+``func`` will calculate ``b * c`` and return it to ``call/cc`` which
+will return it in, uh, turn to... ``k_m()``.
+
+Yay!  :question:`Yay?  Have we done anything there?` Hmm, fortunately,
+no.  But that's the idea, we've managed to slip in some continuation
+capturing code and we haven't changed a thing.  Definitely as big
+*wooo!* there, believe you me!
+
+:question:`But I thought we were going to capture` ``k_m()``
+:question:`?`.  Well, technically we did, in ``func`` except
+we didn't do anything with it.
+
+It's not like we can do anything useful with it *in* ``func`` either.
+Imagine if you called ``k`` in ``func``?
+
+.. parsed-literal:: 
+
+ func(k) {
+           k (37);
+           b * c;
+	 }
+
+.. sidebox:: Go straight to Jail.  Do not pass GO.  Do not collect
+             £200.
+
+Cool!  You will immediately *goto* ``k_m()`` with the value 37.  Not
+only that, you will only *ever* call ``k_m(37)`` because continuations
+are *control flow* operators.  It happens right there, right now.
+``b * c`` is never going to be called.
+
+The only *useful* thing you can do with a continuation inside the
+function supplied to ``call/cc`` is save it in a variable with wider
+scope.  Wide enough scope that you can call it sometime later.  A
+variable with global scope is considered a bad place to store it as it
+means that anyone at any time can jump straight back in with
+``gvar(37)`` (or whatever you've called it).
+
+Instead, you're probably going to be storing it a variable with the
+least wide scope you can get away with to solve your problem
+(doubtless there *will* be situations where global scope is
+appropriate).  Think about the private variables discussed earlier.
+
+Finally, we've been playing with the sub-expressions, what do we do in
+the real code?
+
+.. parsed-literal:: 
+
+ func(k) {
+  private_k = k;
+  b * c;
+ }
+
+ ...
+ int i = a + call/cc (func)
+ ...
+
+Sweet!
+
+Naturally, Schemers don't like named functions -- no need when you can
+throw in a ``lambda`` expression and get those parentheses going!
+
+.. code-block:: scheme
+
+ (let ((private-k #f))
+  (let ((i (+ a (call/cc (lambda (k)
+			  (set! private-k k)
+			  (* b c)))))))
+  (private-k 37))
+
+Which looks cool (we'll gloss over the ``set!``) but will loop
+forever.  The trouble is, the continuation that we've captured is part
+of the lead up to the call to ``(private-k 37)`` the invocation of
+which means we instantly appear to return from the ``call/cc``
+function with the value 37 and work our way through to the
+``(private-k 37)`` line whereon we instantly appear to return from the
+``call/cc`` function with the value 37 and work our way...
+
+Oops.  Continuations, here, with a popular narrative of "call once,
+return many times..." need some careful thought.
+
+I might have mentioned there are "issues" with poorly chosen
+continuations.
+
+C
+-
+
+Naturally, these abstract computer science notions are too high brow
+for :lname:`C`.  Until you realise that :lname:`C` has had the same
+tools since forever in :manpage:`setjmp(3)` and :manpage:`longjmp(3)`
+and their signal-safe cousins :manpage:`sigsetjmp(3)` and
+:manpage:`siglongjmp(3)` (probably all on the same man page!).
+
+Indeed, there's a reasonable likelihood that continuations are
+implemented using :lname:`C`'s ``sigsetjmp``/``siglongjmp``.
+
+The Linux man page notes:
+
+    In summary, nonlocal gotos can make programs harder to understand
+    and maintain, and an alternative should be used if possible.
+
+Wise words.
 
 Object Orientation
 ==================
@@ -690,10 +1148,10 @@ might think that should be:
 
  (message object arguments)
 
-:ref-title:`ELPAiP` (:cite:`EPLA`) p.135, implements this (in *Perl*)
-in a straight-forward manner.  If the evaluated value in functional
-position is an object then the first argument is assumed to be an
-object-specific function, a method, and there's a mechanism for
+:ref-title:`EPLAiP` (:cite:`EPLA`) p.135, implements the former (in
+*Perl*) in a straight-forward manner.  If the evaluated value in
+functional position is an object then the first argument is assumed to
+be an object-specific function, a method, and there's a mechanism for
 looking up a method within the hierarchy of the class.  The method is
 then applied to the arguments with the object itself bound to the
 variable ``this`` (cf. ``self``) for the duration of the method.
