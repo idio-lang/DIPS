@@ -1,4 +1,4 @@
-.. include:: global.rst
+.. include:: ../global.rst
 
 *************
 Scheme Basics
@@ -20,8 +20,6 @@ Why :lname:`Scheme`?  :lname:`Scheme` is incredibly simple so should
 be easy to understand the implementation of (famous last words) but
 has a sophistication that rivals any other programming language and
 surpasses most *[citation needed]*.
-
-.. _ALGOL: https://en.wikipedia.org/wiki/ALGOL
 
 If it's that good, then why haven't :lname:`Scheme` (and any other
 Lisp-like language, say, :lname:`Common Lisp`) taken over the world?
@@ -57,13 +55,84 @@ more commonly, :ref-title:`R2RS`) through to the current
 stink by departing from the minimalist feel resulting in the decision
 to split :lname:`Scheme` into large and small variants.
 
+Basic Operations
+================
+
+:lname:`Scheme` only really has two high level operations: a *reader*
+reads in source code and having de-/re-constructed it, much like a
+lexer, passes it on to the *evaluator*.  The evaluator does all the
+heavy lifting.
+
+These two are generally called in a loop:
+
+#. read an expression
+
+#. evaluate it
+
+#. loop back to the start
+
+There is a variation on this for interactive sessions which looks
+like:
+
+#. read an expression
+
+#. evaluate it
+
+#. print the result
+
+#. loop back to the start
+
+Which give us the well-known abbreviation, :abbr:`REPL (Read Evaluate
+Print Loop)`.
+
+Reader
+------
+
+The reader isn't quite innocent, it is gifted with a few the power to
+do a few re-writes, usually trivial and accommodating the laziness
+inherent in all programmers.
+
+Importantly, though, it does no interpretation of the entities it
+sees, it really only wants to figure out distinct code blocks through
+matching parentheses and bundle them up into lists (of lists (...)).
+
+Evaluator
+---------
+
+In the beginning, the evaluator looked at the lists of lists and
+figured out some meaning from them.  Particularly the element in
+functional position and what kind of an element it is.
+
+For some forms it can apply some special treatment, for others it may
+do some syntactic transformations (which may alter the meaning of the
+expression!) before finally deciding to actually invoke some behaviour
+and do something useful.
+
+More advanced implementations might start performing some combinations
+of:
+
+* translation from :lname:`Scheme`-ish forms into intermediate
+  representations
+
+* code analysis and subsequent optimisation
+
+* translation into pseudo-machine code for, commonly, a byte compiler.
+  Home grown or more widely supported, eg. the JVM_.
+
+* generation of a compilable external language, eg. :lname:`C` (and
+  subsequent compilation)
+
+* direct generation of host-specific machine code
+
+Instances running pseudo-machine code in a byte compiler (in a
+programming language *virtual machine*) might want to invest in a
+:abbr:`JIT (Just In Time)` compilation system.
+
 Syntactic Structure
 ===================
 
 .. highlight: scheme
    
-.. _s-expression: https://en.wikipedia.org/wiki/S-expression
-
 Forms
 -----
 
@@ -82,7 +151,7 @@ so on).
 And... that's it.  There is some syntactic sugar for expressions that
 are used a lot but, in essence, the syntactic structure of
 :lname:`Scheme` is a list (of lists (of lists (of lists
-(:question:`can you see what I'm doing, here?`)))).
+(:socrates:`can you see what I'm doing, here?`)))).
 
 
 
@@ -365,8 +434,6 @@ example, are not a default :lname:`Scheme` data type.  That leads many, if
 not most, :lname:`Scheme` examples to work without them, which they do quite
 well.
 
-.. _SRFI: http://srfi.schemers.org
-
 In the meanwhile, things like hash tables are nice to have so a suite
 of "implemented in :lname:`Scheme`" examples have been created under
 the banner of *Scheme Requests For Implementations*, aka. SRFI_\ s.
@@ -580,7 +647,7 @@ and the implementing language.  In the pedagogical examples of SICP
 say) will be written in some existing :lname:`Scheme`,
 :lname:`Scheme`\ :sub:`1`, say.
 
-.. sidebox:: :lname:`Scheme`\ :sub:`2`, of course.  :question:`And
+.. sidebox:: :lname:`Scheme`\ :sub:`2`, of course.  :socrates:`And
              it?` Why, it's :lname:`Scheme`\ s all the way down.
 
 OK, so what is :lname:`Scheme`\ :sub:`1`’s ``if`` written in?  Well,
@@ -1148,8 +1215,6 @@ parameters, to capture all the arguments as a list.
 Closures
 --------
 
-.. _closure: https://en.wikipedia.org/wiki/Closure_(computer_programming)
-
 All functions are closures_, that is they can use variables in scope
 in their bodies.  That's probably not a huge shock until you note that
 a lot of the time a function is returned from an expression and will
@@ -1440,6 +1505,8 @@ Anonymous closures returned from function calls are very common:
  (add3 5)
 
 should get us the number 8 as a result.
+
+.. _thunk:
 
 Thunks
 ^^^^^^

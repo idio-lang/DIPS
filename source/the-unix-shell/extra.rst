@@ -120,10 +120,6 @@ long-winded.
 libffi
 ------
 
-.. _`starter for ten`: https://en.wikipedia.org/wiki/University_Challenge
-
-.. _libffi: https://sourceware.org/libffi/
-
 On obvious named `starter for ten`_ in this work is
 :ref-author:`Anthony Green`'s libffi_.  :lname:`libffi` forms a sort
 of glue between compilation units or, indeed, between interpreted code
@@ -154,12 +150,6 @@ works).
 sb-grovel
 ---------
 
-.. _SBCL: http://www.sbcl.org/
-
-.. _sb-grovel: http://www.sbcl.org/manual/#sb_002dgrovel
-
-.. _`The Groveller`: https://common-lisp.net/project/cffi/manual/html_node/The-Groveller.html
-
 Steel Bank Commom Lisp (SBCL_) have `sb-grovel`_ to help generate
 foreign function interfaces and there is a (possibly more portable)
 `The Groveller`_ inspired by it.  The basic idea is that you compile
@@ -171,10 +161,6 @@ don't I?
 
 DWARF
 -----
-
-.. _stabs: https://en.wikipedia.org/wiki/Stabs
-
-.. _DWARF: http://www.dwarfstd.org/
 
 Another "back in the day" recollection was a colleague chuntering away
 about poking about in the stabs_ output from :program:`gcc`.  I wasn't
@@ -235,10 +221,6 @@ SWIG
 Expect
 ======
 
-.. _Expect: https://core.tcl-lang.org/expect/index
-
-.. _Tcl: https://www.tcl-lang.org/
-
 :ref-author:`Don Libes`' Expect_ (first released in 1990) is an
 extension to :ref-author:`John Ousterhout`'s Tcl_ (Tool Command
 Language, first release in 1988).
@@ -284,8 +266,6 @@ You can extend :lname:`Tcl` like many languages and I was obliged to
 write an extension to hook in some Unix Semaphores to dig myself out
 of a hole caused by a worthy but ill-thought out requirement.
 
-.. _`Bob's your uncle`: https://en.wikipedia.org/wiki/Bob%27s_your_uncle
-
 What :lname:`Expect` is doing under the hood is more exotic systems
 programming.  It gets a new pseudo-tty through the interfaces
 described in :manpage:`pts(4)`.  In a ``fork``\ ed child you can close
@@ -316,8 +296,6 @@ beyond the most vanilla invocation becomes a hot mess.
 
 It feels like the :ref:`here-document` issue we've mentioned before.
 
-.. _Ant: https://ant.apache.org/
-
 .. aside:: Do I recall correctly that Ant_ was created because someone
            was having too hard a time with makefiles?
 
@@ -328,8 +306,6 @@ Now, I hesitate to suggest that replacing the extensive features of
 
 Workflows
 ---------
-
-.. _workflow: https://en.wikipedia.org/wiki/Workflow
 
 Quite a lot of our activities orchestrating processes are poorly coded
 workflow_\ s.  Poorly coded in the sense that whilst they start at the
@@ -345,8 +321,6 @@ resume?
 
 BPM
 ^^^
-.. _`Business Process Management`: https://en.wikipedia.org/wiki/Business_process_management
-
 That opens up the world of `Business Process Management`_ (and all of
 its horrors).
 

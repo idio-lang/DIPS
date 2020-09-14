@@ -243,8 +243,6 @@ more like a `Turing machine`_ which will process our instructions.
 Almost every language these days uses a virtual machine, a proper
 advance from evaluation/interpretation.
 
-.. _`Turing machine`: https://en.wikipedia.org/wiki/Turing_machine
-
 :ref-title:`SICP` uses :lname:`Scheme` as its core implementation
 language -- much like we will use :lname:`C` -- and the metacircular
 evaluator operates on a Scheme-ish language which can become a bit

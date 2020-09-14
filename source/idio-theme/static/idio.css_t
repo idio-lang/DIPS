@@ -113,7 +113,7 @@ code {
     font-style: italic;
 }
 
-.question {
+.socrates {
     font-style: italic;
 }
 

@@ -34,7 +34,8 @@ release = '0.0'
 extensions = [
     'sphinx.ext.todo',
     'sphinxcontrib.bibtex',
-    'aside'
+    'aside',
+    'idio_lexer'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -46,6 +47,8 @@ templates_path = ['_templates']
 exclude_patterns = []
 
 todo_include_todos = True
+
+import idio_lexer
 
 # -- Options for HTML output -------------------------------------------------
 

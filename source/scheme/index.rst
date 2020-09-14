@@ -9,4 +9,3 @@ Scheme
 
    scheme-basics
    advanced-scheme
-   scheme-review

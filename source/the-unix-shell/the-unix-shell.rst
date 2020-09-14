@@ -5,7 +5,7 @@
 A Review of Shell Features
 **************************
 
-:question:`What's to like about the shell?`
+:socrates:`What's to like about the shell?`
 
 Now, just to be clear, we're not asking if the ability to join two
 commands together in a pipeline is something to be admired -- I like
@@ -36,8 +36,6 @@ grep foo``, casually.  It's more complicated with function calls:
 
 They look less straightforward and elegant and instead clumsy and
 forced.  We can't see the wood for the trees.
-
-.. _ANTLR: https://www.antlr.org/
 
 Before we casually toss the problem of inline operators at
 :program:`yacc`/:program:`bison` or go for it with ANTLR_ we need to
@@ -349,7 +347,7 @@ changing the current shell's ``PATH``:
  PATH=/somewhere/else:$PATH
 
 is a side-effect of the *absence* of a command rather than an explicit
-shell-modifying statement in its own right.  :question:`Who knew?`
+shell-modifying statement in its own right.  :socrates:`Who knew?`
 (The guy that wrote the man page did, for a start.)
 
 Redirections
@@ -1076,8 +1074,6 @@ and we probably wanted:
 
  ls "My Documents"
 
-.. _`Little Bobby Tables`: https://xkcd.com/327/
-
 There is no general solution to unexpected whitespace, newlines,
 etc. introduced by command expansion!  The worst of which will be a
 shell-ish `Little Bobby Tables`_
@@ -1316,8 +1312,6 @@ shell has been looking for *meta-characters*, in particular, ``*``,
 some more matching operators (some of which are available by default
 in other shells).
 
-.. _Globbing: https://en.wikipedia.org/wiki/Glob_(programming)
-
 When it identifies a meta-character in a word then the whole word is
 treated as a pattern and filename :ref:`pattern matching`, aka
 *globbing*, begins.  Globbing_ began life at the very beginning of
@@ -1369,8 +1363,6 @@ An obvious one is that ``ls *`` will not report any *dot files*
 (unless you explicitly match the leading dot with ``.*``, or the
 ``dotglob`` shell option is set and even then you must match ``.`` and
 ``..`` explicitly).
-
-.. _standards: https://xkcd.com/927/
 
 Luckily for us, someone has written :manpage:`glob(3)` and we can
 claim uniformity with "everyone else" (noting that many others will be
@@ -1582,8 +1574,6 @@ a job.
 Note that the pipeline/job you just stopped is still stopped.  In most
 shells you can immediately ``bg`` the pipeline/job to let it carry on
 processing.
-
-.. _`online Job Control`: https://www.gnu.org/software/libc/manual/html_node/Job-Control.html#Job-Control
 
 Foregrounding and backgrounding involves careful manipulation of
 process groups, signals and the state of the controlling terminal.

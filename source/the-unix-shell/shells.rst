@@ -154,8 +154,6 @@ functionality (termio?) used to note that figuring out the terminal is
 probably the hardest thing a user had to do which was unfortunate
 because it was one of the first things a user had to do.
 
-.. _`Zsh and Fish’s simple but clever trick for highlighting missing linefeeds`: https://www.vidarholen.net/contents/blog/?p=878
-
 The guys who are making the use interaction more pleasant are still
 discovering bugs in decades-old terminal drivers behaving badly
 requiring all sorts of artistic solutions -- look at `Zsh and Fish’s

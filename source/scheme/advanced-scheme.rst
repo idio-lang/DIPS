@@ -1,4 +1,4 @@
-.. include:: global.rst
+.. include:: ../global.rst
 
 ***************
 Advanced Scheme
@@ -92,10 +92,10 @@ and we haven't made the arguments complicated expressions at all!
 
 But that *is* what it is saying and so the function value, created on
 the hoof, is applied to the arguments and we get a result.
-(Hopefully, 3!).
+(Hopefully, 3!)
 
-Where does this errant nonsense with on-the-fly function values get
-us?
+:socrates:`Where does this errant nonsense with on-the-fly function
+values get us?`
 
 ``let``, of course!  (The clue was in the heading...)
 
@@ -125,7 +125,7 @@ so we can easily transform the ``let``:
        (*formal2* *arg2*))
   *body+*)
 
-firstly, partly into a function definition:
+in the first case into a function definition:
 
 .. parsed-literal::
 
@@ -195,7 +195,7 @@ gets transformed into:
 		body+))
   (foo e1 e2))
 
-:question:`Eh?  What's happened there and what's that doing?`
+:socrates:`Eh?  What's happened there and what's that doing?`
 
 Look carefully.  We've done a similar trick with the bindings.
 Firstly, the symbols have become the formal arguments again but,
@@ -281,7 +281,7 @@ Macros
 
   Thar be Dragons!
 
-  --- everyone
+  --- *everyone*
 
 A macro, which is ostensibly a regular function, is created using a
 function that tags your function's name as a macro.  This tagging
@@ -399,7 +399,7 @@ remain quoted. Evaluating ``a`` results in the number value *1* hence
 the result of the quasiquote expression is ``(1 2 3)``.
 
 Like ``quote``, ``quasiquote``’s result will **not** be evaluated.
-:question:`Eh?  Isn't that the point?` Not quite.  What we want to do
+:socrates:`Eh?  Isn't that the point?` Not quite.  What we want to do
 is return what the user might have typed, the :lname:`Scheme` engine
 can then choose to evaluate it or not.
 
@@ -497,15 +497,15 @@ Macro Issues
 
 .. sidebox:: Yes, I'm looking at myself.
 
-The primary problems with macros are:
+The three primary problems with macros are:
 
-- you forget its arguments are not evaluated -- so you can't pass a
-  variable you've calculated
+#. you forget its arguments are not evaluated -- so you can't *pass a
+   variable* you've calculated
 
-- you forget it is run at compile time -- your variable wouldn't exist
-  anyway
+#. you forget it is run at compile time -- your variable *doesn't
+   exist* anyway
 
-- you're a dirty hacker
+#. you're a dirty hacker
 
 The latter point (probably well made) is about *hygiene*.  If your
 macro is off generating code then you're likely as not going to be
@@ -647,7 +647,7 @@ Let's try a more dynamic variant:
 	      (+ a b n)))))
   (ab+ 5))
 
-:question:`Cripes!  What's happening here?` The inner ``let``'s body
+:socrates:`Cripes!  What's happening here?` The inner ``let``'s body
 is a function constructor (``lambda``) and so the inner ``let`` is
 returning a function *value*.  The function is using ``n``, a formal
 parameter, ``b``, a variable introduced by the inner ``let``, and
@@ -701,6 +701,112 @@ were created in the scope of ``private``).  No-one else has access to
 
 This is about as complicated as it gets!  (Well, when I say that...)
 
+Ports
+=====
+
+:lname:`Scheme` uses *ports* to describe things that you can read from
+and write to.  The obvious use case is files.
+
+In the pernickety way of :lname:`Scheme` there are separate functions
+to open files for reading and writing: ``open-input-file`` and
+``open-output-file``.  After that you can read, write, check for
+end-of-file, close, "seek", "tell" and so on.  All the usual things.
+
+On top of that :lname:`Scheme` has the notion of the *current* input,
+output and error ports.  Obviously, maybe, those start off being the
+usual *stdin*, *stdout* and *stderr* that we're used to.  However,
+there are common idioms to temporarily switch those noting that many
+functions are well aware that they might be switched and will
+rigorously ask for the *current* input, output or error port.
+
+This little snippet from [S9fES]_ combines several techniques to
+create a function that takes a file name and a :ref:`thunk <thunk>`
+then switches the current input port to the newly opened file, runs
+the thunk, saving its result, closes the file, resets the input port
+and returns the saved result:
+
+.. code-block:: scheme
+
+ (define with-input-from-file
+   (let ((set-input-port! set-input-port!))
+     (lambda (file thunk)
+       (let ((outer-port (current-input-port))
+             (new-port (open-input-file file)))
+         (set-input-port! new-port)
+         (let ((input (thunk)))
+           (close-input-port new-port)
+           (set-input-port! outer-port)
+           input)))))
+
+Most programming languages have the capability to manipulate files in
+a similar fashion.  We're not breaking new ground, here.
+
+.. _`string ports`:
+
+String Ports
+------------
+
+This is a bit more interesting.  Instead of ports meaning an interface
+to files, how about an interface to *strings*?
+
+:socrates:`Eh?`
+
+For an *input* string port you need to be able to:
+
+- *open* one -- that means wrappering an existing string with a port
+  construct to give it the *port* interfaces
+
+- *read* from one -- we can probably get characters from a string,
+  right?  All we have to do is maintain a pointer to we've we read so
+  far in the string.
+
+- check for *EOF* -- are we at the end of the string yet?
+
+- *close* one -- stop using it?
+
+- *seek* and *tell*?  Well those sound like jumping about to different
+  indexes in the string, setting or returning the current pointer into
+  the string.  Can't be that hard.
+
+As it is an *input* port then all write operations should fail on
+principle.
+
+For an *output* string port we need a little more trickery under the
+hood:
+
+- *open* -- requires an output port construct where the underlying
+  string is extensible.
+
+- *write* -- every time we write to the output string port we *extend*
+  the underlying dynamic string.
+
+- check for *EOF* -- is that meaningful?
+
+- *close* -- stop using it?  Maybe set a flag.
+
+- *seek* and *tell*?  Well those sound like jumping about to different
+  indexes in the string -- so we should have been maintaining a
+  current pointer into the string like above.  Can't be that hard.
+
+As it an *output* port then all read operations are invalid.  However,
+unlike files, where we have an (externally) examinable result -- one
+we can call ``open-input-file`` on, if nothing else -- this output
+string port is hiding the underlying string in memory.  We must be
+able to retrieve our carefully crafted musings, hence,
+``get-output-string`` which returns the (underlying) string from the
+string port.
+
+Maybe, at this point, string ports seem a little quixotic but, if
+nothing else, you can recognise that if all kinds of ports are
+maintaining the same interfaces then they should be interchangeable.
+Where, previously, you might have been writing to a temporary file,
+you can now be writing to a temporary string and you wouldn't know.
+*Whoa!*
+
+To be fair, that does rely on the code doing the writing to be
+scrupulously honest and ask for the current output port if it is going
+to write anything.  Which is why (most) :lname:`Scheme` functions do.
+
 Error Handling
 ==============
 
@@ -734,8 +840,9 @@ you don't really know, and probably don't care, quite what
 ``risky_command`` was doing when it ``raise``\ ed the exception.  What
 you do know is that, however deep into its evaluation stack it has
 gone (think: how deeply nested the function calls in the ``risky``
-library got), the evaluation stack is truncated back to here, we call
-``print`` and more on with our lives.
+library got), the evaluation stack is truncated back to here -- all
+those function calls from ``risky_command`` through to the failure are
+discarded, we call ``print`` and more on with our lives.
 
 :lname:`Lisp`\ s don't go in for that, rather, the condition handler
 is run *instead of* the failed function (that raised the condition).
@@ -749,11 +856,15 @@ continuations.
 Continuations
 =============
 
+.. epigraph:: Timey-wimey stuff.
+
+	      -- The Doctor
+
 Continuations are the greatest idea in computing... that you've never
 heard of -- despite using continuations all day every day!
 
 They are also, possibly, the last thing you should be allowed to
-touch.  So, let's dive in!
+touch.  So, noting we are curious but not cats, let's dive in!
 
 I think I have an example that explains the idea of a continuation to
 a non-continuation audience -- if not, it's going to be tricky.
@@ -788,13 +899,13 @@ This is now looking like a little chain of sub-expressions where each
 sub-expression generates a (single!) value ready for the next
 sub-expression to use in turn.  Form the perspective of the ``b * c``
 sub-expression, it will calculate its value then *continue* (aha!)
-onto ``a + []``.  ``a + []`` is described as being the continuation of
-``b * c``.
+onto ``a + []``, therefore ``a + []`` is described as being the
+continuation of ``b * c``.
 
 ``a + []``, in turn will calculate its value and continue onto ``int i
 = []``.  ``int i = []`` is ``a + []``'s continuation.
 
-:question:`You said four continuations?` Yes.  The continuation of the
+:socrates:`You said four continuations?` Yes.  The continuation of the
 line *before* ``b * c`` has a continuation too: it is ``b * c`` except
 ``b * c`` chooses not to do anything with the value provided by the
 line before.
@@ -822,14 +933,12 @@ Again, exactly the same thing is happening, ``b * c`` is now encoded
 in ``k_l()`` and ignores the parameter, ``v``.  It calls ``k_m()``
 with its calculated value.
 
-``a + []`` is now ``k_m()``, it does use the parameter ``v`` and call
+``a + []`` is now ``k_m()``, it does use the parameter ``v`` and calls
 ``k_n()`` with the result.
 
 ``int i = []`` is now ``k_n()``, assigns the parameter ``v`` to ``i``
 and (assuming you've figured out what the result of an assignment is)
 passes its result to ``k_o()`` and the chain continues.
-
-.. _`continuation-passing style`: https://en.wikipedia.org/wiki/Continuation-passing_style
 
 There's a variation called `continuation-passing style`_ (CPS) which
 might look a bit like:
@@ -844,12 +953,13 @@ might look a bit like:
 
 where the continuation that you should pass your result to is passed
 to you and you have to tell your continuation whom to call in turn.
-That's looks "difficult" but it turns out to be easier than you think.
+That's looks "difficult" to create but it turns out to be easier than
+you think.
 
 .. sidebox:: At one point I went through the process of transforming
              my :lname:`C` implementation of :ref-author:`Bill Hails`'
              :lname:`Perl` interpreter and transformed it into a CPS
-             version.
+             version.  *Phew!*
 
 	     You don't want to do that *too* often.
 
@@ -862,10 +972,12 @@ Which is *exactly* what you are in!
 Of course, you can't *be* in a never ending chain of callbacks because
 your program will clearly(?) be in a tight loop.  At the end of the
 chain is a NULL pointer (or some other sentinel value) which tells you
-to stop!
+to stop.
+
+(How you start and how you stop are another matter.)
 
 In order to generate the chain, the way I like to think about it is
-you start will your end-of-chain sentinel value.  Each splodge of code
+you start with your end-of-chain sentinel value.  Each splodge of code
 you add is like a balloon inflating between where you are now and the
 sentinel, with the new code scribbled over the (arbitrarily expandable)
 surface.  For the next bit of code you again squeeze it in before the
@@ -873,9 +985,13 @@ sentinel but with the addition that the last code balloon no longer
 points at the sentinel as its continuation but now points at the start
 of the new balloon.
 
+When you're done processing the source code you can call the first of
+your balloons with some dummy value and the chain kicks off and will
+trundle through, function calling function calling function.
+
 OK, back on course.  So now we have a seemingly pointless rewrite of
 our code into the tiniest sub-expressions each of which are doomed to
-call the next sub-expression.  :question:`What have we achieved?` To
+call the next sub-expression.  :socrates:`What have we achieved?` To
 be honest?  Not much.
 
 However, and this is the trick.  These continuation functions, taking
@@ -896,32 +1012,32 @@ continuing with 37.
 Apart from that immediately previous calculation everything else is
 the same.  The code still accesses the same lexical and global
 variables, will call the same functions in due course, it's all
-hard-coded into the program.  It has the same *state* every time you
-(re-)call it.  *Meh!* Except not *quite* the same state if you have
-modified one of those variables in the meanwhile.
+hard-coded into the program.  It has the same prior *state* every time
+you (re-)call it.  *Meh!* Except not *quite* the same state if you
+have modified one of those variables in the meanwhile.
 
 .. sidebox:: I can understand if you don't quite *grok* this.  It
              takes a while.
 
 *Whoa!* That's a bit weird.  So weird, in fact, that most languages
-don't give you access to them.  Although, to be honest, it's because
-they can (and probably will) create *causal* havoc.
+don't give you access to them.  Although, to be honest, it's more
+likely because they can (and probably will) create *causal* havoc.
 
 Once you've got a continuation (function) you can keep calling it.
 *Wooo!*  Although that will get boring after a while.
 
-.. _generators: https://en.wikipedia.org/wiki/Generator_(computer_programming)
-
 Except when it's really cool.  Think about generators_ where you want
-to go back and ask for the next value from a loop.  Those require that
-the generating function stop processing and yield a value and then
-when you next call it the generator continues (hint, hint) from where
-it left off.
+to go back and ask for the next value from a sequence without having
+to have pre-created all values in advance.  Those require that the
+generating function stop processing and yield a value and then when
+you next call it the generator continues (hint, hint) from where it
+left off.
 
 The greater use of continuations is not, however, repeatedly calling
 the same thing but rather for being able to jump to another point in
-the program -- indeed, continuations have been called *programmatic
-gotos* with all the baggage that that incurs.
+the program -- usually a local point but not always.  Indeed,
+continuations have been called *programmatic gotos* with all the
+baggage that goto incurs.
 
 Jumping to another point in the code sounds awful but talk to me again
 about:
@@ -931,18 +1047,27 @@ about:
 - ``next``/``last`` or ``break``/``continue`` in ``while`` and ``for``
   loops
 
-- ``try``/``except``
+- ``try``/``except`` -- remember the ``risky_command`` example where
+  all that stack of functions calls was discarded?  How did that
+  happen?  Hint: non-local goto.
 
 where you mess about with the natural control flow of the code?  Of
 course, you might be so attuned to something like ``return`` that it
 has never occurred to you that you are prematurely jumping out of the
-flow of the code.  But they're only jumping about in the
-loop/function?  Sure, but they're still jumping about.
+flow of the code.  But ``return`` and ``next``/``last`` are only
+jumping about in the loop/function?  Sure, but they're still jumping
+about, something has to make that happen.
+
+What we're saying here with continuations is that that ability to
+decide on some kind of control flow jump is no longer the preserve of
+the language implementers (granting you ``return`` out of the decency
+of their hearts) but instead is exposed to the user for them to create
+their own.
 
 In fact, continuations are capable of creating *any* control flow
 structure.  *Any*.
 
-:question:`OK, it sounds like a dangerous free-for-all, there must be
+:socrates:`OK, it sounds like a dangerous free-for-all, there must be
 some constraints?` Yes, thankfully, you have to be able to get hold of
 a continuation (function).
 
@@ -952,9 +1077,10 @@ call/cc
 You can't get any old continuation -- that would be madness (though
 there's probably some programming languages where you can).  In
 :lname:`Scheme` you have to have passed *through* the continuation you
-want to capture.  On top of that it is caught with a slightly
+want to capture -- that clearly places a severe limitation on being
+able to jump about.  On top of that it is caught with a slightly
 confusing function, ``call-with-current-continuation`` or ``call/cc``
-(to everyone's relief).
+(a relief to everyone's keyboard, if nothing else).
 
 ``call/cc`` does exactly what it says on the tin.  It figures out *its
 own* continuation and passes that to the function you supplied.  It
@@ -968,7 +1094,7 @@ function returns.  Confusing, eh?
 Actually, that's even more annoying than at first blush.  What on
 earth can I do with a continuation if it is just a parameter in a
 function?  That's the least of your worries.  Your first problem is
-which continuation are you capturing?
+*which* continuation are you capturing?
 
 Remember our snippet of :lname:`C` where we had four continuations,
 albeit just the two in our single line of code?
@@ -1013,26 +1139,26 @@ Let's see if we can visualise that:
  ...
 
 I've got a unary function (one-argument!), ``func``, whose body is the
-calculation ``b * c`` so that's the value the function should return.
+calculation ``b * c`` so that's the value ``func`` should return.
 
-We've also slipped in ``call/cc`` into the sub-expression stream in
-place of ``b * c`` so that ``call/cc``'s continuation is ``k_m()``.
+We've also slipped in ``call/cc`` into the sub-expression stream *in
+place of* ``b * c`` so that ``call/cc``'s continuation is
+``k_m()``/``a + []``.
 
 ``call/cc`` should now call ``func`` with the argument ``k_m()``.
 ``func`` will calculate ``b * c`` and return it to ``call/cc`` which
-will return it in, uh, turn to... ``k_m()``.
+will return it in turn to... ``k_m()``.
 
-Yay!  :question:`Yay?  Have we done anything there?` Hmm, fortunately,
-no.  But that's the idea, we've managed to slip in some continuation
-capturing code and we haven't changed a thing.  Definitely as big
-*wooo!* there, believe you me!
+Yay! ... :socrates:`Yay?  Have we done anything there?` Hmm,
+fortunately, no.  But that's the idea, we've managed to slip in some
+continuation capturing code and we haven't changed a thing.
+Definitely a big *wooo!* there, believe you me!
 
-:question:`But I thought we were going to capture` ``k_m()``
-:question:`?`.  Well, technically we did, in ``func`` except
-we didn't do anything with it.
+:socrates:`But I thought we were going to capture` ``k_m()`` `?` Well,
+technically we did, in ``func``, except we didn't do anything with it.
 
 It's not like we can do anything useful with it *in* ``func`` either.
-Imagine if you called ``k`` in ``func``?
+Imagine if you called ``k`` in ``func``:
 
 .. parsed-literal:: 
 
@@ -1047,7 +1173,7 @@ Imagine if you called ``k`` in ``func``?
 Cool!  You will immediately *goto* ``k_m()`` with the value 37.  Not
 only that, you will only *ever* call ``k_m(37)`` because continuations
 are *control flow* operators.  It happens right there, right now.
-``b * c`` is never going to be called.
+``b * c`` is *never* going to be called.
 
 The only *useful* thing you can do with a continuation inside the
 function supplied to ``call/cc`` is save it in a variable with wider
@@ -1077,8 +1203,10 @@ the real code?
 
 Sweet!
 
-Naturally, Schemers don't like named functions -- no need when you can
-throw in a ``lambda`` expression and get those parentheses going!
+Naturally, Schemers don't like named functions because it's a one-use
+function and we don't need to clutter the namespace -- and no need
+when you can throw in a ``lambda`` expression and get those
+parentheses going!
 
 .. code-block:: scheme
 
@@ -1102,8 +1230,52 @@ return many times..." need some careful thought.
 I might have mentioned there are "issues" with poorly chosen
 continuations.
 
-C
--
+Corner Cases
+^^^^^^^^^^^^
+
+Choosing to capture a continuation in the middle of a sequence isn't
+quite fair.  What about our two "hidden" continuations, the one for
+the line before and the one for the line after?
+
+The line before's continuation is quite easy.  We know -- because
+we're looking at the code -- that ``b * c`` doesn't use the value
+passed from the previous expression so if we want to capture this
+continuation then we can simply insert a dummy ``call/cc`` before our
+line.  Dummy in the sense that its only job is to capture the
+continuation but not provide any useful calculation.  In fact, it
+*will* produce a result, what ever the result of the act of saving
+``k`` is (you *have* figured out the result of assignment, right?):
+
+.. code-block:: scheme
+
+ (call/cc (lambda (k)
+	   ...save k...))
+ (set! i (a + (b * c)))
+
+``k``, if invoked with any argument, will then start processing ``b *
+c`` (which will ignore the value passed) and we continue cleanly.
+
+The line after's continuation is more of a mixed bag.  From looking at
+the code we might determine that the next statement does nothing with
+the value from the previous statement in which case we can insert a
+similar dummy ``call/cc`` or we realise that our ``(set! i (a + (b *
+c))`` statement is in the middle of something else which is reliant on
+the result in which case we need to wrapper the whole ``set!`` form in
+``call/cc``:
+
+.. code-block:: scheme
+
+ (call/cc (lambda (k)
+	   ...save k...
+	   (set! i (a + (b * c)))))
+ 
+where the value returned by ``call/cc`` (the value returned by
+``set!``) is passed to whomever wants it.  ``k``, now, is in the
+position of giving whomever a different value than whatever you've
+spent all that time figuring out what the result of an assignment is.
+
+Continuations in C
+------------------
 
 Naturally, these abstract computer science notions are too high brow
 for :lname:`C`.  Until you realise that :lname:`C` has had the same
@@ -1111,8 +1283,9 @@ tools since forever in :manpage:`setjmp(3)` and :manpage:`longjmp(3)`
 and their signal-safe cousins :manpage:`sigsetjmp(3)` and
 :manpage:`siglongjmp(3)` (probably all on the same man page!).
 
-Indeed, there's a reasonable likelihood that continuations are
-implemented using :lname:`C`'s ``sigsetjmp``/``siglongjmp``.
+Indeed, there's a reasonable likelihood that :lname:`Scheme`'s
+continuations are implemented using :lname:`C`'s
+``sigsetjmp``/``siglongjmp``.
 
 The Linux man page notes:
 
@@ -1121,10 +1294,41 @@ The Linux man page notes:
 
 Wise words.
 
+Compound Data Types
+===================
+
+There is a tendency for these to be implementation-specific but
+broadly you can use the usual compound data types of strings, arrays
+(or vectors), hash tables and structures.
+
+Strings, perhaps unusually for :lname:`Scheme`, allow you to modify
+them (*poor form!*).  I guess this is a commonly expected
+functionality.  ``string-ref`` and ``string-set!`` are accessors.
+
+Arrays and hash tables work much as you would expect with the element
+accessor functions following a similar style:
+``array-ref``/``array-set!`` and ``hash-ref``/``hash-set!``.
+
+Structures
+----------
+
+Various :lname:`Scheme` implementation introduce the idea of *records*
+(and normalised the interfaces in various SRFIs).  It is very much
+like the suggestions been given previously for creating classes in
+that a structure has a type, defining its name and fields (and
+parent!) and then instances of that structure can be created and
+passed around.
+
+In fact that's sounding a bit like how condition types are built.  I
+wonder if there's a connection?
+
+Accessor functions for the fields are created when the record is
+created giving you same style of names as above: commonly
+``name-field1`` (omitting the ``-ref``) and ``name-field1-set!`` and
+the like.
+
 Object Orientation
 ==================
-
-.. _Smalltalk: https://en.wikipedia.org/wiki/Smalltalk
 
 Object-oriented programming is often bound tightly to the concept of
 message passing.  In the original :strike:`Klingon` Smalltalk_:
@@ -1148,6 +1352,11 @@ might think that should be:
 
  (message object arguments)
 
+although we've only just said we can call ``k(37)`` where ``k`` is a
+continuation not a "real" function.  Quite what *is* allowed to be in
+functional position in a :lname:`Scheme` form is becoming a little
+greyer.
+
 :ref-title:`EPLAiP` (:cite:`EPLA`) p.135, implements the former (in
 *Perl*) in a straight-forward manner.  If the evaluated value in
 functional position is an object then the first argument is assumed to
@@ -1157,12 +1366,13 @@ then applied to the arguments with the object itself bound to the
 variable ``this`` (cf. ``self``) for the duration of the method.
 
 On the whole, though, that's not very :lname:`Scheme`-ly which prefers
-functions in functional position.  There's a second argument in favour
-of not using the message passing idiom in that if there are multiple
-objects within the arguments then only the *first* argument can be
-used to distinguish the call.  For example, if we wanted to add two
-numbers together where we might have a class hierarchy of ``Integer``
-is a ``Real`` is a ``Number``, then:
+functions in functional position.
+
+There's a second argument in favour of not using the message passing
+idiom in that if there are multiple objects within the arguments then
+only the *first* argument can be used to distinguish the call.  For
+example, if we wanted to add two numbers together where we might have
+a class hierarchy of ``Integer`` is a ``Real`` is a ``Number``, then:
 
 .. code-block:: scheme
 
@@ -1188,7 +1398,8 @@ class of ``Number2`` to really determine what to do:
        (add-real n1 n2)
        (make-Integer (+ (Integer-value n1) (Integer-value n2)))))
 
-For *multiple dispatch* we need *generic functions*.
+For *multiple dispatch* we need :ref:`generic functions <generic
+functions>`.
 
 :ref-title:`LiSP` (:cite:`LiSP`) p.87 introduces a basic object system
 will allow us to define a class:
@@ -1221,6 +1432,8 @@ field mutators:
 .. parsed-literal:: 
 
  (*classname*? *obj*)
+
+.. _`generic functions`:
 
 Generic Functions
 -----------------
@@ -1255,6 +1468,10 @@ argument!).  That is done by making it a list (of itself):
 
 Here, we've made the second argument, ``arg2``, the distinguishing
 one.
+
+Remember, ``define-generic`` is a syntax transformer so its arguments
+are passed to it direct.  There is no danger of ``(arg2)`` being
+evaluated.  Not by the :lname:`Scheme` engine, anyway.
 
 A generic method (ie. a class-specific method) is introduced with:
 
