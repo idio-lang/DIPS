@@ -197,6 +197,10 @@ have world class implementations and at worst we suffer from our own
 incompetence and misunderstanding and the codebase becomes a festering
 pit of despair -- and they say there's a price to pay for everything.
 
+With this downside in mind we ought to ensure that the codebase is
+modular enough that we could swap out subsystem implementations.  I
+suspect that that might be "hard" but hopefully not impossible.
+
 .. rst-class:: center
 
 ---
@@ -232,9 +236,9 @@ to discuss the transformation of your evaluator (your *interpreter*)
 into a language suitable for a traditional computer, a *register
 machine*.  This isn't any real world computer but rather a
 hypothetical machine whose assembly code is suited to your language.
-It has a program counter and registers for shuffling data to and from
-"memory" like real world computers but the units of operation are more
-abstract.
+It has a program counter and registers for shuffling transient data to
+and from "memory" like real world computers but the units of operation
+are more abstract.
 
 This is the start of the rabbit hole for *Virtual Machines* in a
 programming language sense -- we're not talking about virtual machines
@@ -262,7 +266,7 @@ things, is the one that finally made continuations click for me.
 
 So thoroughly influenced, not only did I go through building all his
 increasing-levels-of-complexity interpreters in :lname:`Perl` I
-actually went back and did them all again in :lname:`C`!  Madness!
+actually went back and did them all again in :lname:`C`!  *Madness!*
 
 And great fun!  I felt I was getting somewhere.  :ref-title:`EPLAiP`
 is (obviously?) using :lname:`Perl` as its core implementation
@@ -285,7 +289,11 @@ of evaluators/compilers I presumably mean a later one) directly.
 
 However, :lname:`Idio` is derived from :ref-title:`LiSP` by the simple
 expedient of me figuring out what I needed to do to bootstrap enough
-framework to get going.
+framework to get going.  That's an interesting point to reflect on,
+there are several subsystems where there is a degree of mutual
+reliance, the final version of the one can't exist without the final
+version of the other.  We have neither when we start and will have to
+bodge our way through.
 
 At some point, though, I decided I'd had enough implementing something
 to interpret/compile a dialect of :lname:`Scheme` and it was time to
@@ -295,16 +303,15 @@ Scheme-ish language into something that did what I want.
 I made a mistake at this point, though.  I didn't put the
 :lname:`Scheme` code to one side and introduce some parallel
 interpreter/compiler, I just hacked the :lname:`Scheme` engine to
-bits.  Very satisfying but on reflection a bit stupid.  It turns out
-that :lname:`Idio` is, on reflection, *this close* (put your thumb and
-forefinger up close to your eye and them squeeze them together) to
-:lname:`Scheme` and :lname:`Scheme` has had a lot of software written
-for it.  So I've found myself porting software written for
-:lname:`Scheme` and, more or less, changing the syntax and a few
-structural elements.  It's not a case of thinking that this is
-something that could be automated it's the realisation that I could
-have simply left the :lname:`Scheme` engine in there and just read it
-in direct.
+bits.  Very satisfying but in hindsight a bit unwise.  It turns out
+that :lname:`Idio` is *this close* (put your thumb and forefinger up
+close to your eye and then squeeze them together) to :lname:`Scheme`
+and :lname:`Scheme` has had a lot of software written for it.  So I've
+found myself porting software written for :lname:`Scheme` and, more or
+less, changing the syntax and a few structural elements.  It's not a
+case of thinking that this is something that could be automated it's
+the realisation that I could have simply left the :lname:`Scheme`
+engine in there and just read it in direct.
 
 What a waste.  So if there's one lesson you can learn...
 
@@ -312,59 +319,245 @@ What a waste.  So if there's one lesson you can learn...
 
 ---
 
-.. todo:: Influential Languages
+There are a lot of programming languages out there.  There are a lot
+of variations of the same kinds of languages out there.  There are a
+lot of implementations of the *exact same language* out there --
+compounded by any number of revisions of that language.
+
+Which is these, if any, are influential to us as language designers
+and implementers?  Good question.
+
+In principle *all* languages should be influencing us as designers,
+however, I'm not a programming language polyglot (nor likely to be)
+so, whilst the core feature of my language wants to be the process
+orchestration abstractions of the shell, the programming language side
+of things comes from what I'm aware of, the :lname:`Perl`\ s,
+:lname:`Python`\ s and :lname:`Lisp`\ s of the world.  (Not much to go
+on, eh?  Let's hope it doesn't show!)
+
+That said there are ever useful resources like `Hacker News`_ to keep
+us in touch with people doing work with programming languages, shells,
+JITs, secure coding, cryptography, etc. before you even start on the
+general technology-oriented news.
+
+From there you can pick up information on nascent and little
+programming languages and eventually discover resources keeping track
+of these things like the `Fledgling Languages List`_.  You can
+discover people playing with programming ideas, implementation
+techniques and be able to drill through to underlying academic papers.
+
+One guiding property of any language that is going to be influential
+to us (me?) as an implementer is that you have the time and space to
+*grok* it.  What is it trying to do and, critically, how is it trying
+to do it?  That is drawing us, inevitably, towards the smaller more
+... *consumable* ... languages (or variants of languages).
+
+I can see that over time I've downloaded and looked at (and variously
+forgotten the details of) in no particular order:
+
+* well-known languages:
+
+  * Tcl_ in actual Toolkit Command Language mode as well as Expect mode.
+
+  * Lua_ which is regularly appearing as an in-game programming language
+
+* less well-known languages:
+
+  * Qish_ playing with threading and garbage collectors
+
+  * Solid_ minimalist interpreted language, with a clean object model and a tiny VM
+
+  * Potion_ an object- and mixin-oriented (traits) language
+
+  * Maru_ a symbolic expression evaluator that can compile its own implementation language
+
+  * io_ a programming language focused on expressiveness through simplicity
+
+* :lname:`Scheme` implementations
+
+  * Stklos_ better known for its connection to the `GTK\+`_ toolkit it
+    uses a virtual machine, :term:`CLOS`, PCRE_ and more
+
+  * GNU_'s Guile_
+
+  * :ref-author:`Alex Shinn`'s Chibi_ Scheme
+
+  * :ref-author:`Nils M Holm`'s S9fES_ (Scheme 9 from Empty Space)
+
+I have been unduly influenced by :ref-author:`Nils M Holm`'s
+:ref-title:`S9fES`, in particular the September 2009 variant I
+downloaded as it had an implementation of *bignums*.
+
+For some reason I had become fixated on bignums_ and wanted to
+understand the science (so advanced it was indistinguishable from
+magic) that made it happen.  So many other implementations deferred to
+the GMP_ (GNU Multi Precision Arithmetic Library) and GMP itself is
+2100 files and 435k lines of code -- I don't want to wade through
+that!
+
+The implementation of bignums is, of course, simply long-hand
+arithmetic and, in the S9fES case, using a form of range-limited
+integers to catch and handle carry bits.
+
+Of course, by the time I'd figured out the implementation I'd been
+poking about in S9fES for a while and, whilst none of the underlying
+:lname:`C` is copied (the bignums implementation being ported), there
+is a certain amount of the :lname:`Scheme` code that has been copied
+largely because there is a reasonable test script which meant taking
+the :lname:`Scheme` functions supporting trigonometric functions with
+it.
+
+That's not great.  Not because the code is poor, or anything, but
+because I've taken it verbatim.  I can't claim to be able to describe
+its working and certainly not well enough to be able to re-implement
+it in a clean room.  The tests I can replace with code-coverage
+results (and am, slowly) plus whatever boundary conditions I can think
+of.  The trigonometric algorithms remain a mystery.  I can't do the
+maths.
    
 .. rst-class:: center
 
 ---
 
-.. todo:: Audience
+Who should be reading this opus?  This isn't a pedagogical text but a
+faintly organized brain dump so I guess the audience is someone like
+me: written a bit of code, done a bit of stuff but, most importantly,
+*interested* in how things work.
+
+Interested enough to want to try something of their own but, like I
+was, at a bit of a loss as to how to begin.  You might not like where
+I'm going or what I've done but it might help you scribble the first
+line on the blank sheet of paper.
    
 .. rst-class:: center
 
 ---
 
-.. todo:: Requirements
-   
+.. rst-class:: paragraph-header
+
+Software
+
+I've implemented :lname:`Idio` in :lname:`C` -- and using C99_ in
+particular -- as, if nothing else, it's a programming language I'm
+familiar with although by no means an expert.
+
+I could have written :lname:`Idio` in :lname:`Go` or :lname:`Rust` (or
+:lname:`D` or ...) but that would mean:
+
+#. I have to learn a new language -- wait... I'm learning a new
+   language in order that I can design and implement my own?
+
+#. everyone looking at the implementation has to learn the language
+   *and* the nuances of this other language *and* figure out if I've
+   written something brilliant or am just getting away with it.  All
+   of us doing that in a new language.  Doesn't seem... right.
+
+#. everyone has to be able to *get hold of* this other language
+
+I would like my language to be reasonably portable and from my
+background I'm fairly certain most systems I've used have a :lname:`C`
+compiler.  Your current system may have a packaging system that let's
+you download a ready-to-roll ``$LANGUAGE`` implementation but not
+everybody does.
+
+The downside of this is that we're writing everything in :lname:`C`
+with all its attendant issues with memory management and pointer
+mangling and everything else that people throw in the face of
+:lname:`C`.  OK, sure.  Let's just write safe, secure code.  It can't
+be that hard...
+
+.. rst-class:: paragraph-header
+
+Hardware and Operating Systems
+
+I'm limited to the physical kit I can get my hands on: various x86
+systems and (the ubiquitous Raspberry Pi?) ARM systems and to what
+virtual machines I can convince to run on either.  That gives me a
+reasonable pool of operating systems with enough variance to keep my
+:lname:`C` porting honest.
+
+One question arises, *how* broad should that pool be?  I've wrestled a
+little with how much effort should I put into *old* operating systems.
+I might be able to get hold of versions of Linux and, say, Solaris,
+from the late 90s but am I looking for usable completeness or
+technical completeness?  Does anyone, and this is critical, *who wants
+to run* a new shell actually run one of these old operating systems?
+
+The chances are that if you're still running an Operating System
+released in the 90s then it is critical infrastructure -- otherwise
+you wouldn't still be running it -- and you're not likely to (be
+allowed to) run dodgy new code on it.
+
+That said, there is some technical interest in ensuring that the code
+is portable enough to run on such systems as it was the time of the
+transition from 32- to 64-bit computing and the various LP64_
+variations that came with it.
+
+So I think the goal is to ensure that the shell works on a fleet of
+the latest Operating Systems together with a selection of Others which
+aren't expected to see much action but which force the code to be
+honest.
+
+A broad range without being too specific:
+
+.. csv-table:: Test Systems
+   :header: "ISA", "OS", "bits", "notes"
+
+   "x86-64", "Fedora 32", 64
+   "x86-64", "Ubuntu 18", 64
+   "x86-64", "Debian 10", 64 / 32
+   "x86-64", "CentOS 6", 64 / 32
+   "x86-64", "OpenIndiana Hipster", 64
+   "x86-64", "OpenIndiana a151", 64 / 32
+   "x86-64", "Solaris 10", 32, WIP
+   "x86-64", "FreeBSD 10", 32
+   "x86-64", "Mac OS 10.15.5", 64, 10.15.6 breaks virtualisation software
+   "i386", "Mac OS 10.5.8", 32
+   "ARMv7", "Raspbian 9", 32
+   "x86-64", "Windows 10 via WSL", 64
+
+.. rst-class:: smaller
+
+Noting that several recent Operating System releases have dropped
+32-bit support.
+
+Whenever we see performance statistics for a programming language we
+should be given clues about the host machine, usually the CPU make and
+model.  No computer I've ever owned has matched a single one of these
+but all these things are relative.
+
+A Raspberry Pi (Model 3B+) *is* much closer to a standard unit of
+computing and, being a tichy little thing, also represents, to some
+degree, a *minimal* unit of computing.  If :lname:`Idio` can "perform"
+on a Raspberry Pi then we've nailed it.
+
+:lname:`Idio` does not "perform" on a Raspberry Pi.  Which is
+annoying.  It doesn't "perform" on the latest and greatest CPU I have.
+Which is more disturbing.
+
+More work required.
+
 .. rst-class:: center
 
 ---
 
-.. todo:: Structure
-   
-.. rst-class:: center
+The standout sections of code snippets and console interaction look
+like:
 
----
+.. code-block:: sh
 
-.. todo:: Typography
-   
+ ls -l *.txt
+
+.. sidebox:: There have been several efforts to recreate green screen
+             fonts, like glasstty_, but that's taking old-school
+             authenticity too far.
+
+where, the Internet tells me, the `colours are accurate for green
+screen VDUs`_ together with the usual inline representations for code
+like ``$PATH`` etc..
+
+
+
 Man pages, see :manpage:`man(1)`, are most likely to refer to whatever
 primary development system I happen to be using -- almost certainly a
 Linux variant.  Solaris and BSDs may vary.
-
-
-
-
-
-
-
-:cite:`Cox-IRE`
-      
-
-
-:cite:`syntax-case`
-      
-:cite:`syntactic-abstraction`
-
-:cite:`S9fES`
-
-:cite:`up-vs-c`
-
-
-
-:cite:`me-rt`
-
-:cite:`up-portable`
-
-:cite:`PCL`
-

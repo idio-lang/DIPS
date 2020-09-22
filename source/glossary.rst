@@ -10,6 +10,24 @@ Glossary
 
 	Common Lisp Object System -- see CLOS_.
 
+   concomitant
+
+        My dictionary says:
+
+	    naturally accompanying or associated
+
+	and with our computer science hats on we can suggest that they
+	are *required* to be defined together.
+
+	Of interest, the dictionary's etymology says:
+
+	    early 17th century: from late Latin *concomitant*-
+	    ‘accompanying’, from *concomitari*, from *con*- ‘together
+	    with’ + *comitari*, from Latin *comes* ‘companion’
+
+	So, "me and my mate" rather than, as I thought,
+	co-committed/co-defined.
+
    homoiconicity
 
         `Homoiconicity <https://en.wikipedia.org/wiki/Homoiconicity>`_

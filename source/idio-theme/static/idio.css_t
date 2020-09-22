@@ -21,6 +21,10 @@
     font-weight: bold;
 }
 
+.smaller {
+    font-size: 90%;
+}
+
 body {
     font-family: Verdana, serif;
     font-size: unset;
@@ -115,6 +119,11 @@ code {
 
 .socrates {
     font-style: italic;
+}
+
+.paragraph-header {
+    font-style: italic;
+    font-size: 110%;
 }
 
 .ref-author {

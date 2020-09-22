@@ -1170,9 +1170,9 @@ results in something like:
 
 .. code-block:: bash
 
- diff expected-result /dev/fd/4
+ diff expected-result /dev/fds/M
 
-where ``/dev/fd/4`` is the filename for the file descriptor
+where ``/dev/fds/M`` is the filename for the file descriptor
 representing the output of the pipeline from the invocation of ``cmd
 args``.
 
@@ -1205,7 +1205,7 @@ which will be expanded to something like:
 
  while read line ; do 
      local_var=$(process ${line})
- done < /dev/fd/4
+ done < /dev/fds/M
 
 It's useful functionality for the shell where we can't hold a file
 descriptor open to a sub-process (although see :ref:`co-process

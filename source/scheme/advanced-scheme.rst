@@ -23,10 +23,12 @@ limitations of the :lname:`C` pre-processor are, you have the full
 power of :lname:`Scheme` at your disposal.  Including, of course,
 other macros.
 
-To be fair, raw macros are "a bit tricky" so people have written
-syntax transforming macros for you to use which let you create syntax
-transforming macros.  The idea being to keep people away from the real
-deal when they don't need to be there.
+To be fair, raw macros are "a bit tricky" so people have gone a bit
+meta and written syntax transforming macros for you to use.  These let
+you, in turn, create syntax transforming macros.  It seems a bit
+redundant but the syntax transforming macros limit what you can do
+with the idea being to keep people away from the real deal when they
+don't need to be there.
 
 let
 ---
@@ -109,12 +111,12 @@ Consider a ``let`` statement:
 
 In the ``bindings`` we said each binding was a list containing a
 symbol and an expression, so our symbols are the ``car``\ s of each
-binding, ``a`` and ``b``, and the expressions are the ``cdr``\ s,
+binding, ``a`` and ``b``, and the expressions are the ``cadr``\ s,
 ``1`` and ``(* 2 3)``.
 
 So a syntactic transformation of ``let`` could walk down the list of
 bindings putting the ``car`` of each binding into a list of symbols
-called, say, ``formals``, and the ``cdr`` of each binding into a list
+called, say, ``formals``, and the ``cadr`` of each binding into a list
 of expressions called, say, ``args``.  The ``body+`` forms look like
 they're going to be handled the same way in a ``let`` as in a function
 so we can easily transform the ``let``:
@@ -284,13 +286,14 @@ Macros
   --- *everyone*
 
 A macro, which is ostensibly a regular function, is created using a
-function that tags your function's name as a macro.  This tagging
-function clearly has to have hooks into the backend because, having
-looked out for all the special forms, the :lname:`Scheme` engine will
-check to see if the function name for a form is tagged as a macro and
-if so it does not evaluate the arguments but passes them onto the
-function/macro as is (atoms, lists).  The macro can then poke about
-with its arguments as it sees fit and return some value.
+special form, ``define-macro`` that tags your function's name as a
+macro.  This tagging function clearly has to have hooks into the
+backend because, having looked out for all the special forms, the
+:lname:`Scheme` engine will check to see if the function name for a
+form is tagged as a macro and if so it does not evaluate the arguments
+but passes them onto the function/macro as is (atoms, lists).  The
+macro can then poke about with its arguments as it sees fit and return
+some value.
 
 The trick with macros is that the returned value must be something
 that can be immediately re-evaluated -- so the return value must be an
@@ -426,7 +429,7 @@ is evaluated not simply evaluating a variable:
    `(,(a+ 5) 2 3))
 
 will return ``(7 2 3)`` (assuming we still have the previous
-definitions floating about).
+definition for ``a+`` floating about).
 
 There is another unquoting expression, ``unquote-splicing`` (with a
 reader macro of ``,@``) which expects its argument expression, when
@@ -579,8 +582,7 @@ The macro is expanded thusly:
    (let ((tmp #f))
      (if tmp tmp tmp)))
 
-Yikes!  ``(if tmp tmp tmp)``?  We might just have lost track of which
-``tmp`` we are referring to.
+Yikes!  ``(if tmp tmp tmp)``?  Which ``tmp`` is which?
 
 This problem is solved by using *hygienic* macros -- actually macros
 are still macros but rather the macro writer uses a little code trick
@@ -679,7 +681,7 @@ The critical part of this trick is that *only this function* has
 access to this variable.  There is no other way for anything to use it
 or modify it.  It is completely private.
 
-You can extend this idea to enclosing a series of functions over a
+You can extend this idea to enclosing a suite of functions over a
 common set of variables which the functions co-operatively maintain.
 Clearly you can't return multiple function definitions from a single
 ``let`` but you can play a similar trick to ``letrec``:
@@ -757,8 +759,8 @@ For an *input* string port you need to be able to:
   construct to give it the *port* interfaces
 
 - *read* from one -- we can probably get characters from a string,
-  right?  All we have to do is maintain a pointer to we've we read so
-  far in the string.
+  right?  All we have to do is maintain a pointer to where we've read
+  so far in the string.
 
 - check for *EOF* -- are we at the end of the string yet?
 
@@ -788,11 +790,11 @@ hood:
   indexes in the string -- so we should have been maintaining a
   current pointer into the string like above.  Can't be that hard.
 
-As it an *output* port then all read operations are invalid.  However,
-unlike files, where we have an (externally) examinable result -- one
-we can call ``open-input-file`` on, if nothing else -- this output
-string port is hiding the underlying string in memory.  We must be
-able to retrieve our carefully crafted musings, hence,
+As it is an *output* port then all read operations are invalid.
+However, unlike files, where we have an (externally) examinable result
+-- one we can call ``open-input-file`` on, if nothing else -- this
+output string port is hiding the underlying string in memory.  We must
+be able to retrieve our carefully crafted musings, hence,
 ``get-output-string`` which returns the (underlying) string from the
 string port.
 
@@ -852,6 +854,57 @@ different condition.
 
 Sometimes you do want to truncate processing in which case you need
 continuations.
+
+Nested Handlers
+---------------
+
+Your handler can be buggy (I know, unlikely) in which case who handles
+that?  Whenever a condition handler is installed it sits first in the
+queue, if you like, of handlers to be consulted when a condition is
+raised.
+
+Correspondingly, when a handler is run it is run in the context of the
+next handler out.  In other words, you don't handle your own bugs!
+
+Obviously this cascades back out to some system installed handlers --
+which, you would like to think, are bug-free and can take anything in
+their stride.
+
+Restarts
+--------
+
+In concert with conditions, :lname:`Scheme` supports the idea of
+*restarts*.  The idea is that the flow of the code gathers up a set of
+labelled blocks of code called restarts -- in one sense a bit like
+picking up variables defined in the source that you normally wouldn't
+use.  When a condition is raised the condition handler is at liberty
+to determine the set of restarts collected and make a decision about
+whether to call one of them or not or revert to a higher (outer)
+handler which might have a better view (or a better restart)
+available.
+
+If chosen, control is handed to the restart code block and the program
+continues.  The trick being that, having repaired whatever mess had
+been caused, it continues back into the code that raised the error in
+the first place, this time, hopefully, continuing without error.
+
+Consider a process managing backup files where the number of backup
+files is less important than the amount of disk space they are using.
+Eventually you will fill the disk which requires operator
+intervention.
+
+On the other hand, the "disk full" handler might identify there is a
+"throw out the old" restart which we picked up before entering the
+section to create backup files.  The restart can be called, have the
+old backup files cleared out and then carry on back into the section
+to create backups.
+
+I, like many people, have written plenty of code to pro-actively
+(although often, post-actively) trim the set of backup files but in
+neither case is that code re-active.
+
+Whether that's the right way to approach problem solving is another
+question.
 
 Continuations
 =============
@@ -1003,10 +1056,10 @@ choosing, right?
 Let's take, ``a + []``.  If I had access to ``k_m()`` then I could
 call ``k_m(37)`` and then the program would continue from that point
 onwards -- because everything is chained together and the links in the
-chain cannot be changed -- with ``k_m()`` calculating ``a + 37`` and
+chain cannot be reordered -- with ``k_m()`` calculating ``a + 37`` and
 passing that result onto ``k_n()``.  I have dived into the middle of
 the chain and inserted a value that ignores the (immediately) previous
-calculation?  What happened to ``b * c``?  Don't care, we're
+calculation?  What happened to ``b * c``?  *Pfft!* Don't care, we're
 continuing with 37.
 
 Apart from that immediately previous calculation everything else is
@@ -1060,9 +1113,9 @@ about, something has to make that happen.
 
 What we're saying here with continuations is that that ability to
 decide on some kind of control flow jump is no longer the preserve of
-the language implementers (granting you ``return`` out of the decency
-of their hearts) but instead is exposed to the user for them to create
-their own.
+the language implementers (for example, granting you ``return`` out of
+the decency of their hearts) but instead is exposed to the user for
+them to create their own.
 
 In fact, continuations are capable of creating *any* control flow
 structure.  *Any*.
@@ -1217,15 +1270,32 @@ parentheses going!
   (private-k 37))
 
 Which looks cool (we'll gloss over the ``set!``) but will loop
-forever.  The trouble is, the continuation that we've captured is part
-of the lead up to the call to ``(private-k 37)`` the invocation of
-which means we instantly appear to return from the ``call/cc``
-function with the value 37 and work our way through to the
-``(private-k 37)`` line whereon we instantly appear to return from the
-``call/cc`` function with the value 37 and work our way...
+forever.
+
+The trouble is, the continuation that we've captured is part of the
+lead up to the call to ``(private-k 37)`` the invocation of which
+means we instantly appear to return from the ``call/cc`` function with
+the value 37 and work our way through to the ``(private-k 37)`` line
+whereon we instantly appear to return from the ``call/cc`` function
+with the value 37 and work our way...
 
 Oops.  Continuations, here, with a popular narrative of "call once,
 return many times..." need some careful thought.
+
+Another, annoying/entertaining example, whilst we're befuddling
+ourselves is the innocent capture of the current continuation into a
+top level variable:
+
+.. code-block:: scheme
+
+ (define top-level-k (call/cc (lambda (k)
+			       k)))
+
+which certainly sets ``top-level-k`` to *a* continuation.  We can call
+that continuation with ``(top-level-k 37)`` whereon we return (again)
+from ``call/cc`` with the value, uh, 37 which gets assigned to
+``top-level-k``.  Oopsies, we've just trashed our saved continuation
+on its first use.
 
 I might have mentioned there are "issues" with poorly chosen
 continuations.
@@ -1274,6 +1344,45 @@ where the value returned by ``call/cc`` (the value returned by
 position of giving whomever a different value than whatever you've
 spent all that time figuring out what the result of an assignment is.
 
+Escapes
+-------
+
+We're familiar with (or have at least heard of!) various exception
+handling memes:
+
+- :lname:`Python`'s ``try``/``except``/``else``/``finally`` and proactive ``raise``
+
+- :lname:`Java`'s ``try``/``catch``/``finally`` and ``throw``
+
+But those are far from any complete set.  :lname:`Lisp`\ ers have
+thrown a few more hats into the ring:
+
+- ``(catch label form+)`` allowing during the execution of ``form+`` a
+  ``(throw label form)`` which requires a *dynamic escape environment*
+  (as those ``label``\ s are evaluated and then associated with
+  continuations)
+
+- ``(block label form+)`` and the corresponding ``(return-from label
+  form)`` where ``label`` is *not* evaluated (ie. is a
+  symbol/identifier) but still bound to a continuation but the
+  combination is only available in a *lexical escape environment*.
+
+- ``let/cc`` (and :lname:`Dylan`'s ``bind-exit``) support assigning a
+  continuation to a dynamic variable
+
+- delimited, composable continuations or *prompts*
+
+  * ``shift``/``reset``
+
+None of those support the idea of a ``finally`` clause.  The headline
+solution to that is :lname:`Scheme`'s ``unwind-protect`` which is a
+derivative of ``dynamic-wind`` which, despite being in the RnRS, is
+probably the most subtle and hackiest thing I have seen.  So we *will*
+implement it.
+
+The implementation, though, requires several layers to support it
+which we will get to in due course.
+
 Continuations in C
 ------------------
 
@@ -1312,17 +1421,14 @@ accessor functions following a similar style:
 Structures
 ----------
 
-Various :lname:`Scheme` implementation introduce the idea of *records*
-(and normalised the interfaces in various SRFIs).  It is very much
-like the suggestions been given previously for creating classes in
-that a structure has a type, defining its name and fields (and
-parent!) and then instances of that structure can be created and
-passed around.
+Various :lname:`Scheme` implementations introduce the idea of
+*records* (and have normalised the interfaces in various SRFIs).  It
+is very much like the suggestions been given previously for creating
+classes in that a structure has a type, defining its name and fields
+(and possibly parent!) and then instances of that structure can be
+created and passed around.
 
-In fact that's sounding a bit like how condition types are built.  I
-wonder if there's a connection?
-
-Accessor functions for the fields are created when the record is
+Accessor functions for the fields are created when the record type is
 created giving you same style of names as above: commonly
 ``name-field1`` (omitting the ``-ref``) and ``name-field1-set!`` and
 the like.
@@ -1385,11 +1491,12 @@ to based on ``Number1``:
 
  (case (class-of Number1)
    ((Integer) (add-integer Number1 Number2))
-   ((Real) (add-real Number1 Number2))
-   ((Number) (add-number Number1 Number2)))
+   ((Real)    (add-real    Number1 Number2))
+   ((Number)  (add-number  Number1 Number2)))
 
-which means both ``add-integer`` and ``add-real`` must look at the
-class of ``Number2`` to really determine what to do:
+which means the implementation functions, ``add-integer``,
+``add-real`` and ``add-number``, must look at the class of ``Number2``
+to really determine what to do:
 
 .. code-block:: scheme
 
@@ -1398,8 +1505,9 @@ class of ``Number2`` to really determine what to do:
        (add-real n1 n2)
        (make-Integer (+ (Integer-value n1) (Integer-value n2)))))
 
-For *multiple dispatch* we need :ref:`generic functions <generic
-functions>`.
+Using multiple arguments to determine the correct implementation
+method is called *multiple dispatch* and for that we need
+:ref:`generic functions <generic functions>`.
 
 :ref-title:`LiSP` (:cite:`LiSP`) p.87 introduces a basic object system
 will allow us to define a class:
@@ -1441,11 +1549,11 @@ Generic Functions
 Again, from :ref-title:`LiSP` (:cite:`LiSP`) p.88
 
 Generic functions is a mechanism for declaring the preferred behaviour
-based on the class of one of the arguments (although, single dispatch
-is the norm, multiple dispatch is possible albeit with exponentially
-increased complexity which is why it isn't common).  The point being
-you can choose which of your arguments should be the one to
-distinguish behaviour rather than being forced to choose the first.
+based on the class of (at least) one of the arguments (although,
+single dispatch is the norm, multiple dispatch is possible albeit with
+exponentially increased complexity which is why it isn't common).  The
+point being you can choose which of your arguments should be the one
+to distinguish behaviour rather than being forced to choose the first.
 
 :ref-author:`Queinnec`'s generic function is introduced with:
 
@@ -1490,6 +1598,9 @@ to.  Our ``foo`` example might look like:
 
  (define-method (foo arg1 (arg2 <X>) arg3)
    ...)
+
+.. sidebox:: Here we really do mean class ``<X>`` as we allow angle
+             brackets in symbol names.
 
 where this ``foo`` method is specific to calls where ``arg2`` is an
 object of class ``<X>``.

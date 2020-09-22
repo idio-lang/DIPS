@@ -82,8 +82,8 @@ like:
 
 #. loop back to the start
 
-Which give us the well-known abbreviation, :abbr:`REPL (Read Evaluate
-Print Loop)`.
+Which give us the well-known acronym, :abbr:`REPL (Read Evaluate Print
+Loop)`.
 
 Reader
 ------
@@ -310,8 +310,8 @@ becomes ``(1 2 . 3)``.
 
 ``(1 . nil)`` will be a list containing a single element: ``(1)``.
 
-``'()``, the empty list (the :ref:`quote <quoting>` is important!)  is
-equivalent to ``nil``, so ``(1 . '())`` is also ``(1)``.
+``()``, the empty list is equivalent to ``nil``, so ``(1 . ())`` is
+also ``(1)``.
 
  
 
@@ -381,7 +381,9 @@ left -- of course, it isn't, there's a unwritten ``nil`` hiding at the
 end -- hence you require an extra ``car`` to get the element itself.
 
 Much of the interpretation of :lname:`Scheme` involves walking around
-such list data structures.
+such list data structures, you'll be pleased to know.  Although when
+you see how neatly a recursive implementation makes it happen you'll
+nod sagely in appreciation.
 
 Mental Model
 ^^^^^^^^^^^^
@@ -657,7 +659,7 @@ in :lname:`C` and therefore ``if`` will have been implemented using
 :lname:`C`’s ``if``.  :lname:`C`’s ``if`` is, in turn, (probably)
 implemented with a machine code instruction to test and branch, itself
 written in processor microcode and eventually into transistor NAND
-gates where, um, dunno.  *Look!* A squirrel!
+gates where, um, ...  *Look!* A squirrel!
 
 In the meanwhile, glossing over the detail, most functions are
 *derived* forms and their arguments are evaluated before the function
@@ -675,23 +677,29 @@ underlying implementation language, say, :lname:`C`, whose interface
 is exposed such that it can be invoked as if it were a regular
 function.
 
-You create primitive functions as a combination of elementary memory
-management functions (think of ``cons`` to create some, say,
-:lname:`C` structure on the heap, and ``car`` and ``cdr`` to poke
-about in it), bootstrap functions (you might want a simple ``map``
-function before it can be re-written into all its glory) and plain old
-expediency and efficiency functions.
+You create primitive functions as a combination of:
+
+* elementary memory management functions -- think of ``cons`` to
+  create some, say, :lname:`C` structure on the heap, and ``car`` and
+  ``cdr`` to poke about in it
+
+* bootstrap functions -- you might want a simple ``map`` function
+  before it can be re-written into all of its glory
+
+* plain old expediency and efficiency functions -- some things just
+  want a fast, tight loop.
 
 .. sidebox:: Local forms, for local people!
 
-Special forms sounds great for system-defined functions but what if
-**I** want one?  Well, in many languages you're clean out of luck.
-Want to add a new syntax operator alongside ``if``, ``while`` etc. to
-:lname:`C`?  That's not going to happen.  However, the folks in
+Special forms sounds great for system-defined functions and people who
+want to hack away at the source code but what if **I** want one?
+Well, in many languages you're clean out of luck.  Want to add a new
+syntax operator alongside ``if``, ``while`` etc. to :lname:`C`?
+That's not going to happen.  However, the folks in
 :lname:`Scheme`-land are more generous and have blessed us with
 *macros*.
 
-And arguably cursed us with macros.  A two-edged sword.
+And arguably cursed us with macros.  A double-edged sword.
 
 Bindings
 --------
@@ -715,8 +723,8 @@ a symbol and an expression and ``body+`` is one or more forms (hence
 the ``+`` in ``body+``) to be evaluated in the context of the
 bindings.
 
-Visually, that's potentially confusing.  If we go over that a step at
-a time:
+Visually, ``bindings`` is potentially confusing.  If we go over that a
+step at a time:
 
 #. ``bindings`` is a *list* of bindings:
 
@@ -762,10 +770,10 @@ Here, ``bindings`` is ``((a 2))``, ie. a list of a single binding,
 ``(a 2)``, and the ``body+`` forms is just a single form, ``(+ a 1)``.
 
 For our single binding, ``(a 2)``, recall that it is a list of a
-symbol and an expression.  Here, the symbol is ``a`` and the
-expression is ``2``.  The expression, ``2``, a number constructor, is
-evaluated resulting in a number value and ``a`` is *bound* to that
-value.
+symbol and an expression.  Here, the symbol is ``a``, the ``car``, and
+the expression is ``2``, the ``cadr``.  The expression, ``2``, a
+number constructor, is evaluated resulting in a number value and ``a``
+is *bound* to that value.
 
 If any of the forms in ``body+`` requires the evaluation of the symbol
 ``a`` then the result will be the number value 2.
@@ -783,7 +791,7 @@ result of ``let`` itself.
 
 Wait a minute, ``let`` returns a value?  Yes, as noted earlier,
 *everything* returns a value (albeit that some of them are
-*unspecified*).  In fact, ``let`` returning a value is used
+*unspecified*).  In fact, that ``let`` returns a value is used
 innumerable times to create closures.  More of that later.
 
 A fractionally more complex example:
@@ -1004,7 +1012,8 @@ definition for ``odd?`` will see a reference to ``even?``.  It now has
 to look that up.  In the best case there isn't an ``even?`` in scope
 and you get a error.  In the worse case it'll find some dubious
 binding to ``even?`` hanging about and good luck to everyone when it
-gets called.  Clearly these two definitions are meant to go together.
+gets called.  Clearly these two definitions are meant to go together
+-- they are :term:`concomitant`.
 
 ``letrec`` performs a little trick, rather than define one before the
 other, it creates placeholder bindings for the symbols and then
@@ -1064,7 +1073,7 @@ value a symbol is bound to if the symbol doesn't have a binding yet.
 This may appear as another bout of pedantry as ``set!`` could create
 the binding if it didn't already exist.  
 
-You might well ask, then, where ``set!`` should create the binding.
+You might well ask, then, *where* ``set!`` should create the binding.
 In the current scope (``let``/``lambda`` level)?  At the top level
 (whatever that is)?
 
@@ -1102,17 +1111,20 @@ the ``let`` seems slightly wasteful -- as you could have simply had
 technique is used frequently for defining ancillary functions within
 another function.
 
+Yes, of course, functions within functions.  What's not to like?
+
 Defining Functions
 ------------------
 
 Associating a name with a function value -- we know how to create
-function *value* with ``lambda``.
+function *value* with ``lambda`` and we now have ``define`` so it is
+obviously:
 
 .. code-block:: scheme
 
  (define +1 (lambda (n) (+ 1 n)))
 
-(a function called ``+1``?  *Shocking!*)
+(a function called ``+1``?  *Outrageous!*)
 
 This is such a common idiom that ``define`` has an alternate syntax:
 
@@ -1120,7 +1132,13 @@ This is such a common idiom that ``define`` has an alternate syntax:
 
  (define (*name* *formals*) *body+*)
 
-eg.
+to be re-arranged as:
+
+.. parsed-literal::
+
+ (define *name* (lambda (*formals*) *body+*))
+
+ie. for our ``+1`` function:
 
 .. code-block:: scheme
 
@@ -1135,9 +1153,12 @@ or
 
 That's a bit cleaner!
 
-Notice that ``define`` (without an exclamation mark) is introducing a
-*new* binding whereas ``set!`` is modifying an *existing* one (hence
+Notice that ``define`` (without an exclamation mark) is *introducing a
+new* binding whereas ``set!`` is *modifying an existing* one (hence
 ``define`` and ``let`` rather than ``define!`` and ``let!``).
+
+It's not quite that simple as the number of formal arguments cause a
+twist.
 
 No Arguments
 ^^^^^^^^^^^^
@@ -1158,6 +1179,10 @@ list:
 .. code-block:: scheme
 
  (lambda nil "hi!")
+
+although you must explicitly write ``nil`` otherwise the evaluator
+will be left with an incoherent set of arguments for ``lambda``, just
+a string in this case.
 
 Varargs
 ^^^^^^^
@@ -1194,13 +1219,16 @@ For define, this is OK:
   ...)
 
 and works like above.  In fact the function ``list`` itself -- whose
-purpose is to bundle up its arguments into a list -- is often rather
+purpose is to bundle up its arguments into a list -- is usually rather
 cheekily defined as:
 
 .. code-block:: scheme
 
  (define (list . ls)
   ls)
+
+where it has had the evaluator do the hard word of bundling the
+arguments into a list and passes it off as its own work.  Clever.
 
 For the ``lambda`` form it is visually different:
 
@@ -1250,15 +1278,16 @@ will give you the number value 7 again.  Why?
 We're back to bindings.  When the interpreter analysed the definition
 of ``a+`` it saw that the variable ``a`` was not bound by the
 parameters of the function (nor by any bindings introduced within its
-body) and was therefore a *free identifier*.  Rummaging about it will
-have found the top level ``a``, introduced by ``define``, and will
-have used that binding in the implementation of ``a+``. Even though
-the binding was modified by ``set!`` the function body would still be
-referring to that binding irrespective of any subsequently introduced
-bindings.
+body) and was therefore a *free identifier*.
 
-In the terminology, ``a+`` was *closed over* ``a``, therefore ``a+``
-is a *closure*.
+Rummaging about it will have found the top level ``a``, introduced by
+``define``, and will have used that binding in the implementation of
+``a+``. Even though the binding was modified by ``set!`` the function
+body would still be referring to that binding irrespective of any
+subsequently introduced bindings.
+
+In the terminology, ``a+`` was *closed over* ``a`` and therefore
+``a+`` is a *closure*.
 
 What if we wanted to use the locally current binding of ``a`` (to the
 number value 3) at the time we evaluated the function call?  That
@@ -1281,8 +1310,8 @@ tricks to save typing.
 
 If the evaluation engine sees a list it will assume the first element
 is a function and the remaining elements are arguments to that
-function.  What if we want to create an actual list?  We need to
-*quote* the list:
+function.  What if we want to create an actual list and not have it
+evaluated?  We need to *quote* the list:
 
 .. code-block:: scheme
 
@@ -1315,7 +1344,7 @@ associated with an identifier:
 
  int i = 3;
 
-so that the compiler can keep track of things an call out any obvious
+so that the compiler can keep track of things and call out any obvious
 errors:
 
 .. code-block:: c
@@ -1334,8 +1363,16 @@ What does "the same" really mean?
 on the (internal) pointer into memory where the value is stored.  A
 pointer test can be very quick.
 
+This leads to the slightly odd:
+
+.. code-block:: scheme
+
+ (eq? 1 1)
+
+returning ``#f``.
+
 ``eqv?`` is the same as ``eq?`` except that the values of numbers and
-chars are compared.
+chars are compared.  :socrates:`Thank goodness for that!`
 
 ``equal?`` will recursively descend into pairs, vectors and strings
 applying ``eqv?`` to their contents.  Broadly, does the printed
@@ -1361,23 +1398,43 @@ alternative:
 
 .. code-block:: scheme
 
- (cond 
+ (cond
    (c1 s1+)
    (c2 s2+)
    (c3 s3+))
 
 where, more than likely, each of the ``cX`` and ``sX+`` clauses are
-themselves lists.  
+themselves lists:
 
 .. code-block:: scheme
 
- (cond 
+ (cond
    ((boolean? exp)	"boolean")
    ((number? exp)	"number")
    ((string? exp)	(string-append "string-" exp)))
 
-``cond`` is slightly different to ``if`` in that multiple expressions
-are allowed if the condition is true.
+``cond`` is slightly different to ``if`` in that multiple expressions,
+the ``sX+``, are allowed if the condition is true.
+
+It has an ``else`` form, of course, and a very different creature, an
+``=>`` clause:
+
+.. code-block:: scheme
+
+ (cond
+   ((string-match str "foo")	=> func)
+   (else		(string-append "string-" exp)))
+
+.. sidebox:: My example is rather poor in that you might presume that
+             ``string-match`` produces an index into a string but,
+             seemingly, ``func`` has no reference to ``str``.  Maybe
+             ``func`` was closed over ``str``, maybe it's just
+             accumulating a list of matches, maybe I should think
+             harder about my examples....
+
+For ``=>`` the ``cX`` expression is evaluated resulting in some value.
+If the value is not false then ``func`` is applied to the value, ie.
+``(func value)``.
 
 ``case`` is more like :lname:`C`’s ``switch`` or the shell's ``case``
 statements:
@@ -1463,9 +1520,9 @@ and in our "add 1" case, an anonymous function is suitable:
 ``map`` itself will follow the result list idiom -- constructing the
 result list as the list is descended.
 
-That's similar to ``map`` in most languages but Lispers like a list so
-the real ``map`` will iterate down multiple lists at once calling
-``func`` with multiple args (one per list).
+That's similar to ``map`` in most languages but :lname:`Lisp`\ ers
+like a list so the real ``map`` will iterate down multiple lists at
+once calling ``func`` with multiple args (one per list).
 
 Safe Bootstrap
 ^^^^^^^^^^^^^^
