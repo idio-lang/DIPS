@@ -16,10 +16,7 @@ DIPS
    the-unix-shell/index
    scheme/index
    idio-design/index
-   implementing-scheme-1
-   implementing-scheme-2
-   implementing-scheme-3
-   implementing-scheme-4
+   implementing-idio/index
    glossary
    references
    acknowledgments

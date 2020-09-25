@@ -19,6 +19,8 @@
 .. _Globbing: https://en.wikipedia.org/wiki/Glob_(programming)
 .. _Guile: https://www.gnu.org/software/guile/
 .. _ISO10646: https://en.wikipedia.org/wiki/Universal_Coded_Character_Set
+.. _ISO8859: https://en.wikipedia.org/wiki/ISO/IEC_8859
+.. _ISO8859-1: https://en.wikipedia.org/wiki/ISO/IEC_8859-1
 .. _JSON5: https://json5.org
 .. _JSON: https://www.json.org/json-en.html
 .. _JVM: https://en.wikipedia.org/wiki/Java_virtual_machine
@@ -33,13 +35,16 @@
 .. _Murex: https://murex.rocks
 .. _Nushell: https://www.nushell.sh
 .. _Oil: https://www.oilshell.org
+.. _OpenJDK: http://openjdk.java.net/
 .. _PCRE: http://www.pcre.org
+.. _PEP393: https://www.python.org/dev/peps/pep-0393/
 .. _Potion: https://github.com/perl11/potion.git
 .. _PowerShell: https://docs.microsoft.com/en-us/powershell/
 .. _Qish: http://www.starynkevitch.net/Basile/qishintro.html
 .. _RFC1918: https://tools.ietf.org/html/rfc1918
 .. _Readline: https://tiswww.case.edu/php/chet/readline/rltop.html
 .. _S9fES: https://www.t3x.org/s9fes/
+.. _Samba: https://www.samba.org/
 .. _SBCL: http://www.sbcl.org/
 .. _SRFI-95: https://srfi.schemers.org/srfi-95/srfi-95.html
 .. _SRFI: http://srfi.schemers.org
@@ -52,26 +57,40 @@
 .. _ULA: https://en.wikipedia.org/wiki/Unique_local_address
 .. _Ubuntu: https://ubuntu.com
 .. _Unicode: https://home.unicode.org/
+.. _UTF-16: https://www.unicode.org/notes/tn12/
+.. _UTF-8: https://en.wikipedia.org/wiki/UTF-8
 .. _YAML: https://yaml.org/
+.. _Zerologon: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-1472
 .. _Zsh: https://www.zsh.org
 .. _`Bob's your uncle`: https://en.wikipedia.org/wiki/Bob%27s_your_uncle
+.. _`Boehm GC`: https://en.wikipedia.org/wiki/Boehm_garbage_collector
 .. _`Bourne shell`: https://en.wikipedia.org/wiki/Bourne_shell
 .. _`Business Process Management`: https://en.wikipedia.org/wiki/Business_process_management
 .. _`C shell`: https://en.wikipedia.org/wiki/C_shell
 .. _`Csh Programming Considered Harmful`: http://www.faqs.org/faqs/unix-faq/shell/csh-whynot/
 .. _`Curate's egg`: https://en.wikipedia.org/wiki/Curate%27s_egg
 .. _`Fledgling Languages List`: https://fll.presidentbeef.com
+.. _`Garbage Collection`: https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)
 .. _`GTK\+`: https://www.gtk.org
 .. _`Hacker News`: https://news.ycombinator.com/
+.. _`IEEE 754`: https://en.wikipedia.org/wiki/IEEE_754
+.. _`Japanese fullwidth forms`: https://en.wikipedia.org/wiki/Halfwidth_and_fullwidth_forms
 .. _`KornShell`: https://en.wikipedia.org/wiki/KornShell
 .. _`Little Bobby Tables`: https://xkcd.com/327/
+.. _`LuaJIT GC`: http://wiki.luajit.org/New-Garbage-Collector
 .. _`Option type`: https://en.wikipedia.org/wiki/Option_type
+.. _`Oracle bone script`: https://en.wikipedia.org/wiki/Oracle_bone_script
+.. _`Shenandoah GC`: https://wiki.openjdk.java.net/display/shenandoah/Main
 .. _`The Groveller`: https://common-lisp.net/project/cffi/manual/html_node/The-Groveller.html
+.. _`The Secret History of Writing`: https://www.bbc.co.uk/programmes/m000mtml
 .. _`Thompson shell`: https://en.wikipedia.org/wiki/Thompson_shell
 .. _`Turing machine`: https://en.wikipedia.org/wiki/Turing_machine
+.. _`Unicode reports`: http://www.unicode.org/reports/
+.. _`Unicode Character Database`: https://www.unicode.org/reports/tr44/
 .. _`Zsh and Fish’s simple but clever trick for highlighting missing linefeeds`: https://www.vidarholen.net/contents/blog/?p=878
 .. _`colours are accurate for green screen VDUs`: https://superuser.com/questions/361297/what-colour-is-the-dark-green-on-old-fashioned-green-screen-computer-displays
 .. _`continuation-passing style`: https://en.wikipedia.org/wiki/Continuation-passing_style
+.. _`hovercraft is full of eels`: https://en.wikipedia.org/wiki/Dirty_Hungarian_Phrasebook
 .. _`literate programming`: https://en.wikipedia.org/wiki/Literate_programming
 .. _`online Job Control`: https://www.gnu.org/software/libc/manual/html_node/Job-Control.html#Job-Control
 .. _`signal handler`: https://www.securecoding.cert.org/confluence/display/c/SIG31-C.+Do+not+access+shared+objects+in+signal+handlers

@@ -6,6 +6,15 @@ Glossary
 
 .. glossary::
 
+   acronym
+
+        `acronym <https://en.wiktionary.org/wiki/acronym>`_
+
+	A term formed from the initial letters of several words and
+	pronounced as a word, eg. laser.
+
+	See also :term:`initialism`.
+
    CLOS
 
 	Common Lisp Object System -- see CLOS_.
@@ -41,6 +50,15 @@ Glossary
 	Although whether :lname:`Lisp`\ s are actually homoiconic and
 	quite what homoiconic actually means is often a cause for
 	debate.
+
+   initialism
+
+        `initialism <https://en.wiktionary.org/wiki/initialism>`_
+
+	A term formed from the initial letters of several words and
+	pronounced letter by letter, eg. BBC.
+
+	See also :term:`acronym`.
 
    marmite
 
@@ -79,6 +97,10 @@ Glossary
 
 	Gregor Kiczales' implementation of a :term:`CLOS` -- see
 	`Tiny-CLOS`_.
+
+   UCD
+
+        `Unicode Character Database`_
 
    VDU
 

@@ -34,6 +34,7 @@ release = '0.0'
 extensions = [
     'sphinx.ext.todo',
     'sphinxcontrib.bibtex',
+    'sphinx.ext.graphviz',
     'aside',
     'idio_lexer'
 ]
