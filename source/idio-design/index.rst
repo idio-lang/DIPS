@@ -9,3 +9,4 @@
 
    idio-look
    idio-feel
+   idio-extra

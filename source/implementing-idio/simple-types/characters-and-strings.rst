@@ -1,282 +1,8 @@
-.. include:: ../global.rst
+.. include:: ../../global.rst
 
-************
-Simple Types
-************
-
-The simple types, ie. types that do not reference other types, are
-actually far harder to deal with as they tend to break the GC
-structure model or have some quite bespoke structure.
-
-Integers and Constants
-======================
-
-We will be using integers and constants quite a bit in :lname:`Idio`.
-Do we really want to create a (relatively) enormous data structure to
-house a 32-bit integer?  Or for ``#t``, ``#f`` and ``#n`` -- the only
-constants I can think of?  Seems a bit wasteful.
-
-Do we need 32-bit integers anyway?  I suppose I've written scripts
-that have looped around several thousand times.  I keep reading that
-there's a million or so Unicode code points -- 2\ :sup:`21` to be
-precise -- if we can handle that "cheaply" then we might be onto
-something.
-
-We can, of course, albeit we rely on an observation about modern
-:lname:`C` compilers in that they allocate memory on the heap on
-machine word boundaries.  A 32-bit machine will allocate memory on a 4
-byte boundary and a 64-bit machine on an 8 byte boundary.
-
-(We'll generally deal with 32-bit examples and reference 64-bit
-systems where they differ.)
-
-If everything is allocated on a 4 byte boundary then the last two bits
-(three bits for 64-bit) are *always* zero:
-
-.. code-block:: console
-
-   xxxxxxxx xxxxxxxx xxxxxxxx xxxxxx00
-
-A properly allocated value's pointer (ie. an ``IDIO``) will always end
-``00``.  That suggests there's room for us to be a bit sneaky for some
-kinds of types.
-
-Suppose we were to artificially craft a "pointer" that used one of the
-other three bit combinations then we could use the remaining 30 bits
-for our value.
-
-It would require that everywhere where we previously performed some
-test against a value's ``o->type`` we would now have to test those
-bottom two bits first, handle the three special cases and otherwise
-fall back to the generic ``o->type``.
-
-Let's try an example.  Suppose we were to use ``01`` for integers,
-hold that, for signed integers.  This gives us 30 bits for the
-integer, less one bit for the sign, leaving us with 2\ :sup:`29` bits.
-That's a pretty big number, Â±536 million or so.
-
-Assuming two-complement, 1 and -1 would be:
-
-.. code-block:: console
-
-   00000000 00000000 00000000 00000101
-
-   11111111 11111111 11111111 11111101
-
-from which we could squish an integer, ``i`` into an ``IDIO``
-"pointer":
-
-.. code-block:: c
-
-   int i = 1;
-   IDIO o = (i << 2) | 0x01;
-
-and retrieve it with:
-
-.. code-block:: c
-
-   IDIO o = ...;
-   int i = ((intptr_t) o) >> 2;
-
-Actually, that ``>> 2`` will extract a complaint about ``arithmetic
-right shift`` from some :lname:`C` compilers as it makes an assumption
-that the top (sign) bit will remain the same (rather than be set to 0,
-say).  It still works, mind.
-
-This is called a "tagged" type and, here, for integers, is called a
-fixed width number or *fixnum*.
-
-We don't want bit-fiddle ourselves all day so there's a couple of
-macros to help:
-
-.. code-block:: c
-
-   int i1 = 1;
-   IDIO o = IDIO_FIXNUM (i1);
-   
-   int i2 = IDIO_FIXNUM_VAL (o);
-
-
-The elephant in the room for fixnums is what happens if I want... Â±53\
-**7** million (*bwah hah hah!*)?  No problem, we'll use :ref:`bignums`
-instead.  We need to handle fixnum to/from bignum conversions but
-that's OK.
-
-In the meanwhile we have a relatively simple mechanism for handling a
-quite large range of numbers.  Plenty for most shell-ish purposes.
-
-Back to other possible limited width simple types.  We know we have a
-bunch of constants, in fact, it'll transpire we have half-a-dozen or
-so groups of constants one of which, Unicode, we know uses 2\
-:sup:`21` bits.
-
-Quick bit of maths... 30 bits of space, minus 21 bits for Unicode,
-say, gives us 9 bits worth of different constant types.  Hmm, I'm not
-sure we have 512 different constant types or, rather more importantly,
-even want to consider having 512 different types of constants.  Far
-too many to remember!  Let's flip the maths around and suggest we have
-3 bits of constant types (up to 8, then) meaning each constant type
-could have up to 27 bits worth of space.  Definitely room for
-Unicode's 21 bits and I fancy we could squeeze our trio of ``#t``,
-``#f`` and ``#n`` into another.
-
-Let's try that, then, with ``10`` as the distinguishing key and
-``ccc`` being our 3 bits of "constant type differentiator":
-
-.. code-block:: console
-
-   xxxxxxxx xxxxxxxx xxxxxxxx xxxccc10
-
-In practice, for :lname:`Idio` constants, being the first out of the
-block, we'll use ``000`` for ``ccc`` giving us a combined suffix of
-``00010``.  That leaves us to define some :lname:`Idio` constants:
-
-.. code-block:: c
-   :caption: idio.h
-   
-   #define idio_S_nil		(0 << 5) | 0x00010
-   #define idio_S_true		(4 << 5) | 0x00010
-   #define idio_S_false		(5 << 5) | 0x00010
-
-The other constant types are:
-
-* reader tokens -- like lexer tokens, they're for flagging up states
-  and it's certainly easier to pass then around as full ``IDIO``
-  values.
-
-* intermediate code tokens -- *stuff* -- we'll get there!
-
-* characters -- historic :lname:`Scheme`-style characters which were
-  essentially ASCII_/ISO8859_ or :lname:`C`-style bytes
-
-* Unicode code points -- of course!
-   
-We've still room for a third type.  I've not settled on one, though.
-I'm partial to a *flonum* type.  Yes, a floating point number squeezed
-into 30 bits.  `IEEE 754`_, or something, with small mantissa and
-exponent.  I don't use floating point enough to warrant the effort
-especially when what little floating point I use is more than
-adequately handled by :ref:`bignums`.  One day.
-
-In the meanwhile, the space is reserved by the
-``IDIO_PLACEHOLDER_TYPE``.
-
-64-bit Virtual Address Space
-----------------------------
-
-Whilst we have flights of fancy with fake pointers no current CPU
-architecture lets you address more than 48 bits of physical address
-space regardless of whether you could afford that much RAM.  `Virtual
-Address space
-<https://en.wikipedia.org/wiki/X86-64#Virtual_address_space_details>`_
-shows a large splodge of literally inaccessible memory.
-
-In principle that could be :strike:`ab`\ used in a similar way.  The
-advantage of which is that maths might be easier to manage as there's
-no shifting required.
-
-Reading
--------
-
-Reading numbers is a bit more awkward so we'll leave that to :ref:`bignums`.
-
-We don't read in many constants -- most of them are internally
-generated by the reader or evaluator etc..  We do read in a few though
-and they all start with ``#``.
-
-The reader has a large ``switch`` statement which, having found a
-``#``, can ``case`` the next byte read:
-
-.. csv-table::
-   :header: "byte", "result"
-
-   ``n``, ``idio_S_nil``
-   ``t``, ``idio_S_true``
-   ``f``, ``idio_S_false``
-   ``\``, ``idio_read_character(... IDIO_READ_CHARACTER_EXTENDED)``
-   ``U``, ``idio_read_unicode(...)``
-
-``idio_read_character(..., int kind)`` can now do some decision making
-of its own.  It reads the next (UTF-8) character (don't forget ASCII
-characters are valid UTF-8 characters):
-
-* If ``kind`` was ``IDIO_READ_CHARACTER_SIMPLE`` then ``#\X`` has
-  ``X`` converted into a Unicode code point: ``#\ħ`` will result in
-  the Unicode code point U+0127 (LATIN SMALL LETTER H WITH STROKE).
-
-* Otherwise if the character was ``{`` then we go on to read in a
-  :lname:`Scheme`-ish *named character*, eg. ``#\{newline}`` -- aka
-  U+000A or :lname:`C`'s ``'\n'``.
-
-  There isn't a particularly comprehensive set of named characters
-  (think: a few test cases) but since we construct our Unicode tables
-  from Unicode source material there's nothing to stop us creating the
-  complete set of named Unicode characters such that ``#\{LATIN SMALL
-  LETTER H WITH STROKE}`` gets us U+0127.
-
-* else it was a Unicode code point (again)
-
-(Reading that back it could do with some refactoring!)
-
-``idio_read_unicode()`` checks that the next character is ``+`` then
-reads hexadecimal characters (technically it calls the same generic
-hexadecimal number reading code as ``#xhhhh`` does) and creates a
-Unicode code point from the number: ``#U+0127`` creates the same
-U+0127 Unicode code point as ``#\ħ`` above.
-
-Writing
--------
-
-Writing fixnums is quite easy as we know they are ``intptr_t`` (as
-they fit inside an ``IDIO`` "pointer") so we can print them back out
-with ``printf ("%td", IDIO_FIXNUM_VAL (o))``.
-
-Except that's a bit too easy and a bit too restrictive.  In
-particular, that will print out a decimal number.  What if we want a
-hexadecimal or octal number?
-
-Here, the code that converts :lname:`Idio` types to strings can query
-the system as to whether the ``idio-print-conversion-format`` symbol
-has been set and, assuming it is one of the usual suspects (``Xbdox``)
-print it out.
-
-``b``?  Yes, of course.  Generate the binary representation of our
-fixnum:
-
-.. code-block:: console
-
-   Idio> n := 17
-   Idio> format "%b\n" n
-   "10001\n"
-
-For the constants we can capture the individual values and return
-specific strings:
-
-.. code-block:: c
-   :caption: util.c
-
-   case IDIO_TYPE_CONSTANT_IDIO_MARK:
-   {
-       intptr_t v = IDIO_CONSTANT_TOKEN_VAL (o);
-
-       switch (v) {
-           case IDIO_CONSTANT_NIL:    t = "#n";        break;
-	   case IDIO_CONSTANT_UNDEF:  t = "#<undef>";  break;
-	   case IDIO_CONSTANT_UNSPEC: t = "#<unspec>"; break;
-	   case IDIO_CONSTANT_EOF:    t = "#<eof>";    break;
-	   case IDIO_CONSTANT_TRUE:   t = "#t";        break;
-	   case IDIO_CONSTANT_FALSE:  t = "#f";        break;
-	   case IDIO_CONSTANT_VOID:   t = "#<void>";   break;
-	   case IDIO_CONSTANT_NAN:    t = "#<NaN>";    break;
-
-where ``t`` is a temporary variable to help calculate the final result
-(which is complicated by Unicode).  You can also see other internal
-values getting a rendering that is quite readable to us programmers
-but "impossible" for the reader to consume (``#<`` is specifically
-invalid for this reason).
-
+**********************
 Characters and Strings
-======================
+**********************
 
 *We're not in Kansas any more, Toto!*
 
@@ -285,13 +11,13 @@ Characters and Strings
              and can now pretend I did it properly in the first place.
 
 There's no beating about the bush, we need to handle proper
-multi-character set strings from the get go.  We don't want a
+multi-character set strings from the get-go.  We don't want a
 :lname:`Python` 2 vs 3 debacle.
 
 Not for strings, anyway.
 
 Unicode
--------
+=======
 
 .. aside::
 
@@ -300,10 +26,11 @@ Unicode
    English and certainly don't want to listen to me insist that my
    `hovercraft is full of eels`_.
 
-I'm not multi-lingual expert, indeed barely competent in one language,
-so some of the nuance may be lost on me.  We're choosing Unicode_
-(arguably ISO10646_) because of its name familiarity, even if the
-actual implementation is less familiar to everyone.
+I'm not multi-lingual expert, indeed barely literate in one language,
+so some of the nuance of multi-character set handling may be lost on
+me.  We're choosing Unicode_ (arguably ISO10646_) because of its name
+familiarity, even if the actual implementation is less familiar to
+everyone.
 
 The broad thrust of Unicode is to allocate a *code point*, an integer,
 to the most common characters and support several combining code
@@ -334,25 +61,33 @@ different glyphs for U+0061 (LATIN SMALL LETTER A):
    *a*, italic
    **a**, bold
    ``a``, monospaced
-   
+
 as I pick out different visual styles.  They are all U+0061, though.
 
+The inverse is also an issue.  There are around 150 thousand code
+points defined (of the 1,114,112 possible code points) but the font
+you are using might only cover a small fraction of those.  If a glyph
+for a code point is missing the result isn't clearly defined.  The
+rendering system may substitute a glyph indicating the code point in a
+box or you may get a blank box.
+
 There's a much better description of some of the differences between
-characters and glyphs in Unicode's `Character Encoding Model
+characters and glyphs -- and, indeed, characters and code points -- in
+Unicode's `Character Encoding Model
 <http://www.unicode.org/reports/tr17/#CharactersVsGlyphs>`_.
 
 Unicode differs from ISO10646 in that although they maintain the same
 set of code points the latter is effectively an extended ISO-8859,
-meaning a simple list of characters, covering a lot more character
-sets.  Unicode goes further and associates with each code point any
-number of categories and properties and provides rules on
+meaning a simple list of characters except covering a lot more
+character sets.  Unicode goes further and associates with each code
+point any number of categories and properties and provides rules on
 line-breaking, grapheme cluster boundaries, mark rendering and all
 sorts of other things you didn't realise were an issue.
 
 Don't let the simplistic nature of the Unicode_ home page concern you,
 go straight to the `Unicode reports`_ and get stuck in.
 
-Actually, don't.  Here, in :lname:`Idio`-land, we do **not** "support"
+Actually, don't.  Here, in :lname:`Idio`-land, we **do not** "support"
 Unicode.  We use the `Unicode Character Database`_ (UCD) and some
 categories and properties related to that.  We will use the "simple"
 lowercase and uppercase properties to help with corresponding
@@ -381,7 +116,7 @@ identifier names.
 
 ---
 
-As noted previously, the code point range covers 2\ :sup:`21` bits but
+As noted previously, the code point range is 2\ :sup:`21` integers but
 not all of those are valid.  A range of values in the first 65,536 is
 excluded as a side-effect of handling the UTF-16_ encoding when
 Unicode finally recognised that 65,536 code points was not, in fact,
@@ -407,11 +142,15 @@ more than enough.
 
 It doesn't affect treatment of code points but it it worth
 understanding that Unicode is (now) defined as 17 *planes* with each
-plane being 16 bits.  Each plane is chunked up into varying sized
-blocks which are allocated to various purposes.  Some very well known
-purposes are historically fixed, for example ISO8859-1_, and the block
-is full.  Other character sets have slots reserved within the block
-for future refinements.
+plane being 16 bits, ie. potentially 65,536 code points.  (NB. At
+least two code points in every plane are reserved as byte-order
+marks.)
+
+Each plane is chunked up into varying sized blocks which are allocated
+to various character set purposes.  Some very well known character
+sets are historically fixed, for example ISO8859-1_, and the block is
+full.  Other character sets have slots reserved within the block for
+future refinements.
 
 The first plane, plane 0, is called the `Basic Multilingual Plane
 <https://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane>`_
@@ -450,10 +189,59 @@ forms`_ -- effectively duplicating ASCII.
 The issue with handling Unicode is, um, everything.  We have an issue
 about the *encoding* in use when we read Unicode in -- commonly,
 UTF-8, UTF-16 or UTF-32.  We have an issue about *storing* code points
-and strings (of code points) internally.  And we have to decide which
-encoding to use when we emit code points and strings.
+and strings (ie. arrays of code points) internally.  And we have to
+decide which encoding to use when we emit code points and strings.
 
-Let's try to break things down.
+There's also a subtlety relating to the *meaning* of code points.  For
+example, most of us are familiar with ASCII (and therefore Unicode)
+decimal digits, 0-9 (U+0030 through to U+0039).  Unicode has *lots* of
+decimal digits, though, some 650 code points have the ``Nd`` category
+(meaning decimal number) alone.  In addition Unicode supports other
+numeric code points such as Roman numerals .
+
+In principle, then, we ought to support the use of any of those code
+points as numeric inputs -- ie. there are 65 zeroes, 65 ones, 65 twos,
+etc. -- because we can use a Unicode attribute, *Numeric_Value*,
+associated with the code point to get its decimal value.
+
+However, we then have to consider what it means to mix those Numeric
+code points across groups in the same word: 1\ :raw-html:`&#x0662;`\
+:raw-html:`&#x06F3;`\ :raw-html:`&#x07C4;`\ :raw-html:`&#x096B;` is
+12345 with a code point from each of the first five of those groups
+(Latin-1, Arabic-Indic, Extended Arabic-Indic, NKO, Devanagari).  Does
+it make any sense to mix these character sets *in the same
+expression*?
+
+It becomes increasingly complex to reason about these things and the
+inter-relationship between character sets at which point we start
+laying down the law.
+
+Or would do.  At the moment the code invokes the likes of
+:manpage:`isdigit(3)` and friends which, in turn, use locale-specific
+lookup tables.  Of interest, the only valid input values to those
+functions are an ``unsigned char`` or ``EOF`` which rules out most CJK
+character sets and, indeed, everything except Latin-1 in the above
+example.
+
+.. rst-class:: center
+
+---
+
+In some ways I think we could be quite pleased that the language
+allows you to create variables using Unicode code points (outside of
+Latin-1) and assign values to them using non-ASCII digits.  Many
+people might then bemoan the unreadability of the resultant program
+forgetting, presumably, that, say, novels are published in foreign
+languages without much issue.
+
+English *appears* to be the *lingua franca* of computing, for good or
+ill, and I can't see how being flexible enough to support non-ASCII
+programming changes that.
+
+More work (and someone less Western-European-centric and not a
+monoglot) required to sort this out.
+
+In the meanwhile, let's try to break Unicode down.
 
 Code Points
 -----------
@@ -471,14 +259,14 @@ As discussed above, we can then stuff that code point into a specific
 constant type, here, ``ccc`` is ``100`` giving us:
 
 .. code-block:: c
-   
+
    int uc = 0x0127;	/* LATIN SMALL LETTER H WITH STROKE */
    IDIO cp = (uc << 5) | 0x10010;
 
 obviously, there's a couple of macros to help with that:
 
 .. code-block:: c
-   
+
    int uc1 = 0x0127;
    IDIO cp = IDIO_UNICODE (uc1);
 
@@ -501,7 +289,7 @@ graph:
 
    digraph lower {
        node [ shape=box ]
-       
+
        "0130;LATIN CAPITAL LETTER I WITH DOT ABOVE" -> "0069;LATIN SMALL LETTER I" [ label=" lower " ];
        "0069;LATIN SMALL LETTER I" -> "0049;LATIN CAPITAL LETTER I" [ label=" upper " ];
        "0049;LATIN CAPITAL LETTER I" ->  "0069;LATIN SMALL LETTER I" [ label=" lower " ];
@@ -510,7 +298,7 @@ graph:
 and
 
 .. graphviz::
-   
+
    digraph upper {
        node [ shape=box ]
 
@@ -521,25 +309,51 @@ and
 
 in both cases no mapping will return you to the starting code point.
 
+Reading
+^^^^^^^
+
+As noted, there are three reader forms:
+
+#. ``#\X`` for some UTF-8 encoding of ``X``
+
+   ``#\ħ`` is U+0127 (LATIN SMALL LETTER H WITH STROKE)
+
+#. ``#\{...}`` for some (very small set of) named characters
+
+#. ``#U+hhhh`` for any code point
+
+Writing
+^^^^^^^
+
+There are two forms of output depending on whether the character is
+being printed (ie. a reader-ready representation is being generated)
+or displayed (as part of a body of other output).
+
+If printed, Unicode code points will be printed out in the standard
+``#U+hhhh`` format with the exception of code points under 0x80 which
+are :manpage:`isgraph(3)` which will take the ``#\X`` form.
+
+If displayed, the Unicode code point is encoded in UTF-8.
+
 :lname:`Idio` Strings
----------------------
+=====================
 
 By which we mean arrays of code points.  *-ish*
 
 History
-^^^^^^^
+-------
 
 If we start with, as I did, :lname:`C` strings we can get a handle on
 what I was doing.
 
-In :lname:`C` a string is an array of characters terminated by an
-ASCII NUL (0x0).  That's pretty reasonable and we can do business with
-that.
+In :lname:`C` a string is an array of single byte characters
+terminated by an ASCII NUL (0x0).  That's pretty reasonable and we can
+do business with that.
 
 However, I was thinking that a lot of what we might be doing in a
 shell is splitting lines of text up into words (or fields if we have
 an :program:`awk` hat on).  We don't *really* want to be re-allocating
-space for all these words when we are unlikely to be modifying them,
+memory for all these words when we are unlikely to be modifying them,
 we really just want a substring of the original.
 
 To make that happen we'd need:
@@ -560,8 +374,8 @@ problem then maybe we can have the GC do some *re-imagining* under the
 hood next time round.
 
 I then thought that, partly for consistency and partly for any weird
-cases where we didn't have a NUL-terminated string, real strings
-should have a length parameter as well.
+cases where we didn't have a NUL-terminated string to start with, real
+strings should have a length parameter as well.
 
 If that meant we stored an extra byte (with a NUL in it) then so be it
 (we've just casually added 4 or 8 bytes for a ``size_t`` for the
@@ -571,10 +385,11 @@ and it's quite handy for printing the value out.
 That all worked a peach.
 
 Current
-^^^^^^^
+-------
 
-Along comes Unicode (driven by the need to port some regular
-expression handling).
+Along comes Unicode (primarily driven by the need to port some regular
+expression handling as I hadn't mustered the enthusiasm to re-write
+everything beforehand).
 
 The moral equivalent of the 8-bit characters in :lname:`C` strings are
 Unicode's code points.
@@ -582,9 +397,9 @@ Unicode's code points.
 However, we *don't actually want* an array of code points because
 that's a bit dumb -- even we can spot that.  Code points are stored in
 an ``IDIO`` "pointer" and so consume 4 or 8 bytes *each* which is way
-more than most strings require.  We store them in an ``IDIO`` pointer
-because they can then be handled like any other :lname:`Idio` type,
-not because it is efficient.
+more than most strings require.  We store code points in an ``IDIO``
+pointer because they can then be handled like any other :lname:`Idio`
+type, not because it is efficient.
 
 Looking at most of the text that *I* type, I struggle to use all the
 ASCII characters, let alone any of the exotic delights from cultures
@@ -592,7 +407,7 @@ far a-field.  I'm going to throw this out there that most of the text
 that *you* type, dear reader, fits in the Unicode Basic Multilingual
 Plane and is therefore encodable in 2 bytes.
 
-I apologise to my Chinese, Japanese and Korean readers who throw 4
+I apologise to my Chinese, Japanese and Korean friends who throw 4
 byte code points around with abandon.  At least you're covered and not
 forgotten.
 
@@ -621,6 +436,15 @@ will now be ten bytes long as the first code point requires two bytes
 and therefore so will all the rest, even though they are the same
 ASCII characters as before.  *Dems da breaks.*
 
+By and large, though, I sense that most strings are going to be
+internally very consistent and be:
+
+* ASCII/Latin-1 *only*
+
+* mostly BMP (2 byte) and some 1 byte code points
+
+* using 4 byte code points throughout
+
 If we join two strings together we can upgrade/widen the one or the
 other as required.  The only real problem is that anyone wanting to
 *modify* an element in a string array might get caught out by trying
@@ -637,9 +461,9 @@ So that's the deal.  Strings are arrays of elements with widths of 1,
 2 or 4 bytes.  The string has a length.  We can have substrings of it.
 
 Implementation
-^^^^^^^^^^^^^^
+--------------
 
-We can encode the string array element width in type-specific flags
+We can encode the string array's element width in type-specific flags
 and then we need an array length and a pointer to the allocated memory
 for it.
 
@@ -660,11 +484,20 @@ for it.
    #define IDIO_STRING_S(S)	((S)->u.string.s)
    #define IDIO_STRING_FLAGS(S)	((S)->tflags)
 
+``s`` is a ``char *`` (and called ``s``) for the obvious historic
+reasons although ``s`` is never used to access the elements of the
+array directly.  We will figure out the element width from the flags
+and then use a ``uint8_t *s8``, ``uint16_t *s16`` or ``uint32_t *s32``
+cast from ``s`` as appropriate.  The array elements are then casually
+accessed with ``s8[i]``, ``s16[i]`` or ``s32[i]``.  Easy.
+
 There's something very similar for a substring which requires:
 
 * the reference back to the parent string
 
-* ``s`` becomes a pointer directly into the parent string for the start of the substring
+* ``s`` becomes a pointer directly into the parent string for the
+  start of the substring -- but is otherwise cast to something else in
+  the same manner as above
 
 * ``len`` is the substring's length
 
@@ -673,8 +506,35 @@ A substring can figure out the width of elements from its parent.
 A substring of a substring is flattened to just being another
 substring of the original parent.
 
+.. rst-class:: center
+
+\*
+
+Amongst other possible reworks, I notice many other implementations
+allocate the ``IDIO`` object and the memory required for the string
+storage in one block.
+
+It would save the two pointers used by :manpage:`malloc(3)` for its
+accounting and the extra calls to
+:manpage:`malloc(3)`/:manpage:`free(3)`.
+
+.. rst-class:: center
+
+\*
+
+I did have an idea for a "short" string.  The nominal ``IDIO``
+``union`` is three pointers worth -- to accommodate a pair, the most
+common type -- could we re-work that as a container for short strings?
+
+Three pointers worth is 12 or 24 bytes.  If we used an ``unsigned
+char`` for the length then we could handle strings up to 11 or 23
+bytes.
+
+I think you'd need to do some "field analysis" to see if such short
+strings occur often enough to make it worth the effort.
+
 Encoding
-^^^^^^^^
+--------
 
 One thing hidden from the above discourse is the thorny matter of
 *encoding*.  All mechanisms to move data between entities need to
@@ -696,44 +556,93 @@ To read in UTF-8 we use :ref-author:`Bjoern Hoehrmann`'s
 :ref-title:`Flexible and Economical UTF-8 Decoder` :cite:`BH-UTF-8`, a
 DFA-based decoder.
 
-Symbols
-=======
+Reading
+-------
 
-Symbols are usually what you think of in other languages as
-identifiers, the references to values.  They are also in
-:lname:`Lisp`\ y languages first class values in their own right.
+The input form for a string is quite straight-forward: ``" ... "``.
 
-In the first instance I think we're probably fairly comfortable with
-the idea that we use symbolic (ha!) names to represent values and that
-as the program is compiled the compiler will "do away with" those
-symbolic names are use some memory addresses instead.  Symbolic names
-are useful for us programmers to deal with but not really of any use
-whatsoever to a compiler.
+The reader is, in one sense, quite naive and is strictly looking for a
+non-escaped closing ``"`` to terminate the string, see
+``idio_read_string()`` in :file:`read.c`.
 
-:lname:`Idio` is no different in that regard, you can introduce a
-symbolic name -- let's call it a symbol! -- and indicate that
-it refers to a value:
+Subsequently the collected bytes are assumed to be part of a valid
+UTF-8 sequence.  If the byte sequence is invalid UTF-8 you will get
+the (standard) U+FFFD (REPLACEMENT CHARACTER) and the decoding will
+resume *with the next byte*.  This may result in several replacement
+characters being generated.
 
-.. code-block:: idio
+There are a couple of notes:
 
-   str := "hello"
+#. ``\`` (backslash, reverse solidus) is the escape character.  The
+   obvious character to escape is ``"`` itself allowing you to embed a
+   double-quote symbol in a double-quoted string: ``"hello\"world"``.
 
-The ``"hello"`` part will have been recognised as the constructor for a string value
+   In the spirit of `C escape sequences
+   <https://en.wikipedia.org/wiki/Escape_sequences_in_C>`_
+   :lname:`Idio` also allows:
 
-That's a slightly tricky concept to grasp so I tend to think of them as tags
+   .. csv-table::
+      :header: sequence, (hex) ASCII, description
 
-Keywords
-========
+      ``\a``, 07, alert / bell
+      ``\b``, 08, backspace
+      ``\e``, 1B, escape character
+      ``\f``, 0C, form feed
+      ``\n``, 0A, newline
+      ``\r``, 0D, carriage return
+      ``\t``, 09, horizontal tab
+      ``\v``, 0B, vertical tab
+      ``\\``, 5C, backslash
 
-.. _bignum:
+   :lname:`Idio` ought to support some means of embedding Unicode code
+   points -- perhaps using the :lname:`C`-like ``\uhhhh`` -- but it
+   doesn't (yet).
 
-Bignum
-======
+#. :lname:`Idio` allows multi-line strings:
 
-Handles
-=======
+   .. code-block:: idio
 
-Bitsets
-=======
+      str1 := "Hello
+      World"
 
+      str2 := "Hello\nWorld"
 
+   The string constructors for ``str1`` and ``str2`` are equivalent.
+
+Writing
+-------
+
+:lname:`Idio` strings will be UTF-8 encoded on output, see
+``idio_utf8_string()`` in :file:`unicode.c` for the details.
+
+There's a couple of qualification to that:
+
+#. We can ask for the reader's :lname:`C` escape sequences to be
+   reproduced in their ``\X`` format, eg. ``\a`` for alert / bell.
+
+#. We can ask for the printed string to be quoted with double quotes.
+
+   This latter option is a consequence of how we visualise printed
+   entities.  The REPL will *print* values in a reader-ready format,
+   so including leading and trailing ``"``\ s.
+
+   .. code-block:: console
+
+      Idio> str := "Hello\nWorld"
+      "Hello\nWorld"
+
+      Idio> str := "Hello
+      World"
+      "Hello\nWorld"
+
+   By and large, though, most things will *display* a string value as
+   part of a larger output:
+
+   .. code-block:: console
+
+      Idio> printf "'%s'\n" str
+      'Hello
+      World'
+
+   (Actually, a trailing ``#<unspec>`` will also be printed which is
+   the value that ``printf`` returned.)

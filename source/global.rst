@@ -43,7 +43,6 @@
 .. _Qish: http://www.starynkevitch.net/Basile/qishintro.html
 .. _RFC1918: https://tools.ietf.org/html/rfc1918
 .. _Readline: https://tiswww.case.edu/php/chet/readline/rltop.html
-.. _S9fES: https://www.t3x.org/s9fes/
 .. _Samba: https://www.samba.org/
 .. _SBCL: http://www.sbcl.org/
 .. _SRFI-95: https://srfi.schemers.org/srfi-95/srfi-95.html
@@ -111,6 +110,9 @@
 .. _tsch: https://www.tcsh.org
 .. _workflow: https://en.wikipedia.org/wiki/Workflow
 
+
+.. role:: raw-html(raw)
+   :format: html
 
 .. strikethrough font
 .. role:: strike

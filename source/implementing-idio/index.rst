@@ -10,4 +10,5 @@ Implementing :lname:`Idio`
    style
    garbage-collection
    idio-GC
-   simple-types
+   simple-types/index
+   compound-types/index

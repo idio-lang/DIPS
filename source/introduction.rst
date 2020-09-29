@@ -382,7 +382,8 @@ forgotten the details of) in no particular order:
 
   * :ref-author:`Alex Shinn`'s Chibi_ Scheme
 
-  * :ref-author:`Nils M Holm`'s S9fES_ (Scheme 9 from Empty Space)
+  * :ref-author:`Nils M Holm`'s :ref-title:`S9fES` (Scheme 9 from
+    Empty Space) :cite:`S9fES`
 
 I have been unduly influenced by :ref-author:`Nils M Holm`'s
 :ref-title:`S9fES`, in particular the September 2009 variant I
@@ -396,16 +397,16 @@ the GMP_ (GNU Multi Precision Arithmetic Library) and GMP itself is
 that!
 
 The implementation of bignums is, of course, simply long-hand
-arithmetic and, in the S9fES case, using a form of range-limited
-integers to catch and handle carry bits.
+arithmetic and, in the :ref-title:`S9fES` case, using a form of
+range-limited integers to catch and handle carry bits.
 
 Of course, by the time I'd figured out the implementation I'd been
-poking about in S9fES for a while and, whilst none of the underlying
-:lname:`C` is copied (the bignums implementation being ported), there
-is a certain amount of the :lname:`Scheme` code that has been copied
-largely because there is a reasonable test script which meant taking
-the :lname:`Scheme` functions supporting trigonometric functions with
-it.
+poking about in :ref-title:`S9fES` for a while and, whilst none of the
+underlying :lname:`C` is copied (the bignums implementation being
+ported), there is a certain amount of the :lname:`Scheme` code that
+has been copied largely because there is a reasonable test script
+which meant taking the :lname:`Scheme` functions supporting
+trigonometric functions with it.
 
 That's not great.  Not because the code is poor, or anything, but
 because I've taken it verbatim.  I can't claim to be able to describe

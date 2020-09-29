@@ -6,6 +6,8 @@
 DIPS
 ====
 
+The Design and Implementation of a Programmable Shell
+
 .. todolist::
 
 .. toctree::

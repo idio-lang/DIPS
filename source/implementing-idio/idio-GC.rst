@@ -179,7 +179,7 @@ to an ``idio_t``/``struct idio_s``:
 
    struct idio_s {
        idio_type_e type;	/* up to 255 types */
-       IDIO_FLAGS_T gc_flags;	/* colours etc. */
+       IDIO_FLAGS_T gc_flags;	/* GC colours etc. */
        IDIO_FLAGS_T flags;	/* 8 generic type flags: const, etc. */
        IDIO_FLAGS_T tflags;	/* 8 type-specific flags */
 
@@ -193,6 +193,21 @@ to an ``idio_t``/``struct idio_s``:
    typedef struct idio_s idio_t;
    typedef idio_t* IDIO;
 
+
+``IDIO``
+^^^^^^^^
+
+That last line is key: an ``IDIO``, a pointer to an
+``idio_t``/``struct idio_s`` is our stock :lname:`Idio` type.
+
+Everything passed around in :lname:`C` is an ``IDIO`` which, as it is
+a pointer, gives rise to the notion that we are always referring to a
+value.  We never pass a value *per se*.
+
+(Numbers and Constants will break that notion but let's roll with it.)
+
+gc.c
+^^^^
 
 :file:`gc.c` concerns itself with allocating memory, accounting,
 garbage collection.  It *does not* perform value initialisation.
@@ -208,11 +223,54 @@ function -- which can free, say, the extra memory required for the
 string, updating the stats -- before the GC will chose whether to add
 the value to the free list or actually :manpage:`free(3)` it.
 
+Finalisers
+^^^^^^^^^^
+
+For a class of values you might want to run some code to tidy up,
+usually, finite system resources.
+
+The classic example is Unix file descriptors.  With a GC, we might
+create a value with the opened file descriptor somewhere inside it but
+the nature of a garbage-collected language means we don't
+:manpage:`close(2)` the file descriptor explicitly in user-code -- as
+we don't know who is still referencing the value until a GC sweep
+reveals it has been orphaned.
+
+When we do come to collect the value which, to the GC, means to
+:manpage:`free(3)` it, we need to interject because we need to perform
+some final actions which affect something *other* than the GC.  For
+the file descriptor, that is to call :manpage:`close(2)`.
+
+We *could* put the :manpage:`close(2)` call in the nominal
+``idio_free_file_handle()`` code but it is more generic to associate
+the value with a *finaliser* function and have the GC invoke the
+finaliser with the value.
+
+If we were feeling particularly keen that could be an
+:lname:`Idio`-level user-defined function -- but we're not, so this is
+a :lname:`C`-level functionality.
+
 Value Code-base and Life-cycle
 ------------------------------
 
 That description gives the following broad code structure and value
-life-cycle for some putative "foo" type:
+life-cycle for some putative "foo" type.
+
+Take note of the consistency of the naming, generally:
+
+#. ``idio_`` (or ``IDIO_`` -- you'll get the picture)
+
+#. *functional area* which might be
+
+   * ``TYPE_`` for the GC or
+
+   * ``foo_`` for matters related to our "foo" value
+
+#. *differentiator* which might be
+
+   * ``FOO`` as the distinguishing type name for the GC
+
+   * ``free()`` for the GC-related function
 
 gc.h
 ^^^^
@@ -227,9 +285,13 @@ There are three sections of interest:
 
    ``IDIO_TYPE_FOO`` will be used throughout the code-base.  There
    will be large ``switch`` statements handling each possible
-   :lname:`Idio` type.
+   :lname:`Idio` type.  The usual culprits are:
 
-#. defining the :lname:`C` struct and accessors
+   * :file:`gc.c` to handle GC
+
+   * :file:`util.c` to handle both equality and printing
+
+#. defining the :lname:`C` struct and accessors for the value, say:
 
    .. code-block:: c
 
@@ -239,7 +301,7 @@ There are three sections of interest:
 
       #define IDIO_FOO_I(S)	((S)->u.foo.i)
 
-   there is room for 8 bits of type-specific flags, for example,
+   There is room for 8 bits of type-specific flags.  For example,
    *handles* have read and write flags:
 
    .. code-block:: c
@@ -255,7 +317,7 @@ There are three sections of interest:
       #define IDIO_FOO_I(F)	((F)->u.foo.i)
       #define IDIO_FOO_FLAGS(F)	((F)->tflags)
 
-#. adding the value to the ``IDIO`` ``union``
+#. adding the value to the ``IDIO`` ``struct``'s ``union``
 
    .. code-block:: c
 
@@ -287,10 +349,10 @@ we see the requirement to use the "not defined yet" ``struct idio_s
    #define IDIO_BAR_REF(B)	((B)->u.bar.ref)
    #define IDIO_BAR_J(B)	((B)->u.bar.j)
 
-If your value structure is "large" (probably more than three pointers
-worth but see the commentary in ``struct idio_s`` for specifics) then
-your entry in the ``struct idio_s`` ``union`` should be a pointer and
-your accessor macros must reflect that:
+If your value structure is "large" (probably more than three
+pointers-worth but see the commentary in ``struct idio_s`` for
+specifics) then your entry in the ``struct idio_s`` ``union`` should
+be a pointer and your accessor macros must reflect that:
 
 .. code-block:: c
 
@@ -313,7 +375,7 @@ your accessor macros must reflect that:
        ...
        union idio_s_u {
            ...
-           idio_baz_t          *baz;
+           idio_baz_t          *baz;	/* now a pointer */
            ...
        } u;
    };
@@ -326,7 +388,18 @@ Most ``foo`` related functionality exists in :file:`foo.c` and
 
 Everything should be fairly formulaic.
 
-A value constructor is ``idio_foo`` and returns an ``IDIO``:
+A value constructor is ``idio_foo`` and returns an ``IDIO``.
+
+It will be passed any relevant arguments although what form those take
+and whether they relate to the fields of the ``struct`` are
+value-dependent.  For example, a string value is quite likely to be
+created from a :lname:`C` string or possibly from an existing
+:lname:`Idio` string -- that means there isn't an ``idio_string()``
+function but rather two variants.
+
+In this example, we're being passed an ``IDIO`` initialiser for ``i``
+although we don't see how that value is converted into the :lname:`C`
+``int`` of the ``struct``:
 
 .. code-block:: c
 
@@ -350,11 +423,16 @@ of type and inheritance complications):
    {
        IDIO_ASSERT (o);
 
-       return idio_isa (o, IDIO_TYPE_PAIR);
+       return idio_isa (o, IDIO_TYPE_FOO);
    }
 
 The :lname:`Idio`-level predicate, ``foo?``, will call this and return
 a boolean.
+
+The :lname:`C` macro, :samp:`IDIO_TYPE_ASSERT({type}, {value})` is
+simply a call to :samp:`idio_isa_{type} ({value})`.
+
+(I notice that ``o`` is representative of "object".  *\*sigh\**)
 
 A value destructor is ``idio_free_foo``:
 
@@ -363,12 +441,13 @@ A value destructor is ``idio_free_foo``:
    void idio_free_foo (IDIO f)
    {
        IDIO_ASSERT (f);
-       IDIO_TYPE_ASSERT (foo, f);	/* ==> assert (idio_isa_foo (f)) */
+       IDIO_TYPE_ASSERT (foo, f);
 
        /* nothing to do for a foo */
    }
 
-You'll then have a bunch of accessors and other foo-related functions.
+You'll then have a bunch of accessors and other "foo"-related
+functions.
 
 Finally some generic housekeeping:
 
@@ -382,7 +461,7 @@ where:
 
 * ``idio_init_foo()`` is called early on to allow you to perform any
   basic initialisation.  You might need to be careful of the ordering
-  in ``idio_init()`` in :file:`idio.c`ZA.
+  in ``idio_init()`` in :file:`idio.c`.
 
 * ``idio_foo_add_primitives()`` is a mechanism to add your primitive
   functions to :lname:`Idio`.  This is called after all the
@@ -401,7 +480,7 @@ The ``bar`` type was a little more interesting in that we have to
 remember to set ``IDIO_BAR_GREY`` to ``NULL``.  The grey pointer has
 to be set to ``NULL`` by someone, we could have had yet another switch
 statement in the GC but I've settled for here in the value
-initialisation code
+initialisation code:
 
 .. code-block:: c
 
@@ -491,3 +570,11 @@ and ``IDIO_GC_ALLOC`` is a simple macro:
 and ``idio_gc_alloc`` handles stats for ``idio_alloc`` which calls
 :manpage:`malloc(3)` and handles errors (and does some
 :manpage:`memset(3)` in debug mode).
+
+Scale
+=====
+
+The GC does some work.  At the time of writing just to start up and
+shut down I see that it grinds through, amongst other things, 1.5
+*million* ``pair``\ s.  Only 131 thousand of those were still "in use"
+as the GC shut down.  I say, only, but what are *they* being used for?

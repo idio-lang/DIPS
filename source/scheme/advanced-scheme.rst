@@ -721,11 +721,11 @@ there are common idioms to temporarily switch those noting that many
 functions are well aware that they might be switched and will
 rigorously ask for the *current* input, output or error port.
 
-This little snippet from [S9fES]_ combines several techniques to
-create a function that takes a file name and a :ref:`thunk <thunk>`
-then switches the current input port to the newly opened file, runs
-the thunk, saving its result, closes the file, resets the input port
-and returns the saved result:
+This little snippet from :ref-title:`S9fES` (:cite:`S9fES`) combines
+several techniques to create a function that takes a file name and a
+:ref:`thunk <thunk>` then switches the current input port to the newly
+opened file, runs the thunk, saving its result, closes the file,
+resets the input port and returns the saved result:
 
 .. code-block:: scheme
 
