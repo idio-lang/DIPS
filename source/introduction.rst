@@ -532,9 +532,9 @@ computing and, being a tichy little thing, also represents, to some
 degree, a *minimal* unit of computing.  If :lname:`Idio` can "perform"
 on a Raspberry Pi then we've nailed it.
 
-:lname:`Idio` does not "perform" on a Raspberry Pi.  Which is
-annoying.  It doesn't "perform" on the latest and greatest CPU I have.
-Which is more disturbing.
+Unfortunately, :lname:`Idio` does not "perform" on a Raspberry Pi.
+Which is annoying.  It doesn't "perform" on the latest and greatest
+CPU I have.  Which is more disturbing.
 
 More work required.
 

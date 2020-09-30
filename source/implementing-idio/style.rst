@@ -430,6 +430,35 @@ or
 
 
 
+:lname:`C` Comparison Style
+---------------------------
+
+I have taken to making the left-hand-side of a comparison whichever
+value is a *constant* -- the goal to avoid accidental assignments:
+
+.. code-block:: c
+
+   if (IDIO_TYPE_VALUE == s[i]) {
+
+and I think it's probably saved me a couple of times from the ignominy
+of:
+
+.. code-block:: c
+
+   if (s[i] = IDIO_TYPE_VALUE) {
+
+It does require a bit of mental effort and it doesn't scan as well: I
+always have the sense of comparing something that I've just calculated
+to something else which gives the :samp:`{variable} == {constant}`
+thought process but is, of course, one character away from
+embarrassment.
+
+For some comparisons, notably function calls, I revert to "normal":
+
+.. code-block:: c
+
+   if (system_call (args) == -1) {
+
 :lname:`Idio` Style
 -------------------
 
