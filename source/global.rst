@@ -95,7 +95,6 @@
 .. _`signal handler`: https://www.securecoding.cert.org/confluence/display/c/SIG31-C.+Do+not+access+shared+objects+in+signal+handlers
 .. _`starter for ten`: https://en.wikipedia.org/wiki/University_Challenge
 .. _`template::Toolkit`: http://www.template-toolkit.org/
-.. _bignums: https://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic
 .. _closure: https://en.wikipedia.org/wiki/Closure_(computer_programming)
 .. _elvish: https://elv.sh
 .. _fish: http://fishshell.com

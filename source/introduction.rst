@@ -389,12 +389,13 @@ I have been unduly influenced by :ref-author:`Nils M Holm`'s
 :ref-title:`S9fES`, in particular the September 2009 variant I
 downloaded as it had an implementation of *bignums*.
 
-For some reason I had become fixated on bignums_ and wanted to
-understand the science (so advanced it was indistinguishable from
-magic) that made it happen.  So many other implementations deferred to
-the GMP_ (GNU Multi Precision Arithmetic Library) and GMP itself is
-2100 files and 435k lines of code -- I don't want to wade through
-that!
+For some reason I had become fixated on `bignums
+<https://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic>`_ and
+wanted to understand the science (so advanced it was indistinguishable
+from magic) that made it happen.  So many other implementations
+deferred to the GMP_ (GNU Multi Precision Arithmetic Library) and GMP
+itself is 2100 files and 435k lines of code -- I don't want to wade
+through that!
 
 The implementation of bignums is, of course, simply long-hand
 arithmetic and, in the :ref-title:`S9fES` case, using a form of

@@ -335,6 +335,8 @@ are :manpage:`isgraph(3)` which will take the ``#\X`` form.
 
 If displayed, the Unicode code point is encoded in UTF-8.
 
+.. _strings:
+
 :lname:`Idio` Strings
 =====================
 
