@@ -21,3 +21,4 @@ simple types.
    handles
    bitsets
    c-types
+   functions
