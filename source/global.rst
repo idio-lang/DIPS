@@ -45,11 +45,13 @@
 .. _Readline: https://tiswww.case.edu/php/chet/readline/rltop.html
 .. _Samba: https://www.samba.org/
 .. _SBCL: http://www.sbcl.org/
+.. _SRFI-14: https://srfi.schemers.org/srfi-14/srfi-14.html
 .. _SRFI-95: https://srfi.schemers.org/srfi-95/srfi-95.html
 .. _SRFI: http://srfi.schemers.org
 .. _Scsh: https://scsh.net
 .. _Smalltalk: https://en.wikipedia.org/wiki/Smalltalk
 .. _Solid: https://github.com/chameco/Solid.git
+.. _`Stack Overflow`: https://stackoverflow.com
 .. _Stklos: https://stklos.net
 .. _TOML: https://toml.io/en/
 .. _Tcl: https://www.tcl-lang.org/
