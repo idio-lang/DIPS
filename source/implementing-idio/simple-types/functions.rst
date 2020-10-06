@@ -60,19 +60,19 @@ And we can probably chuck in a :lname:`C` string for a name:
 .. code-block:: c
    :caption: gc.h
 
-    typedef struct idio_primitive_s {
-	struct idio_s *grey;
-	struct idio_s *(*f) ();		 /* don't declare args */
-	char *name;
-	uint8_t arity;
-	char varargs;
-    } idio_primitive_t;
+   typedef struct idio_primitive_s {
+       struct idio_s *grey;
+       struct idio_s *(*f) ();		 /* don't declare args */
+       char *name;
+       uint8_t arity;
+       char varargs;
+   } idio_primitive_t;
 
-    #define IDIO_PRIMITIVE_GREY(P)       ((P)->u.primitive->grey)
-    #define IDIO_PRIMITIVE_F(P)          ((P)->u.primitive->f)
-    #define IDIO_PRIMITIVE_NAME(P)       ((P)->u.primitive->name)
-    #define IDIO_PRIMITIVE_ARITY(P)      ((P)->u.primitive->arity)
-    #define IDIO_PRIMITIVE_VARARGS(P)    ((P)->u.primitive->varargs)
+   #define IDIO_PRIMITIVE_GREY(P)       ((P)->u.primitive->grey)
+   #define IDIO_PRIMITIVE_F(P)          ((P)->u.primitive->f)
+   #define IDIO_PRIMITIVE_NAME(P)       ((P)->u.primitive->name)
+   #define IDIO_PRIMITIVE_ARITY(P)      ((P)->u.primitive->arity)
+   #define IDIO_PRIMITIVE_VARARGS(P)    ((P)->u.primitive->varargs)
 
 As the comment notes, we don't declare any arguments for the
 :lname:`C` function pointer as that will vary from primitive to
@@ -137,14 +137,14 @@ That sort of data, describing the primitive, looks like:
 
 .. code-block:: c
 
-    typedef struct idio_primitive_desc_s {
-	struct idio_s *(*f) ();
-	char *name;
-	uint8_t arity;
-	char varargs;
-	char *sigstr;
-	char *docstr;
-    } idio_primitive_desc_t;
+   typedef struct idio_primitive_desc_s {
+       struct idio_s *(*f) ();
+       char *name;
+       uint8_t arity;
+       char varargs;
+       char *sigstr;
+       char *docstr;
+   } idio_primitive_desc_t;
 
 
 To make that recording happen I've cobbled together some increasingly
@@ -164,10 +164,10 @@ we use (in its simplest form):
 
 .. code-block:: c
 
-    IDIO_DEFINE_PRIMITIVE2 ("pair", pair, (IDIO h, IDIO t))
-    {
-	return idio_pair (h, t);
-    }
+   IDIO_DEFINE_PRIMITIVE2 ("pair", pair, (IDIO h, IDIO t))
+   {
+       return idio_pair (h, t);
+   }
 
 Let's break this down:
 
@@ -249,7 +249,7 @@ for help and debugging.
 
 The signature string for a closure is, in essence, the formal
 parameter list and so it should be similar for a primitive.  This is
-straight-forward for non-varargs functions, like ``pair`` where the
+straightforward for non-varargs functions, like ``pair`` where the
 signature string can be just ``h t``.
 
 For varargs functions, the interpretation varies considerably.  For
@@ -274,15 +274,15 @@ The actual ``pair`` PRIMITIVE looks like:
 
 .. code-block:: c
 
-    IDIO_DEFINE_PRIMITIVE2_DS ("pair", pair, (IDIO h, IDIO t), "h t", "\
-    create a `pair` from `h` and `t`	\n\
-    ")
-    {
-        IDIO_ASSERT (h);
-	IDIO_ASSERT (t);
-	
-	return idio_pair (h, t);
-    }
+   IDIO_DEFINE_PRIMITIVE2_DS ("pair", pair, (IDIO h, IDIO t), "h t", "\
+   create a `pair` from `h` and `t`	\n\
+   ")
+   {
+       IDIO_ASSERT (h);
+       IDIO_ASSERT (t);
+
+       return idio_pair (h, t);
+   }
 
 Note the assertions of the parameters being passed in.  The only
 difference is that we'll fill in the ``sigstr`` and ``docstr`` fields.
@@ -311,30 +311,30 @@ similar bootstrap structure including:
 
 .. code-block:: c
 
-    void idio_pair_add_primitives ()
-    {
-    }
+   void idio_pair_add_primitives ()
+   {
+   }
 
 into which we need to "add" our primitive:
 
 .. code-block:: c
 
-    void idio_pair_add_primitives ()
-    {
-	IDIO_ADD_PRIMITIVE (pair);
-    }
+   void idio_pair_add_primitives ()
+   {
+       IDIO_ADD_PRIMITIVE (pair);
+   }
 
 ``IDIO_ADD_PRIMITIVE`` is another :lname:`C` macro which expands into:
 
 .. code-block:: c
 
-    void idio_pair_add_primitives ()
-    {
-	idio_add_primitive (&idio_primitive_data_pair,
-			    idio_vm_constants,
-			    __FILE__,
-			    __LINE__);
-    }
+   void idio_pair_add_primitives ()
+   {
+       idio_add_primitive (&idio_primitive_data_pair,
+			   idio_vm_constants,
+			   __FILE__,
+			   __LINE__);
+   }
 
 and ``idio_add_primitive()`` does the dirty business of adding a new
 symbol (derived from the :lname:`C` string :samp:`{name}`) and have it
@@ -436,19 +436,19 @@ The data we need for a closure looks like:
 .. code-block:: c
    :caption: gc.h
 
-    typedef struct idio_closure_s {
-	struct idio_s *grey;
-	size_t code_pc;
-	size_t code_len;
-	struct idio_s *frame;
-	struct idio_s *env;
-    } idio_closure_t;
+   typedef struct idio_closure_s {
+       struct idio_s *grey;
+       size_t code_pc;
+       size_t code_len;
+       struct idio_s *frame;
+       struct idio_s *env;
+   } idio_closure_t;
 
-    #define IDIO_CLOSURE_GREY(C)       ((C)->u.closure->grey)
-    #define IDIO_CLOSURE_CODE_PC(C)    ((C)->u.closure->code_pc)
-    #define IDIO_CLOSURE_CODE_LEN(C)   ((C)->u.closure->code_len)
-    #define IDIO_CLOSURE_FRAME(C)      ((C)->u.closure->frame)
-    #define IDIO_CLOSURE_ENV(C)        ((C)->u.closure->env)
+   #define IDIO_CLOSURE_GREY(C)       ((C)->u.closure->grey)
+   #define IDIO_CLOSURE_CODE_PC(C)    ((C)->u.closure->code_pc)
+   #define IDIO_CLOSURE_CODE_LEN(C)   ((C)->u.closure->code_len)
+   #define IDIO_CLOSURE_FRAME(C)      ((C)->u.closure->frame)
+   #define IDIO_CLOSURE_ENV(C)        ((C)->u.closure->env)
 	     
 Let's take a look:
 

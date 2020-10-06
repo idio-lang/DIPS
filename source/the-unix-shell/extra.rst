@@ -87,7 +87,7 @@ In our putative shell-like language we want to say:
 
 .. code-block:: idio
 
- tcsetpgrp fd pgrp
+   tcsetpgrp fd pgrp
 
 where ``tcsetpgrp`` is an :lname:`Idio` function and ``fd`` and
 ``pgrp`` are :lname:`Idio` values and it will eventually work its way
@@ -95,19 +95,19 @@ through to a :lname:`C` function, something like:
 
 .. code-block:: c
 
- ... idio_primitive_tcsetpgrp (... fd_arg, ... pgrp_arg)
- {
-     int fd = <massage fd_arg into int>;
-     pid_t pgrp = <massage pgrp arg into pid_t>;
+   ... idio_primitive_tcsetpgrp (... fd_arg, ... pgrp_arg)
+   {
+       int fd = <massage fd_arg into int>;
+       pid_t pgrp = <massage pgrp arg into pid_t>;
 
-     int ret = tcsetpgrp (fd, pgrp);
+       int ret = tcsetpgrp (fd, pgrp);
 
-     if (-1 == ret) {
-         idio_error_system_errno ("tcsetpgrp", ...);
-     }
+       if (-1 == ret) {
+	   idio_error_system_errno ("tcsetpgrp", ...);
+       }
 
-     return <massaged ret>;
- }
+       return <massaged ret>;
+   }
 
 However, crafting those calls by hand is quite different to being able
 to wave some automated mechanism at the problem and say, *figure it
@@ -182,14 +182,14 @@ You do have to have some sample code, say for a call to
 
 .. code-block:: c
 
- #include <sys/time.h>
- #include <sys/resource.h>
+   #include <sys/time.h>
+   #include <sys/resource.h>
 
- void foo (void)
- {
-     struct rusage r;
-     getrusage (RUSAGE_SELF, &r);
- }
+   void foo (void)
+   {
+       struct rusage r;
+       getrusage (RUSAGE_SELF, &r);
+   }
 
 which is enough to get you the enumerated type for ``RUSAGE_SELF`` and
 a recursive breakdown of ``struct rusage`` and all its constituent
@@ -199,8 +199,8 @@ timeval`` members:
 
 .. code-block:: bash
 
- gcc -g -o getrusage.o getrusage.c
- objdump -g getrusage.o
+   gcc -g -o getrusage.o getrusage.c
+   objdump -g getrusage.o
 
 
 But nothing about the call to :manpage:`getrusage(2)` itself and that

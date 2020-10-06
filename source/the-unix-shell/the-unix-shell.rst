@@ -27,12 +27,12 @@ grep foo``, casually.  It's more complicated with function calls:
 
 .. code-block:: c
 
- add (1,
-      mul (2, 3));
+   add (1,
+	mul (2, 3));
 
- pipe ("zcat file.tgz",
-       pipe ("tar xf -",
-             "grep foo"));
+   pipe ("zcat file.tgz",
+	 pipe ("tar xf -",
+	       "grep foo"));
 
 They look less straightforward and elegant and instead clumsy and
 forced.  We can't see the wood for the trees.
@@ -51,7 +51,7 @@ commands is very clean:
 
 .. code-block:: bash
 
- ls -al *.txt
+   ls -al *.txt
 
 There's no pre-amble, superfluous syntactic clutter and no trailing
 end-of-statement marker, the end of the line terminates the statement
@@ -67,7 +67,7 @@ Compare that with most languages which, for example, in :lname:`C`:
 
 .. code-block:: c
 
- func (val1, val2);
+   func (val1, val2);
 
 Here we have the same word ordering (command then arguments) but also
 have parenthesis separating the function name from the arguments and,
@@ -77,15 +77,15 @@ allow you to recursively call other functions in place of arguments:
 
 .. code-block:: c
 
- func (sub1 (a1, a2), sub2 (b1, b2));
+   func (sub1 (a1, a2), sub2 (b1, b2));
 
 Which now has an impressive 10 pieces of punctuation and is getting
 hard to read.  I, depending on whim, might have rewritten it as:
 
 .. code-block:: c
 
- func (sub1 (a1, a2),
-       sub2 (b1, b2));
+   func (sub1 (a1, a2),
+	 sub2 (b1, b2));
 
 .. sidebox:: I suggest a strongly worded letter to the Editor,
              preferably hand-written in green ink.
@@ -101,8 +101,8 @@ parenthesis, looks like:
 
 .. code-block:: scheme
 
- (func (sub1 a1 a2)
-       (sub2 b1 b2))
+   (func (sub1 a1 a2)
+	 (sub2 b1 b2))
 
 Go figure.
 
@@ -111,13 +111,13 @@ You can do the subroutine calling of a sorts with the shell's
 
 .. code-block:: bash
 
- ls -al $(generate_txt_file_names)
+   ls -al $(generate_txt_file_names)
 
 but you can't do that multiple times and distinguish the results:
 
 .. code-block:: bash
 
- func $(sub1 $a1 $a2) $(sub2 $b1 $b2)
+   func $(sub1 $a1 $a2) $(sub2 $b1 $b2)
 
 .. sidebox:: I know :lname:`C` doesn't return multiple values but you
              know what I mean, :lname:`C` retains the separation of
@@ -139,14 +139,14 @@ I think it's visual clutter and we should be more :lname:`C`- or
 
 .. code-block:: c
 
- a = func (b, c);
+   a = func (b, c);
 
 rather than the mish-mash of:
 
 .. code-block:: bash
 
- a=${b[i]}
- func $b $c
+   a=${b[i]}
+   func $b $c
 
 When do I use a sigil and when not?  Get rid of the lot.
 
@@ -160,9 +160,9 @@ So we might do:
 
 .. code-block:: bash
 
- PATH=/usr/local/bin:$PATH
+   PATH=/usr/local/bin:$PATH
 
- echo "PATH=$PATH"
+   echo "PATH=$PATH"
 
 Both of those are very convenient, I have to say.  Are they
 *required*, though?  What would we do elsewhere?  Actually, for the
@@ -172,7 +172,7 @@ functions to manipulate Unix paths (``PATH``, ``LD_LIBRARY_PATH``,
 
 .. code-block:: bash
 
- path_prepend PATH /usr/local/bin
+   path_prepend PATH /usr/local/bin
 
 and you can imagine variants for modifying multiple related paths
 simultaneously and various path normalisation functions (removing
@@ -181,20 +181,20 @@ duplicates etc.).  The style is more programming language-like, in
 
 .. code-block:: python
 
- sys.path.append ("/usr/local/lib/python")
+   sys.path.append ("/usr/local/lib/python")
 
 As for string interpolation, I'm less sure I'd miss it in the above
 for as I might use a format string of some kind as in :lname:`Perl`:
 
 .. code-block:: perl
 
- printf "PATH=%s\n", $ENV{PATH};
+   printf "PATH=%s\n", $ENV{PATH};
 
 or :lname:`Python`
 
 .. code-block:: python
 
- print ("PATH={0}\n".format (os.environ['PATH']))
+   print ("PATH={0}\n".format (os.environ['PATH']))
 
 .. sidebox:: I often find myself visually scanning swathes of output
              to find the thing of interest.  Pattern matching by eye
@@ -215,9 +215,9 @@ terrific bit of left-field thinking):
 
 .. code-block:: bash
 
- perl << EOF
- printf "PATH=$PATH\n";
- EOF
+   perl << EOF
+   printf "PATH=$PATH\n";
+   EOF
 
 where I'm ostensibly creating a (multi-line) string but substituting
 in some variables.
@@ -228,10 +228,10 @@ leaving you to judiciously escape some of them:
 
 .. code-block:: bash
 
- perl << EOF
- my \$path = "$PATH";
- printf "PATH=%s\n", \$path;
- EOF
+   perl << EOF
+   my \$path = "$PATH";
+   printf "PATH=%s\n", \$path;
+   EOF
 
 Here-documents in general, and code-snippets for other languages, in
 particular, look at though they need a bit more thought.  It seems
@@ -245,10 +245,10 @@ written that as:
 
 .. code-block:: bash
 
- perl << EOF
- my $path = "!PATH";
- printf "PATH=%s\n", $path;
- EOF
+   perl << EOF
+   my $path = "!PATH";
+   printf "PATH=%s\n", $path;
+   EOF
 
 where ``!`` -- or some other sigil that *you* get to choose, something
 appropriate to your template -- means we can write
@@ -306,9 +306,9 @@ Variable assignment is something I *do* use:
 
 .. code-block:: bash
 
- TZ=GMT+0 date
- 
- PATH=/somewhere/else/first:$PATH cmd args
+   TZ=GMT+0 date
+
+   PATH=/somewhere/else/first:$PATH cmd args
 
 This is a really neat trick, we make a change to the pending command's
 environment (but, crucially, not our own).
@@ -318,18 +318,18 @@ following:
 
 .. code-block:: bash
 
- CFLAGS=one-thing make CFLAGS=another-thing
+   CFLAGS=one-thing make CFLAGS=another-thing
 
 I don't like that, it looks too hard.  We could have achieved the same
 with a subshell:
 
 .. code-block:: bash
 
- (
-  PATH=/somewhere/else:$PATH
+   (
+    PATH=/somewhere/else:$PATH
 
-  cmd args
- )
+    cmd args
+   )
 
 Where, if we forget that the parenthesis have introduced a subshell
 and think of it as a code block, I'm getting a sense of a transient
@@ -344,7 +344,7 @@ changing the current shell's ``PATH``:
 
 .. code-block:: bash
 
- PATH=/somewhere/else:$PATH
+   PATH=/somewhere/else:$PATH
 
 is a side-effect of the *absence* of a command rather than an explicit
 shell-modifying statement in its own right.  :socrates:`Who knew?`
@@ -359,7 +359,7 @@ right.  So:
 
 .. code-block:: bash
 
- ls -al > foo > bar
+   ls -al > foo > bar
 
 will create both files :file:`foo` and :file:`bar` but :file:`foo`
 will be empty and only :file:`bar` will have any contents.
@@ -370,7 +370,7 @@ redirects:
 
 .. code-block:: bash
 
- exec >log-file 2>&1
+   exec >log-file 2>&1
 
 Here, of course, the order is critical as we are redirecting *stdout*
 to :file:`log-file` and then redirecting *stderr* to wherever *stdout*
@@ -382,9 +382,9 @@ descriptor:
 
 .. code-block:: bash
 
- exec 3>&1 >log-file
- ...
- exec >&3
+   exec 3>&1 >log-file
+   ...
+   exec >&3
 
 where we redirect file descriptor 3 to wherever *stdout* is currently
 pointing and then *stdout* to :file:`log-file`.  We do our thing with
@@ -405,8 +405,8 @@ expression of the form:
 
 .. code-block:: python
 
- with open ("log-file", "w") as f:
-     f.write ()
+   with open ("log-file", "w") as f:
+       f.write ()
 
 which is nearly what we want -- we actually want to transiently
 replace *existing* file descriptors and in such a way that they can be
@@ -414,8 +414,8 @@ inherited by any commands we run.  Something more like:
 
 .. parsed-literal:: 
 
- with open ("log-file", "w") as *stdout*:
-     ...
+   with open ("log-file", "w") as *stdout*:
+       ...
 
 (albeit we've skipped our provision to keep the user up to date.)
 
@@ -442,7 +442,7 @@ Pipelines
 
 .. code-block:: bash
 
- bzcat logfile | grep pattern | sort -k 2n > file
+   bzcat logfile | grep pattern | sort -k 2n > file
 
 There's a certain elegant simplicity in writing a shell pipeline, the
 output of a command piped into another command, the output of which,
@@ -475,7 +475,7 @@ That is to say that:
 
 .. code-block:: bash
 
- something | grep foo
+   something | grep foo
 
 fails, not because there was no output but because :program:`grep`
 exits non-zero if it cannot match the regular expression (:samp:`foo`)
@@ -492,18 +492,18 @@ component of the pipeline:
 
 ..  code-block:: bash
 
- false | false | false | true
- echo $?
- 0
+   false | false | false | true
+   echo $?
+   0
 
 is all good.  :lname:`Bash`'s ``PIPESTATUS`` variable is a little more
 honest:
 
 ..  code-block:: bash
 
- false | false | false | true
- echo ${PIPESTATUS[*]}
- 1 1 1 0
+   false | false | false | true
+   echo ${PIPESTATUS[*]}
+   1 1 1 0
 
 
 If the command output vs. exit status is not a familiar distinction
@@ -511,7 +511,7 @@ then 1) we're not going to be best friends and 2) try putting:
 
 .. code-block:: bash
 
- set -e
+   set -e
 
 at the top of your script and sit back and watch the fireworks.  **Not
 in production**, though.  That might be bad, fix your script first.
@@ -558,10 +558,10 @@ complicated filter whereon I then I reuse it with ``$(!!)``:
 
 .. code-block:: bash
 
- ...fiddles...
- ...more fiddling...
- ...perfecto!...
- for x in $(!!) ; do thing with $x ; done
+   ...fiddles...
+   ...more fiddling...
+   ...perfecto!...
+   for x in $(!!) ; do thing with $x ; done
 
 So maybe it's a thing.
 
@@ -571,7 +571,7 @@ is something, I think, people are fairly used to:
 
 .. code-block:: bash
 
- sleep 10 &
+   sleep 10 &
 
 which is a slightly pointless example but easily recognisable as
 putting the command "in the background" (whatever that means).
@@ -581,7 +581,7 @@ can get a bit wild:
 
 .. code-block:: bash
 
- for x in {1..10} ; do sleep $x & done
+   for x in {1..10} ; do sleep $x & done
 
 .. sidebox:: I have used this form in anger, albeit carefully modified
              as the operating system couldn't handle a couple of
@@ -622,16 +622,16 @@ when backgrounded:
 
 .. code-block:: bash
 
- for x in ... ; do
-     (
-	 cd some/where
+   for x in ... ; do
+       (
+	   cd some/where
 
-	 mess with the environment
-	 
-	 do some thing with $x
-     ) &
- done
- wait
+	   mess with the environment
+
+	   do some thing with $x
+       ) &
+   done
+   wait
 
 As we know -- or will know if we don't -- every command we run is
 initially in a subshell because we have ``fork``\ ed and are about to
@@ -657,10 +657,10 @@ Let Expression
 ^^^^^^^^^^^^^^
 
 I have to assume that ``(( ... ))`` is only meant to be used in an
-``if``` or ``while`` conditional expression as it explicitly
-returns a non-zero status if the arithmetic result is zero.  So that's
-of no use whatsoever in general flow with any kind of error handling
-(``set -e`` or ``trap ... ERR``).
+``if`` or ``while`` conditional expression as it explicitly returns a
+non-zero status if the arithmetic result is zero.  So that's of no use
+whatsoever in general flow with any kind of error handling (``set -e``
+or ``trap ... ERR``).
 
 If I want to do sums I use :ref:`arithmetic expansion`.
 
@@ -678,7 +678,7 @@ and ``||`` leaving the possibility of:
 
 .. code-block:: bash
 
- [[ $a || $b ]] || [[ $c || $d ]]
+   [[ $a || $b ]] || [[ $c || $d ]]
 
 where the middle ``||`` is managing pipelines and the outer ``||``\ s
 are managing conditional expressions.
@@ -687,7 +687,8 @@ It's inside ``[[`` that we get regular expression matching (as well as
 "regular" :ref:`pattern matching`).
 
 There's a lot of behaviour loaded in ``[[`` that feels like it's
-bundled in because that's the only place it could fit.
+bundled in because that's the only place it could fit -- or ``[[`` was
+designed to be extended arbitrarily.
 
 Certainly regular expressions are just normal function calls in other
 programming languages and you feel that much of the rest of it should
@@ -720,12 +721,12 @@ I use ``case`` a lot as my GoTo means for doing conditional
 
 .. code-block:: bash
 
- HOSTNAME=$(uname -n)
- case "${HOSTNAME}" in
-     '') echo "no hostname?" ;;
-     *.*) ;;
-     *) echo "need a FQDN!" ;;
- esac
+   HOSTNAME=$(uname -n)
+   case "${HOSTNAME}" in
+       '') echo "no hostname?" ;;
+       *.*) ;;
+       *) echo "need a FQDN!" ;;
+   esac
 
 Pattern matching is great!
 
@@ -749,9 +750,9 @@ You'll probably have called ``if`` two ways:
 
 .. code-block:: bash
 
- if [[ ... ]] ; then ... ; fi
+   if [[ ... ]] ; then ... ; fi
 
- if cmd args ; then ... ; fi
+   if cmd args ; then ... ; fi
 
 The first we always look at as a test, like in most languages, ``if`` is:
 
@@ -765,7 +766,7 @@ language version.  Except it's not, it is exactly the other form of
 
 .. code-block:: bash
 
- if cmd args ; then ... ; fi
+   if cmd args ; then ... ; fi
 
 because ``[[ ... ]]`` is a builtin *command* which returns a status
 code of 0 or 1.  Which brings us neatly back round to the exit status.
@@ -781,7 +782,7 @@ substitution <command substitution>`:
 
 .. code-block:: bash
 
- if output=$(cmd args) ; then ... ; fi
+   if output=$(cmd args) ; then ... ; fi
 
 
 
@@ -793,9 +794,9 @@ obviously what you want, at least I think it is obvious:
 
 .. code-block:: bash
 
- if something | grep foo ; then
-     ...
- fi
+   if something | grep foo ; then
+       ...
+   fi
 
 You don't want your shell to exit (``set -e``) if :program:`grep`
 doesn't get a match.  That's the whole point of it being in a
@@ -804,12 +805,12 @@ conditional test.  Compare that with:
 
 .. code-block:: bash
 
- # helpful debug!
- something | grep foo
- 
- if something | grep foo ; then
-     ...
- fi
+   # helpful debug!
+   something | grep foo
+
+   if something | grep foo ; then
+       ...
+   fi
 
 where you'll not reach the ``if`` statement because the failure to
 match :samp:`foo` will cause :program:`grep` to exit non-zero, ``set
@@ -865,9 +866,9 @@ the function with the keyword ``function``:
 
 .. code-block:: ksh
 
- foo() { ... }
+   foo() { ... }
 
- function bar { ... }
+   function bar { ... }
 
 and therefore whether a trap on ``EXIT`` is executed.
 
@@ -890,7 +891,7 @@ can't determine the arguments you have to hand:
 
 .. code-block:: bash
 
- ${TAR} ${TAR_FLAGS}
+   ${TAR} ${TAR_FLAGS}
 
 Is that potentially erroneous because we did or did not pass the
 :program:`tar` *archive* (and optional *files*) in ``${TAR_FLAGS}`` or
@@ -902,7 +903,7 @@ I have written code like:
 
 .. code-block:: bash
 
- ${DEBUG} cmd args
+   ${DEBUG} cmd args
 
 .. sidebox:: Even more fun, you can set ``DEBUG`` to ``#`` and the
              command is commented out.
@@ -936,9 +937,9 @@ Brace expansion comes in two forms: a comma variant and a sequence variant.
 
 .. code-block:: bash
 
- ls /usr/{bin,lib}
+   ls /usr/{bin,lib}
 
- echo {01..16}
+   echo {01..16}
 
 The former saves us writing a loop and the latter saves us calling
 :program:`seq` (not available on all platforms) -- although brace
@@ -951,9 +952,9 @@ could just call, very much like :program:`seq`:
 
 .. code-block:: bash
 
- for x in {01..16} ; do ...
- 
- for x in $(seq -w 1 16) ; do ...
+   for x in {01..16} ; do ...
+
+   for x in $(seq -w 1 16) ; do ...
 
 We can probably live without this syntax.
 
@@ -975,7 +976,7 @@ where I thought it was required:
 
 .. code-block:: bash
 
- path_prepend EVERYWHERE $(tilde_expand ~me)
+   path_prepend EVERYWHERE $(tilde_expand ~me)
 
 although, as we know tilde expansion is the ``pw_dir`` field from a
 :manpage:`getpwnam(3)` call, then in some putative language it might
@@ -983,8 +984,8 @@ look more like:
 
 .. code-block:: sh
 
- me_dir = getpwnam ("me").pw_dir
- path_prepend EVERYWHERE me_dir
+   me_dir = getpwnam ("me").pw_dir
+   path_prepend EVERYWHERE me_dir
 
 which is clearly more "work" but suggests we've more (systems
 programming) access to the data sources.  We need to handle failures,
@@ -1024,9 +1025,9 @@ usually collecting some fact from a command, often a pipeline:
 
 .. code-block:: bash
 
- HOSTNAME=$(uname -n)
+   HOSTNAME=$(uname -n)
 
- CIDR=$(ip addr show dev lo | awk '$1 ~ /^inet$/ {print $2}')
+   CIDR=$(ip addr show dev lo | awk '$1 ~ /^inet$/ {print $2}')
 
 (no second guessing on the loopback device's IPv4 address -- although
 I'm assuming there's only one, here!)
@@ -1053,26 +1054,26 @@ the current directory:
 
 .. code-block:: bash
 		
- ls $(ls)
+   ls $(ls)
 
 results in:
 
 .. code-block:: bash
 
- ls: My: No such file or directory
- ls: Documents: No such file or directory
+   ls: My: No such file or directory
+   ls: Documents: No such file or directory
 
 Why?  Performing the expansion by hand we see:
 
 .. code-block:: bash
 
- ls My Documents
+   ls My Documents
 
 and we probably wanted:
 
 .. code-block:: bash
 
- ls "My Documents"
+   ls "My Documents"
 
 There is no general solution to unexpected whitespace, newlines,
 etc. introduced by command expansion!  The worst of which will be a
@@ -1089,13 +1090,13 @@ We can do sums in the shell:
 
 .. code-block:: bash
 
- echo $(( 1 + 1 ))
+   echo $(( 1 + 1 ))
 
 Performs the arithmetic and replaces the expression with:
 
 .. code-block:: bash
 
- echo 2
+   echo 2
 
 Usefully, during arithmetic expansion you don't need to perform
 parameter expansion, that is, you can use variables without the ``$``
@@ -1103,20 +1104,20 @@ sigil:
 
 .. code-block:: bash
 
- p=2
- echo $(( $p + 2 )) $(( p + 3 ))
+   p=2
+   echo $(( $p + 2 )) $(( p + 3 ))
 
 will become:
 
 .. code-block:: bash
 
- echo 4 5
+   echo 4 5
 
 Notice, however, that parameter expansion can be your undoing:
 
 .. code-block:: bash
 
- echo $(( p++ ))
+   echo $(( p++ ))
 
 will become:
 
@@ -1128,13 +1129,13 @@ and ``p`` will now have the value 3.  However, were we to have typed:
 
 .. code-block:: bash
 
- echo $(( $p++ ))
+   echo $(( $p++ ))
 
 parameter expansion will have gotten there first:
 
 .. code-block:: bash
 
- echo $(( 2++ ))
+   echo $(( 2++ ))
 
 which is, obviously(?), an error.
 
@@ -1151,7 +1152,7 @@ before the operator and one after:
 
 .. code-block:: bash
 
- 1 + 2
+   1 + 2
 
 Everyone does that, right?  No, not really.  They're in the camp of
 yet another (set of) infix operator(s).
@@ -1164,15 +1165,15 @@ dynamic stream:
 
 .. code-block:: bash
 
- diff expected-result <(cmd args)
+   diff expected-result <(cmd args)
 
 results in something like:
 
 .. code-block:: bash
 
- diff expected-result /dev/fds/M
+   diff expected-result /dev/fd/M
 
-where ``/dev/fds/M`` is the filename for the file descriptor
+where ``/dev/fd/M`` is the filename for the file descriptor
 representing the output of the pipeline from the invocation of ``cmd
 args``.
 
@@ -1184,9 +1185,9 @@ output of a command and to modify a local variable:
 
 .. code-block:: bash
 
- cmd args | while read line ; do 
-     local_var=$(process ${line})
- done
+   cmd args | while read line ; do 
+       local_var=$(process ${line})
+   done
 
 doesn't work because the ``while`` loop, as part of a command
 pipeline, is in a subshell so modifications to ``local_var`` have no
@@ -1195,17 +1196,17 @@ rewrite this to, say:
 
 .. code-block:: bash
 
- while read line ; do 
-     local_var=$(process ${line})
- done < <(cmd args)
+   while read line ; do 
+       local_var=$(process ${line})
+   done < <(cmd args)
 
 which will be expanded to something like:
 
 .. code-block:: bash
 
- while read line ; do 
-     local_var=$(process ${line})
- done < /dev/fds/M
+   while read line ; do 
+       local_var=$(process ${line})
+   done < /dev/fd/M
 
 It's useful functionality for the shell where we can't hold a file
 descriptor open to a sub-process (although see :ref:`co-process
@@ -1216,7 +1217,7 @@ think, more or less a function call, something along the lines of:
 
 .. code-block:: bash
 
- diff expected-result $(named-pipe cmd args)
+   diff expected-result $(named-pipe cmd args)
 
 .. _`word splitting`:
 
@@ -1245,14 +1246,14 @@ So, casual use of space-containing variables:
 
 .. code-block:: bash
 
- dir="My Documents"
- ls ${dir}
+   dir="My Documents"
+   ls ${dir}
 
 expands to:
 
-.. code-block::
+.. code-block:: bash
 
- ls My Documents
+   ls My Documents
 
 and fails because word splitting thinks you've passed two separate
 arguments, ``My`` and ``Documents`` to the command, just like we we
@@ -1261,13 +1262,13 @@ might pass two arguments, ``-a`` and ``-l`` to ``ls`` if we typed
 
 .. code-block:: bash
 
- ls "${dir}"
+   ls "${dir}"
 
 which expands to:
 
 .. code-block:: bash
 
- ls "My Documents"
+   ls "My Documents"
 
 and works as expected.
 
@@ -1281,8 +1282,8 @@ parameters and that:
 
 .. code-block:: bash
 
- dir="My Documents"
- ls ${dir}
+   dir="My Documents"
+   ls ${dir}
 
 should work as expected without word splitting.
 
@@ -1304,7 +1305,7 @@ Famously, or not:
 
 .. code-block:: bash
 
- ls *
+   ls *
 
 does not pass ``*`` to :program:`ls` (most of the time).  Rather, the
 shell has been looking for *meta-characters*, in particular, ``*``,
@@ -1386,7 +1387,7 @@ However, it is convenient to build strings using variables:
 
 .. code-block:: bash
 
- echo "PATH=$PATH"
+   echo "PATH=$PATH"
 
 which would require something like the templating mechanism I hinted
 at for :ref:`here-documents <here-document>`.
@@ -1487,9 +1488,9 @@ In addition to regular Unix signals there are a few fake signals:
 
 A trap on ``EXIT`` is executed before the shell terminates.  Quite
 when is less clear but it seems close enough to the end to do any
-clearing up.  If you were of a sort to create a temporary director and
-do all your processing in there then an ``EXIT`` handler can easily
-``rm -rf`` the temporary data.
+clearing up.  If you were of a sort to create a temporary directory
+and do all your processing in there then an ``EXIT`` handler can
+easily ``rm -rf`` the temporary data.
 
 A trap on ``ERR`` is my GoTo replacement for ``set -e``.  The problem
 with ``set -e`` is that your script just dies.  I'd like to know a
@@ -1497,13 +1498,13 @@ little more so I tend to have something like:
 
 .. code-block:: bash
 
- handle_ERR ()
- {
-     echo "ERROR at line $1: exit ($2)" >&2
-     exit $2
- }
+   handle_ERR ()
+   {
+       echo "ERROR at line $1: exit ($2)" >&2
+       exit $2
+   }
 
- trap 'handle_ERR $LINENO $?' ERR
+   trap 'handle_ERR $LINENO $?' ERR
 
 .. sidebox:: Notice the single quoting in the ``trap`` statement so
              that ``$LINENO`` and ``$?`` pick up the correct values at

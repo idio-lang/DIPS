@@ -10,6 +10,8 @@ Characters and Strings
              characters initially but went back and re-wrote it all
              and can now pretend I did it properly in the first place.
 
+	     No-one will ever know!
+
 There's no beating about the bush, we need to handle proper
 multi-character set strings from the get-go.  We don't want a
 :lname:`Python` 2 vs 3 debacle.
@@ -22,45 +24,80 @@ Unicode
 .. aside::
 
    Plus the disadvantage of being a native English speaker is that in
-   the far flung regions of the world people want to practice their
-   English and certainly don't want to listen to me insist that my
-   `hovercraft is full of eels`_.
+   the further flung regions of the world people want to practice
+   their English and certainly don't want to listen to me insist that
+   my `hovercraft is full of eels`_.
 
-I'm not multi-lingual expert, indeed barely literate in one language,
-so some of the nuance of multi-character set handling may be lost on
-me.  We're choosing Unicode_ (arguably ISO10646_) because of its name
-familiarity, even if the actual implementation is less familiar to
-everyone.
+I'm not a multi-lingual expert, indeed barely literate in one
+language, so some of the nuance of multi-character set handling may be
+lost on me.  We're choosing Unicode_ (arguably ISO10646_) because of
+its name familiarity, even if the actual implementation is less
+familiar to everyone.
 
 The broad thrust of Unicode is to allocate a *code point*, an integer,
-to the most common characters and support several combining code
+to the most common characters and support several *combining* code
 points to create the rest.  From a Western Europe viewpoint, we might
 have an "e acute" character, é, but also an "acute accent", ´, which
 can be combined with a regular "e".
 
-Clearly, we don't need to combine the acute accent with a regular "e"
-as we already have a specific "e acute" but it does allow us to
-combine it with any other character in a rare combination not
+Clearly, we don't need to combine the "acute accent" with a regular
+"e" as we already have a specific "e acute" but it does allow us to
+combine it with any other character in some rare combination not
 specifically covered elsewhere.  There must be rules about how
 combining characters are allowed to, er, combine, to prevent an "e
-acute diaeresis" (unless that *is* allowed in which case pick a better
-example).
+acute diaeresis" (unless that *is* allowed in which case I need to
+pick a better example).
 
 These combinations are known as *grapheme clusters* and edge towards
 but do not become "characters" *per se*.  It's a grey area and you can
 find plenty of discussion online as to what is and isn't a
 "character".
 
+Most texts fall back to calling code points characters in much the
+same way we call all 128 ASCII characters, er, characters even though
+most of the characters below 0x20 make no sense whatsoever as
+characters that you or I might draw with a pen.
+
+    0x03 is ``ETX``, *end of text.  *Eh?* ``ETX`` is, of course, one
+    of the `C0 control codes
+    <https://en.wikipedia.org/wiki/C0_and_C1_control_codes>`_ used for
+    message transmission.  Few of these retain any meaning or function
+    and certainly never corresponded with a "character" as, in this
+    case, by definition, it marked the end of characters.
+
+    I nearly used 0x04, ``EOT``, *end of transmission* as my example
+    before realising that the *caret notation* for it is ``^D`` which
+    might be confused with the usual keyboard generated ``EOF`` with
+    :kbd:`Ctrl-D`, *end of file* which is clearly a very similar
+    concept.
+
+    They are completely unrelated, of course, as the terminal *line
+    driver* determines what keystrokes generate what terminal events:
+
+    .. code-block:: console
+
+       % stty -a
+       ...
+       intr = ^C; quit = ^\; erase = ^?; kill = ^U;
+       eof = ^D; eol = M-^?; eol2 = <undef>;
+       swtch = <undef>; start = ^Q; stop = ^S; susp = ^Z;
+       rprnt = ^R; werase = ^W; lnext = ^V; discard = ^O;
+
+    Here, ``VEOF`` is :kbd:`Ctrl-D` -- see :manpage:`termios(3)` for
+    more than you wanted to know.
+
+
 Unicode isn't concerned with *glyphs*, the pictorial representation of
-characters, either.  Even within the same *font* I can see four
-different glyphs for U+0061 (LATIN SMALL LETTER A):
+characters, either.  Even within the same *font* I can see three
+different glyphs for U+0061 (LATIN SMALL LETTER A) -- even within the
+constraints of ReStructuredText:
 
 .. csv-table::
+   :widths: auto
 
    a, regular
    *a*, italic
    **a**, bold
-   ``a``, monospaced
 
 as I pick out different visual styles.  They are all U+0061, though.
 
@@ -69,7 +106,9 @@ points defined (of the 1,114,112 possible code points) but the font
 you are using might only cover a small fraction of those.  If a glyph
 for a code point is missing the result isn't clearly defined.  The
 rendering system may substitute a glyph indicating the code point in a
-box or you may get a blank box.
+box or you may get a blank box.  The following is U+01FBF7 (SEGMENTED
+DIGIT 7), 🯷.  (I see a little box with ``01F`` on one row and ``BF7``
+on another.)
 
 There's a much better description of some of the differences between
 characters and glyphs -- and, indeed, characters and code points -- in
@@ -89,9 +128,9 @@ go straight to the `Unicode reports`_ and get stuck in.
 
 Actually, don't.  Here, in :lname:`Idio`-land, we **do not** "support"
 Unicode.  We use the `Unicode Character Database`_ (UCD) and some
-categories and properties related to that.  We will use the "simple"
-lowercase and uppercase properties to help with corresponding
-character mapping functions, for example.
+categories and properties related to that and UTF-8 encoding.  We will
+use the "simple" lowercase and uppercase properties from the UCD to
+help with corresponding character mapping functions, for example.
 
 However, :lname:`Idio` is not concerned with correct, legal, security
 or any other Unicode consideration.  :lname:`Idio` simply uses
@@ -102,7 +141,8 @@ the user invokes.  If the result is non-conformant then so be it.
 We *might* have to consider matters such as `Collation
 <https://www.unicode.org/reports/tr10/>`_ of strings -- as we may not
 be using any system-provided collation library (which you would hope
-would have considered it).
+would have considered it).  But we really don't want to.  That
+document is 29 thousand words long!
 
 We can almost certainly ignore Unicode's view on `Regular Expressions
 <https://www.unicode.org/reports/tr18/>`_ as their view has been
@@ -255,8 +295,8 @@ quite close to the Unicode consortium's own stylised version:
 Although ``hhhh`` represents a hexadecimal number so any number of
 ``h``\ s which return a suitable number are good.
 
-As discussed above, we can then stuff that code point into a specific
-constant type, here, ``ccc`` is ``100`` giving us:
+As discussed in :ref:`constants`, we can then stuff that code point
+into a specific constant type, here, ``ccc`` is ``100`` giving us:
 
 .. code-block:: c
 
@@ -371,9 +411,9 @@ To make that happen we'd need:
 Which seems fine.  You can imagine there's a pathological case where
 you might have a substring representing one byte of a 2GB monster you
 read in from a file and you can't free the space up because of your
-reference to the one byte substring.  I suspect that if that becomes a
-problem then maybe we can have the GC do some *re-imagining* under the
-hood next time round.
+reference to the one byte substring.  I suspect that if that is really
+a problem then maybe we can have the GC do some *re-imagining* under
+the hood next time round.
 
 I then thought that, partly for consistency and partly for any weird
 cases where we didn't have a NUL-terminated string to start with, real
@@ -391,7 +431,7 @@ Current
 
 Along comes Unicode (primarily driven by the need to port some regular
 expression handling as I hadn't mustered the enthusiasm to re-write
-everything beforehand).
+strings beforehand).
 
 The moral equivalent of the 8-bit characters in :lname:`C` strings are
 Unicode's code points.
@@ -405,9 +445,9 @@ type, not because it is efficient.
 
 Looking at most of the text that *I* type, I struggle to use all the
 ASCII characters, let alone any of the exotic delights from cultures
-far a-field.  I'm going to throw this out there that most of the text
-that *you* type, dear reader, fits in the Unicode Basic Multilingual
-Plane and is therefore encodable in 2 bytes.
+further a-field.  I'm going to throw this out there that most of the
+text that *you* type, dear reader, fits in the Unicode Basic
+Multilingual Plane and is therefore encodable in 2 bytes.
 
 I apologise to my Chinese, Japanese and Korean friends who throw 4
 byte code points around with abandon.  At least you're covered and not
@@ -420,7 +460,7 @@ analysis as to which is the largest (widest?) code point in the string
 and then construct an array where *all* the elements are that wide.
 We already support the notion of a length so there's no need for
 trailing NULs -- which don't make any sense in the context of 4 byte
-wide "characters".
+wide "characters" anyway.
 
 .. code-block:: idio
 
@@ -441,7 +481,7 @@ ASCII characters as before.  *Dems da breaks.*
 By and large, though, I sense that most strings are going to be
 internally very consistent and be:
 
-* ASCII/Latin-1 *only*
+* ASCII/Latin-1 and therefore 1 byte code points *only*
 
 * mostly BMP (2 byte) and some 1 byte code points
 
@@ -461,6 +501,18 @@ I felt good for a bit, anyway.
 
 So that's the deal.  Strings are arrays of elements with widths of 1,
 2 or 4 bytes.  The string has a length.  We can have substrings of it.
+
+I've no particular fix for the string modification issue.  In
+principle it requires reworking the string under the feet of the
+caller but we now have to ensure that all the associated substrings
+are kept in sync.
+
+A rotten workaround would be to prefix any string with a 4 byte letter
+then only use indexes 1 and beyond.
+
+A better workaround would be to allow the forcible creation of, say, 4
+byte strings rather than using analysis of the constituent code
+points.
 
 Implementation
 --------------
@@ -561,7 +613,7 @@ DFA-based decoder.
 Reading
 -------
 
-The input form for a string is quite straight-forward: ``" ... "``.
+The input form for a string is quite straightforward: ``"..."``.
 
 The reader is, in one sense, quite naive and is strictly looking for a
 non-escaped closing ``"`` to terminate the string, see

@@ -30,7 +30,7 @@ us our basic command orchestration syntax:
 
 .. code-block:: sh
 
- < in-file command1 | command2 > out-file
+   < in-file command1 | command2 > out-file
 
 I can't help but think that that original choice of the ``<``, ``>``
 and ``|`` symbols creating the visually pleasing ``< | >`` structure
@@ -164,10 +164,10 @@ doesn't complete its output with a newline:
 
 .. code-block:: bash
 
- % echo hello
- hello
- % echo -n hello
- hello% 
+   % echo hello
+   hello
+   % echo -n hello
+   hello% 
 
 Notice that my prompt, :samp:`% \ `, appears at the end of the second
 command's output, in column 5, in this case, not on a clear(ed) line
@@ -193,11 +193,11 @@ clear-to-end-of-line to flush the remaining spaces).
 
 .. code-block:: bash
 
- % echo hello
- hello
- % echo -n hello
- hello⏎
- % 
+   % echo hello
+   hello
+   % echo -n hello
+   hello⏎
+   % 
 
 That is the least of it, though, as the real problems come when
 asserting what any given terminal will do when you print a character

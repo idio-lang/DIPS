@@ -150,6 +150,9 @@ a.reference.external {
 pre {
     background: #282828;
     color: #33ff00;
+    padding: 7px 7px;
+    line-height: 1em;
+    font-size: smaller;
 }
 
 .rev {

@@ -89,68 +89,68 @@ Implementation
 ==============
 
 Following the above description the two sets of interfaces and
-accessors are reasonably straight-forward:
+accessors are reasonably straightforward:
 
 .. code-block:: c
    :caption: gc.h
 
-    typedef struct idio_handle_methods_s {
-	void (*free)      (struct idio_s *h);
-	int (*readyp)     (struct idio_s *h);
-	int (*getc)       (struct idio_s *h);
-	int (*eofp)       (struct idio_s *h);
-	int (*close)      (struct idio_s *h);
-	int (*putc)       (struct idio_s *h, int c);
-	ptrdiff_t (*puts) (struct idio_s *h, char *s, size_t slen);
-	int (*flush)      (struct idio_s *h);
-	off_t (*seek)     (struct idio_s *h, off_t offset, int whence);
-	void (*print)     (struct idio_s *h, struct idio_s *o);
-    } idio_handle_methods_t;
+   typedef struct idio_handle_methods_s {
+       void (*free)      (struct idio_s *h);
+       int (*readyp)     (struct idio_s *h);
+       int (*getc)       (struct idio_s *h);
+       int (*eofp)       (struct idio_s *h);
+       int (*close)      (struct idio_s *h);
+       int (*putc)       (struct idio_s *h, int c);
+       ptrdiff_t (*puts) (struct idio_s *h, char *s, size_t slen);
+       int (*flush)      (struct idio_s *h);
+       off_t (*seek)     (struct idio_s *h, off_t offset, int whence);
+       void (*print)     (struct idio_s *h, struct idio_s *o);
+   } idio_handle_methods_t;
 
-    #define IDIO_HANDLE_FLAG_NONE		0
-    #define IDIO_HANDLE_FLAG_READ		(1<<0)
-    #define IDIO_HANDLE_FLAG_WRITE		(1<<1)
-    #define IDIO_HANDLE_FLAG_CLOSED		(1<<2)
-    #define IDIO_HANDLE_FLAG_FILE		(1<<3)
-    #define IDIO_HANDLE_FLAG_STRING		(1<<4)
+   #define IDIO_HANDLE_FLAG_NONE		0
+   #define IDIO_HANDLE_FLAG_READ		(1<<0)
+   #define IDIO_HANDLE_FLAG_WRITE		(1<<1)
+   #define IDIO_HANDLE_FLAG_CLOSED		(1<<2)
+   #define IDIO_HANDLE_FLAG_FILE		(1<<3)
+   #define IDIO_HANDLE_FLAG_STRING		(1<<4)
 
-    typedef struct idio_handle_s {
-	struct idio_s *grey;
-	void *stream;			/* file/string specific stream data */
-	idio_handle_methods_t *methods; /* file/string specific methods */
-	int lc;				/* lookahead char */
-	off_t line;			/* 1+ */
-	off_t pos;			/* position in file: 0+ */
-	struct idio_s *filename;	/* filename the user used */
-	struct idio_s *pathname;	/* pathname or some other identifying data */
-    } idio_handle_t;
+   typedef struct idio_handle_s {
+       struct idio_s *grey;
+       void *stream;			/* file/string specific stream data */
+       idio_handle_methods_t *methods; /* file/string specific methods */
+       int lc;				/* lookahead char */
+       off_t line;			/* 1+ */
+       off_t pos;			/* position in file: 0+ */
+       struct idio_s *filename;		/* filename the user used */
+       struct idio_s *pathname;		/* pathname or some other identifying data */
+   } idio_handle_t;
 
-    #define IDIO_HANDLE_GREY(H)		((H)->u.handle->grey)
-    #define IDIO_HANDLE_STREAM(H)	((H)->u.handle->stream)
-    #define IDIO_HANDLE_METHODS(H)	((H)->u.handle->methods)
-    #define IDIO_HANDLE_LC(H)		((H)->u.handle->lc)
-    #define IDIO_HANDLE_LINE(H)		((H)->u.handle->line)
-    #define IDIO_HANDLE_POS(H)		((H)->u.handle->pos)
-    #define IDIO_HANDLE_FILENAME(H)	((H)->u.handle->filename)
-    #define IDIO_HANDLE_PATHNAME(H)	((H)->u.handle->pathname)
-    #define IDIO_HANDLE_FLAGS(H)	((H)->tflags)
+   #define IDIO_HANDLE_GREY(H)		((H)->u.handle->grey)
+   #define IDIO_HANDLE_STREAM(H)	((H)->u.handle->stream)
+   #define IDIO_HANDLE_METHODS(H)	((H)->u.handle->methods)
+   #define IDIO_HANDLE_LC(H)		((H)->u.handle->lc)
+   #define IDIO_HANDLE_LINE(H)		((H)->u.handle->line)
+   #define IDIO_HANDLE_POS(H)		((H)->u.handle->pos)
+   #define IDIO_HANDLE_FILENAME(H)	((H)->u.handle->filename)
+   #define IDIO_HANDLE_PATHNAME(H)	((H)->u.handle->pathname)
+   #define IDIO_HANDLE_FLAGS(H)		((H)->tflags)
 
-    #define IDIO_INPUTP_HANDLE(H)	(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_READ)
-    #define IDIO_OUTPUTP_HANDLE(H)	(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_WRITE)
-    #define IDIO_CLOSEDP_HANDLE(H)	(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_CLOSED)
-    #define IDIO_FILEP_HANDLE(H)	(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_FILE)
-    #define IDIO_STRINGP_HANDLE(H)	(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_STRING)
+   #define IDIO_INPUTP_HANDLE(H)	(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_READ)
+   #define IDIO_OUTPUTP_HANDLE(H)	(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_WRITE)
+   #define IDIO_CLOSEDP_HANDLE(H)	(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_CLOSED)
+   #define IDIO_FILEP_HANDLE(H)		(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_FILE)
+   #define IDIO_STRINGP_HANDLE(H)	(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_STRING)
 
-    #define IDIO_HANDLE_M_FREE(H)	(IDIO_HANDLE_METHODS (H)->free)
-    #define IDIO_HANDLE_M_READYP(H)	(IDIO_HANDLE_METHODS (H)->readyp)
-    #define IDIO_HANDLE_M_GETC(H)	(IDIO_HANDLE_METHODS (H)->getc)
-    #define IDIO_HANDLE_M_EOFP(H)	(IDIO_HANDLE_METHODS (H)->eofp)
-    #define IDIO_HANDLE_M_CLOSE(H)	(IDIO_HANDLE_METHODS (H)->close)
-    #define IDIO_HANDLE_M_PUTC(H)	(IDIO_HANDLE_METHODS (H)->putc)
-    #define IDIO_HANDLE_M_PUTS(H)	(IDIO_HANDLE_METHODS (H)->puts)
-    #define IDIO_HANDLE_M_FLUSH(H)	(IDIO_HANDLE_METHODS (H)->flush)
-    #define IDIO_HANDLE_M_SEEK(H)	(IDIO_HANDLE_METHODS (H)->seek)
-    #define IDIO_HANDLE_M_PRINT(H)	(IDIO_HANDLE_METHODS (H)->print)
+   #define IDIO_HANDLE_M_FREE(H)	(IDIO_HANDLE_METHODS (H)->free)
+   #define IDIO_HANDLE_M_READYP(H)	(IDIO_HANDLE_METHODS (H)->readyp)
+   #define IDIO_HANDLE_M_GETC(H)	(IDIO_HANDLE_METHODS (H)->getc)
+   #define IDIO_HANDLE_M_EOFP(H)	(IDIO_HANDLE_METHODS (H)->eofp)
+   #define IDIO_HANDLE_M_CLOSE(H)	(IDIO_HANDLE_METHODS (H)->close)
+   #define IDIO_HANDLE_M_PUTC(H)	(IDIO_HANDLE_METHODS (H)->putc)
+   #define IDIO_HANDLE_M_PUTS(H)	(IDIO_HANDLE_METHODS (H)->puts)
+   #define IDIO_HANDLE_M_FLUSH(H)	(IDIO_HANDLE_METHODS (H)->flush)
+   #define IDIO_HANDLE_M_SEEK(H)	(IDIO_HANDLE_METHODS (H)->seek)
+   #define IDIO_HANDLE_M_PRINT(H)	(IDIO_HANDLE_METHODS (H)->print)
 
    
 Lookahead Char
@@ -281,21 +281,21 @@ The file handle stream data is:
 
 .. code-block:: c
 
-    #define IDIO_FILE_HANDLE_FLAG_NONE		0
-    #define IDIO_FILE_HANDLE_FLAG_EOF		(1<<0)
-    #define IDIO_FILE_HANDLE_FLAG_INTERACTIVE	(1<<1)
-    #define IDIO_FILE_HANDLE_FLAG_STDIO		(1<<2)
-    #define IDIO_FILE_HANDLE_FLAG_CLOEXEC	(1<<3)
+   #define IDIO_FILE_HANDLE_FLAG_NONE		0
+   #define IDIO_FILE_HANDLE_FLAG_EOF		(1<<0)
+   #define IDIO_FILE_HANDLE_FLAG_INTERACTIVE	(1<<1)
+   #define IDIO_FILE_HANDLE_FLAG_STDIO		(1<<2)
+   #define IDIO_FILE_HANDLE_FLAG_CLOEXEC	(1<<3)
 
-    typedef struct idio_file_handle_stream_s {
-	FILE *filep;			/* or NULL! */
-	int fd;
-	IDIO_FLAGS_T flags;		/* IDIO_FILE_HANDLE_FLAG_* */
-	char *buf;			/* buffer */
-	int bufsiz;
-	char *ptr;			/* ptr into buffer */
-	int count;			/* bytes in buffer */
-    } idio_file_handle_stream_t;
+   typedef struct idio_file_handle_stream_s {
+       FILE *filep;			/* or NULL! */
+       int fd;
+       IDIO_FLAGS_T flags;		/* IDIO_FILE_HANDLE_FLAG_* */
+       char *buf;			/* buffer */
+       int bufsiz;
+       char *ptr;			/* ptr into buffer */
+       int count;			/* bytes in buffer */
+   } idio_file_handle_stream_t;
 
 Of note here is:
 
@@ -500,13 +500,13 @@ The string handle stream data looks like:
 
 .. code-block:: c
 
-    typedef struct idio_string_handle_stream_s {
-	char *buf;			/* buffer */
-	size_t blen;
-	char *ptr;			/* ptr into buffer */
-	char *end;			/* end of buffer */
-	char eof;			/* EOF flag */
-    } idio_string_handle_stream_t;
+   typedef struct idio_string_handle_stream_s {
+       char *buf;			/* buffer */
+       size_t blen;
+       char *ptr;			/* ptr into buffer */
+       char *end;			/* end of buffer */
+       char eof;			/* EOF flag */
+   } idio_string_handle_stream_t;
 
 We don't get an end-of-file *chime* as we do with file handles so we
 need to fake one up by maintaining and ``end`` of buffer marker and
@@ -550,27 +550,27 @@ with ``errno`` added as an argument and we get:
 .. code-block:: c
    :caption: error.c
 
-    void idio_error_system (char *msg, IDIO args, int err, IDIO c_location)
-    {
-        ...
-	
-	IDIO msh = idio_open_output_string_handle_C ();
-	idio_display_C (msg, msh);
-	if (idio_S_nil != args) {
-	    idio_display_C (": ", msh);
-	    idio_display (args, msh);
-	}
+   void idio_error_system (char *msg, IDIO args, int err, IDIO c_location)
+   {
+       ...
 
-	IDIO dsh = idio_open_output_string_handle_C ();
-	idio_display_C (strerror (err), dsh);
+       IDIO msh = idio_open_output_string_handle_C ();
+       idio_display_C (msg, msh);
+       if (idio_S_nil != args) {
+	   idio_display_C (": ", msh);
+	   idio_display (args, msh);
+       }
 
-	IDIO c = idio_struct_instance (idio_condition_system_error_type,
-				       IDIO_LIST4 (idio_get_output_string (msh),
-						   c_location,
-						   idio_get_output_string (dsh),
-						   idio_C_int (err)));
-	idio_raise_condition (idio_S_true, c);
-    }
+       IDIO dsh = idio_open_output_string_handle_C ();
+       idio_display_C (strerror (err), dsh);
+
+       IDIO c = idio_struct_instance (idio_condition_system_error_type,
+				      IDIO_LIST4 (idio_get_output_string (msh),
+						  c_location,
+						  idio_get_output_string (dsh),
+						  idio_C_int (err)));
+       idio_raise_condition (idio_S_true, c);
+   }
 
 Here we can first create a "message string handle" into which we print
 the :lname:`C` string ``msg`` (``fdopen`` in this case) then, if some

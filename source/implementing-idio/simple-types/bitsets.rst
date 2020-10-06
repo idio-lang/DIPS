@@ -47,13 +47,13 @@ int``\ s:
 .. code-block:: c
    :caption: gc.h
 
-    typedef struct idio_bitset_s {
-	size_t size;
-	unsigned long *bits;
-    } idio_bitset_t;
+   typedef struct idio_bitset_s {
+       size_t size;
+       unsigned long *bits;
+   } idio_bitset_t;
 
-    #define IDIO_BITSET_SIZE(BS)	((BS)->u.bitset.size)
-    #define IDIO_BITSET_BITS(BS,i)	((BS)->u.bitset.bits[i])
+   #define IDIO_BITSET_SIZE(BS)		((BS)->u.bitset.size)
+   #define IDIO_BITSET_BITS(BS,i)	((BS)->u.bitset.bits[i])
 
 We want a handy macro:
 
@@ -69,21 +69,21 @@ our handy ``IDIO_BITS_PER_LONG`` and adding one:
 .. code-block:: c
    :caption: bitset.c
 
-    IDIO idio_bitset (size_t size)
-    {
-	IDIO bs = idio_gc_get (IDIO_TYPE_BITSET);
+   IDIO idio_bitset (size_t size)
+   {
+       IDIO bs = idio_gc_get (IDIO_TYPE_BITSET);
 
-	IDIO_BITSET_SIZE (bs) = size;
-	bs->u.bitset.bits = NULL;
+       IDIO_BITSET_SIZE (bs) = size;
+       bs->u.bitset.bits = NULL;
 
-	if (size) {
-	    size_t n = size / IDIO_BITS_PER_LONG + 1;
-	    IDIO_GC_ALLOC (bs->u.bitset.bits, n * sizeof (unsigned long));
-	    memset (bs->u.bitset.bits, 0UL, n * sizeof (unsigned long));
-	}
+       if (size) {
+	   size_t n = size / IDIO_BITS_PER_LONG + 1;
+	   IDIO_GC_ALLOC (bs->u.bitset.bits, n * sizeof (unsigned long));
+	   memset (bs->u.bitset.bits, 0UL, n * sizeof (unsigned long));
+       }
 
-	return bs;
-    }
+       return bs;
+   }
 
 We then have the broad swathe of expected operations on a bitset all
 of which use a simple index, :samp:`{bit}`:

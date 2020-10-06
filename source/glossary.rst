@@ -37,6 +37,15 @@ Glossary
 	So, "me and my mate" rather than, as I thought,
 	co-committed/co-defined.
 
+   grok
+
+        to understand intuitively
+
+	A neologism from :ref-author:`Robert A Heinlein`'s 1961 novel
+	:ref-title:`Stranger in a Strange Land`.
+
+        `grok <https://en.wikipedia.org/wiki/Grok>`_
+
    homoiconicity
 
         `Homoiconicity <https://en.wikipedia.org/wiki/Homoiconicity>`_
@@ -82,6 +91,13 @@ Glossary
    MOP
 
 	Meta Object Protocol -- see `Meta Object Protocol`_.
+
+   n-ary
+
+	Takes :samp:`{n}` arguments, more than *unary*, *binary* or
+	*ternary*!
+
+        See `Arity <https://en.wikipedia.org/wiki/Arity>`_
 
    reader
 

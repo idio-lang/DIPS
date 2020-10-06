@@ -58,14 +58,14 @@ Can we work an example?  How about a function that adds two numbers:
 
 .. code-block:: scheme
 
- (lambda (a b) (+ a b))
+   (lambda (a b) (+ a b))
 
 or, in a more common styling:
 
 .. code-block:: scheme
 
- (lambda (a b)
-  (+ a b))
+   (lambda (a b)
+    (+ a b))
 
 This is constructing a function value which takes two formal
 parameters, ``a`` and ``b``, to be in scope for the extent of the body
@@ -80,7 +80,7 @@ it all together:
 
 .. code-block:: scheme
 
- ((lambda (a b) (+ a b)) 1 2)
+   ((lambda (a b) (+ a b)) 1 2)
 
 (I told you you wouldn't like it.)
 
@@ -88,7 +88,7 @@ There's a lot of visual clutter there to figure out it is saying:
 
 .. parsed-literal:: 
 
- (*func* 1 2)
+   (*func* 1 2)
 
 and we haven't made the arguments complicated expressions at all!
 
@@ -105,9 +105,9 @@ Consider a ``let`` statement:
 
 .. code-block:: scheme
 
- (let ((a 1)
-       (b (* 2 3)))
-   (+ a b))
+   (let ((a 1)
+	 (b (* 2 3)))
+     (+ a b))
 
 In the ``bindings`` we said each binding was a list containing a
 symbol and an expression, so our symbols are the ``car``\ s of each
@@ -123,16 +123,16 @@ so we can easily transform the ``let``:
 
 .. parsed-literal::
 
- (let ((*formal1* *arg1*)
-       (*formal2* *arg2*))
-  *body+*)
+   (let ((*formal1* *arg1*)
+	 (*formal2* *arg2*))
+    *body+*)
 
 in the first case into a function definition:
 
 .. parsed-literal::
 
- (lambda (*formal1* *formal2*)
-  (begin *body+*))
+   (lambda (*formal1* *formal2*)
+    (begin *body+*))
 
 and then into a function call form by putting the function definition
 as the first element and the arguments to be evaluated as the
@@ -140,7 +140,7 @@ remaining elements:
 
 .. parsed-literal::
 
- ((lambda (*formal1* *formal2*) (begin *body+*)) *arg1* *arg2*)
+   ((lambda (*formal1* *formal2*) (begin *body+*)) *arg1* *arg2*)
 
 And, lo!  ``let`` has been transformed into an on-the-fly function
 call.
@@ -156,7 +156,7 @@ No one expects to be able to write the following in :lname:`C`:
 
 .. code-block:: c
 
-  int main (char **argv, int argc = length(argv))
+   int main (char **argv, int argc = length(argv))
 
 where one formal parameter is derived from an earlier one.  The formal
 parameters are independent and, so far as you can tell (from inside
@@ -179,23 +179,23 @@ Let Variant
 
 .. parsed-literal::
 
- (let *name* *bindings* *body+*)
+   (let *name* *bindings* *body+*)
 
 which really needs an example to understand.
 
 .. code-block:: scheme
 
- (let foo ((f1 e1)
-           (f2 e2))
-  body+)
+   (let foo ((f1 e1)
+	     (f2 e2))
+    body+)
 
 gets transformed into:
 
 .. code-block:: scheme
 
- (letrec ((foo (lambda (f1 f2))
-		body+))
-  (foo e1 e2))
+   (letrec ((foo (lambda (f1 f2))
+		  body+))
+    (foo e1 e2))
 
 :socrates:`Eh?  What's happened there and what's that doing?`
 
@@ -222,15 +222,15 @@ self-recurse) and kick it off with some starting values.
 
 .. code-block:: scheme
 
- (define stuff '(1 "two" 3 'four))
+   (define stuff '(1 "two" 3 'four))
 
- (let numbers ((ls stuff)
-               (r nil))
-  (if (null? ls)
-      (reverse r)
-      (numbers (cdr ls) (if (number? (car ls))
-			    (cons (car ls) r)
-			    r))))
+   (let numbers ((ls stuff)
+		 (r nil))
+    (if (null? ls)
+	(reverse r)
+	(numbers (cdr ls) (if (number? (car ls))
+			      (cons (car ls) r)
+			      r))))
 
 The function ``numbers`` is defined as taking formal parameters ``ls``
 (for the "current" value of the list) and ``r`` (for the accumulated
@@ -256,15 +256,15 @@ For what it's worth, the iterative variant would look something like:
 
 .. code-block:: scheme
 
- (define stuff '(1 "two" 3 'four))
+   (define stuff '(1 "two" 3 'four))
 
- (let ((ls stuff)
-       (r nil))
-  (while (not (null? ls))
-   (if (number? (car ls))
-    (set! r (cons (car ls) r)))
-   (set! ls (cdr ls)))
-  (reverse r))
+   (let ((ls stuff)
+	 (r nil))
+    (while (not (null? ls))
+     (if (number? (car ls))
+      (set! r (cons (car ls) r)))
+     (set! ls (cdr ls)))
+    (reverse r))
 
 Horses for courses, I suppose, though the use of ``set!`` will upset
 the purists.
@@ -281,9 +281,9 @@ Macros
 
 .. epigraph::
 
-  Thar be Dragons!
+   Thar be Dragons!
 
-  --- *everyone*
+   --- *everyone*
 
 A macro, which is ostensibly a regular function, is created using a
 special form, ``define-macro`` that tags your function's name as a
@@ -307,36 +307,36 @@ fields:
 
 .. parsed-literal::
 
- (define-class *name* *parent* *field+*)
+   (define-class *name* *parent* *field+*)
 
 Who, in their right minds, wants to type in the constructor:
 
 .. parsed-literal::
 
- (define make-*name* (args)
-   ...
-   *parent*
-   ...)
+   (define make-*name* (args)
+     ...
+     *parent*
+     ...)
 
 and accessors for the arbitrary number of fields:
 
 .. parsed-literal:: 
 
- (define *name*-*field1* (o)
-   *field1*
- )
+   (define *name*-*field1* (o)
+     *field1*
+   )
 
- (define set-*name*-*field1*! (o v)
-   (set! *field1* v)
- )
+   (define set-*name*-*field1*! (o v)
+     (set! *field1* v)
+   )
 
 and a predicate:
 
 .. parsed-literal:: 
 
- (define *name*? (o)
-   ...
- )
+   (define *name*? (o)
+     ...
+   )
 
 and whatever else is necessary for every class where all the ``...``
 are tracts of code that are identical across all classes when you
@@ -350,9 +350,9 @@ a quasiquoted expression:
 
 .. parsed-literal::
 
- (define-macro (*name* *formals*)
-  ...do any prep work...
-  *quasiquoted-expression*)
+   (define-macro (*name* *formals*)
+    ...do any prep work...
+    *quasiquoted-expression*)
 
 .. _quasiquoting:
 
@@ -364,16 +364,16 @@ substituting in values, well, not without a struggle:
 
 .. code-block:: scheme
 
- (let ((a 1))
-   '(a 2 3))
+   (let ((a 1))
+     '(a 2 3))
 
 returns ``(a 2 3)`` which is probably not the ``(1 2 3)`` you wanted.
 You could try:
 
 .. code-block:: scheme
 
- (let ((a 1))
-   (list a 2 3))
+   (let ((a 1))
+     (list a 2 3))
 
 which is fine but will itself start to get rather long winded and
 you'll have to explicitly quote all of the other arguments that don't
@@ -384,15 +384,15 @@ in strings in the shell, eg.:
 
 .. code-block:: bash
 
- echo "this is $0"
+   echo "this is $0"
 
 will iterate through its argument expression looking for *unquoting*
 expressions otherwise leave things quoted just like ``quote``:
 
 .. code-block:: scheme
 
- (let ((a 1))
-   (quasiquote ((unquote a) 2 3)))
+   (let ((a 1))
+     (quasiquote ((unquote a) 2 3)))
 
 Here, ``quasiquote``’s argument, ``((unquote a) 2 3)``, is a list of
 three elements, the first is an unquote expression so ``quasiquote``
@@ -413,8 +413,8 @@ as:
 
 .. code-block:: scheme
 
- (let ((a 1))
-   `(,a 2 3))
+   (let ((a 1))
+     `(,a 2 3))
 
 So ``unquote``/``,`` is very much like variable interpolation in the
 shell, with ``quote``/``quasiquote`` akin to the use of single quotes
@@ -425,8 +425,8 @@ is evaluated not simply evaluating a variable:
 
 .. code-block:: scheme
 
- (let ((a 1))
-   `(,(a+ 5) 2 3))
+   (let ((a 1))
+     `(,(a+ 5) 2 3))
 
 will return ``(7 2 3)`` (assuming we still have the previous
 definition for ``a+`` floating about).
@@ -439,19 +439,19 @@ inserted the list as a single entity.  Given:
 
 .. code-block:: scheme
 
- (define b '(1 2 3))
+   (define b '(1 2 3))
 
 Then:
 
 .. code-block:: scheme
 
- `(a ,b c)
+   `(a ,b c)
 
 returns ``(a (1 2 3) c)`` whereas:
 
 .. code-block:: scheme
 
- `(a ,@b c)
+   `(a ,@b c)
 
 returns ``(a 1 2 3 c)``.
 
@@ -459,7 +459,7 @@ It goes without saying that real macros are not trivial examples like this.  In 
 
 .. code-block:: scheme
 
- `(,a 2 3)
+   `(,a 2 3)
 
 is likely to be an expression and surprisingly commonly it is a
 ``map`` where each time round the loop you will be generating another
@@ -471,16 +471,16 @@ splice in the results to the output of the macro:
 
 .. code-block:: scheme
 
- (define-macro (define-class name parent field+)
-  ...class prep work...
-  `(
-    ...quasiquote with ,name ,parent etc...
-    ,@(map (lambda (field)
-            ...field prep work...
-	    `(...quasiquote with ,field ,name etc...))
-	    field+)
-   ...
-   ))
+   (define-macro (define-class name parent field+)
+    ...class prep work...
+    `(
+      ...quasiquote with ,name ,parent etc...
+      ,@(map (lambda (field)
+	      ...field prep work...
+	      `(...quasiquote with ,field ,name etc...))
+	      field+)
+     ...
+     ))
 
 (The prep work is likely to be creating symbols from combining the
 symbols for the *name* and *field* variables and so on.)
@@ -524,11 +524,11 @@ function we must define a macro:
 
 .. code-block:: scheme
 
- (define-macro (my-or e1 e2)
-   `(let ((tmp ,e1))
-      (if tmp
-          tmp
-          ,e2)))
+   (define-macro (my-or e1 e2)
+     `(let ((tmp ,e1))
+	(if tmp
+	    tmp
+	    ,e2)))
 
 which looks good.  We've even been smart enough to use a temporary
 variable, ``tmp`` so that ``e1`` is only evaluated once in the
@@ -536,18 +536,18 @@ enclosed ``if`` statement.  Less smart users would have written:
 
 .. code-block:: scheme
 
- (define-macro (my-or e1 e2)
-   `((if ,e1
-         ,e1
-         ,e2)))
+   (define-macro (my-or e1 e2)
+     `((if ,e1
+	   ,e1
+	   ,e2)))
 
 and if ``e1`` had been ``(honk-horn)`` then their macro would have expanded out to:
 
 .. code-block:: scheme
 
- (if (honk-horn)
-     (honk-horn)
-     ...)
+   (if (honk-horn)
+       (honk-horn)
+       ...)
 
 
 and they'd have heard "*parp!* *parp!*".  Hah, suckers!
@@ -556,31 +556,31 @@ In the meanwhile our sophisticated winning solution for:
 
 .. code-block:: scheme
 
- (my-or "this" "that")
+   (my-or "this" "that")
 
 will expand to:
 
 .. code-block:: scheme
 
- (let ((tmp "this"))
-   (if tmp
-       tmp
-       "that"))
+   (let ((tmp "this"))
+     (if tmp
+	 tmp
+	 "that"))
 
 which wins all the plaudits until someone types:
 
 .. code-block:: scheme
 
- (let ((tmp "foo"))
-   (my-or #f tmp))
+   (let ((tmp "foo"))
+     (my-or #f tmp))
 
 The macro is expanded thusly:
 
 .. code-block:: scheme
 
- (let ((tmp "foo"))
-   (let ((tmp #f))
-     (if tmp tmp tmp)))
+   (let ((tmp "foo"))
+     (let ((tmp #f))
+       (if tmp tmp tmp)))
 
 Yikes!  ``(if tmp tmp tmp)``?  Which ``tmp`` is which?
 
@@ -590,12 +590,12 @@ to inject a unique variable name in the prep work:
 
 .. code-block:: scheme
 
- (define-macro (my-or e1 e2)
-   (let ((tmp (gensym)))
-     `(let ((,tmp ,e1))
-        (if ,tmp
-            ,tmp
-            ,e2)))
+   (define-macro (my-or e1 e2)
+     (let ((tmp (gensym)))
+       `(let ((,tmp ,e1))
+	  (if ,tmp
+	      ,tmp
+	      ,e2))))
 
 Here, we used ``gensym`` (generate symbol!) to come up with a unique
 symbol that cannot conflict with anything else.  ``tmp``, now a
@@ -611,10 +611,10 @@ like:
 
 .. code-block:: scheme
 
- (let ((G707 e1))
-   (if G707
-       G707
-       e2))
+   (let ((G707 e1))
+     (if G707
+	 G707
+	 e2))
 
 If we called ``my-or`` again, ``tmp`` would be bound to a new (unique)
 symbol value, ``G713``, say, and we'll end up with a similar expansion
@@ -642,12 +642,12 @@ Let's try a more dynamic variant:
 
 .. code-block:: scheme
 
- (define a 1)
+   (define a 1)
 
- (let ((ab+ (let ((b 3))
-	     (lambda (n)
-	      (+ a b n)))))
-  (ab+ 5))
+   (let ((ab+ (let ((b 3))
+	       (lambda (n)
+		(+ a b n)))))
+    (ab+ 5))
 
 :socrates:`Cripes!  What's happening here?` The inner ``let``'s body
 is a function constructor (``lambda``) and so the inner ``let`` is
@@ -688,12 +688,12 @@ Clearly you can't return multiple function definitions from a single
 
 .. code-block:: scheme
 
- (define this #f)
- (define that #f)
+   (define this #f)
+   (define that #f)
 
- (let ((private 0))
-  (set! this (lambda ...))
-  (set! that (lambda ...)))
+   (let ((private 0))
+    (set! this (lambda ...))
+    (set! that (lambda ...)))
 
 Both of the functions bound to ``this`` and ``that`` have global scope
 (because the names were declared at top level with ``define``) and
@@ -729,16 +729,16 @@ resets the input port and returns the saved result:
 
 .. code-block:: scheme
 
- (define with-input-from-file
-   (let ((set-input-port! set-input-port!))
-     (lambda (file thunk)
-       (let ((outer-port (current-input-port))
-             (new-port (open-input-file file)))
-         (set-input-port! new-port)
-         (let ((input (thunk)))
-           (close-input-port new-port)
-           (set-input-port! outer-port)
-           input)))))
+   (define with-input-from-file
+     (let ((set-input-port! set-input-port!))
+       (lambda (file thunk)
+	 (let ((outer-port (current-input-port))
+	       (new-port (open-input-file file)))
+	   (set-input-port! new-port)
+	   (let ((input (thunk)))
+	     (close-input-port new-port)
+	     (set-input-port! outer-port)
+	     input)))))
 
 Most programming languages have the capability to manipulate files in
 a similar fashion.  We're not breaking new ground, here.
@@ -833,10 +833,10 @@ mechanism:
 
 .. code-block:: python
 
- try:
-     risky_command ()
- except Exception as e:
-     print ("ERROR: risky_command() said: {0}".format (e)
+   try:
+       risky_command ()
+   except Exception as e:
+       print ("ERROR: risky_command() said: {0}".format (e))
 
 you don't really know, and probably don't care, quite what
 ``risky_command`` was doing when it ``raise``\ ed the exception.  What
@@ -925,9 +925,9 @@ Consider a little snippet of :lname:`C`:
 
 .. code-block:: c
 
- ...
- int i = a + b * c;
- ...
+   ...
+   int i = a + b * c;
+   ...
 
 There are (arguably) four continuations there, *four*!  Let's break it
 down.  As a starter for ten, we know from :lname:`C`'s operator
@@ -942,11 +942,11 @@ to rewrite our original snippet it might look like:
 
 .. parsed-literal:: 
 
- ...
- b * c
- a + *[]*
- int i = *[]*
- ...
+   ...
+   b * c
+   a + *[]*
+   int i = *[]*
+   ...
 
 This is now looking like a little chain of sub-expressions where each
 sub-expression generates a (single!) value ready for the next
@@ -976,11 +976,11 @@ vastly uglier):
 
 .. parsed-literal:: 
 
- ...
- k_l(v) { k_m(b * c); }
- k_m(v) { k_n(a + v); }
- k_n(v) { k_o(int i = v); }
- ...
+   ...
+   k_l(v) { k_m(b * c); }
+   k_m(v) { k_n(a + v); }
+   k_n(v) { k_o(int i = v); }
+   ...
 
 Again, exactly the same thing is happening, ``b * c`` is now encoded
 in ``k_l()`` and ignores the parameter, ``v``.  It calls ``k_m()``
@@ -998,11 +998,11 @@ might look a bit like:
 
 .. parsed-literal:: 
 
- ...
- k_l(v, k) { k(b * c, *k_n*); }
- k_m(v, k) { k(a + v, *k_o*); }
- k_n(v, k) { k(int i = v, *k_p*); }
- ...
+   ...
+   k_l(v, k) { k(b * c, *k_n*); }
+   k_m(v, k) { k(a + v, *k_o*); }
+   k_n(v, k) { k(int i = v, *k_p*); }
+   ...
 
 where the continuation that you should pass your result to is passed
 to you and you have to tell your continuation whom to call in turn.
@@ -1154,11 +1154,11 @@ albeit just the two in our single line of code?
 
 .. parsed-literal:: 
 
- ...
- b * c
- a + *[]*
- int i = *[]*
- ...
+   ...
+   b * c
+   a + *[]*
+   int i = *[]*
+   ...
 
 If we want to capture ``k_m()`` -- so we can jump in at ``a + []``
 with a value -- we need to back-track a little and ask, whose
@@ -1183,13 +1183,13 @@ Let's see if we can visualise that:
 
 .. parsed-literal:: 
 
- func(k) { b * c; }
+   func(k) { b * c; }
 
- ...
- call/cc (func)
- a + *[]*
- int i = *[]*
- ...
+   ...
+   call/cc (func)
+   a + *[]*
+   int i = *[]*
+   ...
 
 I've got a unary function (one-argument!), ``func``, whose body is the
 calculation ``b * c`` so that's the value ``func`` should return.
@@ -1215,10 +1215,10 @@ Imagine if you called ``k`` in ``func``:
 
 .. parsed-literal:: 
 
- func(k) {
-           k (37);
-           b * c;
-	 }
+   func(k) {
+	     k (37);
+	     b * c;
+	   }
 
 .. sidebox:: Go straight to Jail.  Do not pass GO.  Do not collect
              £200.
@@ -1245,14 +1245,14 @@ the real code?
 
 .. parsed-literal:: 
 
- func(k) {
-  private_k = k;
-  b * c;
- }
+   func(k) {
+    private_k = k;
+    b * c;
+   }
 
- ...
- int i = a + call/cc (func)
- ...
+   ...
+   int i = a + call/cc (func)
+   ...
 
 Sweet!
 
@@ -1263,11 +1263,11 @@ parentheses going!
 
 .. code-block:: scheme
 
- (let ((private-k #f))
-  (let ((i (+ a (call/cc (lambda (k)
-			  (set! private-k k)
-			  (* b c)))))))
-  (private-k 37))
+   (let ((private-k #f))
+    (let ((i (+ a (call/cc (lambda (k)
+			    (set! private-k k)
+			    (* b c)))))))
+    (private-k 37))
 
 Which looks cool (we'll gloss over the ``set!``) but will loop
 forever.
@@ -1288,8 +1288,8 @@ top level variable:
 
 .. code-block:: scheme
 
- (define top-level-k (call/cc (lambda (k)
-			       k)))
+   (define top-level-k (call/cc (lambda (k)
+				 k)))
 
 which certainly sets ``top-level-k`` to *a* continuation.  We can call
 that continuation with ``(top-level-k 37)`` whereon we return (again)
@@ -1318,9 +1318,9 @@ continuation but not provide any useful calculation.  In fact, it
 
 .. code-block:: scheme
 
- (call/cc (lambda (k)
-	   ...save k...))
- (set! i (a + (b * c)))
+   (call/cc (lambda (k)
+	     ...save k...))
+   (set! i (a + (b * c)))
 
 ``k``, if invoked with any argument, will then start processing ``b *
 c`` (which will ignore the value passed) and we continue cleanly.
@@ -1329,15 +1329,15 @@ The line after's continuation is more of a mixed bag.  From looking at
 the code we might determine that the next statement does nothing with
 the value from the previous statement in which case we can insert a
 similar dummy ``call/cc`` or we realise that our ``(set! i (a + (b *
-c))`` statement is in the middle of something else which is reliant on
-the result in which case we need to wrapper the whole ``set!`` form in
-``call/cc``:
+c)))`` statement is in the middle of something else which is reliant
+on the result in which case we need to wrapper the whole ``set!`` form
+in ``call/cc``:
 
 .. code-block:: scheme
 
- (call/cc (lambda (k)
-	   ...save k...
-	   (set! i (a + (b * c)))))
+   (call/cc (lambda (k)
+	     ...save k...
+	     (set! i (a + (b * c)))))
  
 where the value returned by ``call/cc`` (the value returned by
 ``set!``) is passed to whomever wants it.  ``k``, now, is in the
@@ -1441,13 +1441,13 @@ message passing.  In the original :strike:`Klingon` Smalltalk_:
 
 .. code-block:: smalltalk
 
- object <- message arguments
+   object <- message arguments
 
 which you might imagine, in a :lname:`Scheme`-ly way, to look like:
 
 .. code-block:: scheme
 
- (object message arguments)
+   (object message arguments)
 
 which would be perfectly fine so long as we allow an object in
 functional position -- remember that the first element in a list is
@@ -1456,7 +1456,7 @@ might think that should be:
 
 .. code-block:: scheme
 
- (message object arguments)
+   (message object arguments)
 
 although we've only just said we can call ``k(37)`` where ``k`` is a
 continuation not a "real" function.  Quite what *is* allowed to be in
@@ -1464,7 +1464,7 @@ functional position in a :lname:`Scheme` form is becoming a little
 greyer.
 
 :ref-title:`EPLAiP` (:cite:`EPLA`) p.135, implements the former (in
-*Perl*) in a straight-forward manner.  If the evaluated value in
+*Perl*) in a straightforward manner.  If the evaluated value in
 functional position is an object then the first argument is assumed to
 be an object-specific function, a method, and there's a mechanism for
 looking up a method within the hierarchy of the class.  The method is
@@ -1482,17 +1482,17 @@ a class hierarchy of ``Integer`` is a ``Real`` is a ``Number``, then:
 
 .. code-block:: scheme
 
- (add Number1 Number2)
+   (add Number1 Number2)
 
 we only get to make decisions about which actual function to dispatch
 to based on ``Number1``:
 
 .. code-block:: scheme
 
- (case (class-of Number1)
-   ((Integer) (add-integer Number1 Number2))
-   ((Real)    (add-real    Number1 Number2))
-   ((Number)  (add-number  Number1 Number2)))
+   (case (class-of Number1)
+     ((Integer) (add-integer Number1 Number2))
+     ((Real)    (add-real    Number1 Number2))
+     ((Number)  (add-number  Number1 Number2)))
 
 which means the implementation functions, ``add-integer``,
 ``add-real`` and ``add-number``, must look at the class of ``Number2``
@@ -1500,10 +1500,10 @@ to really determine what to do:
 
 .. code-block:: scheme
 
- (define  (add-integer n1 n2)
-   (if (not (eq (class-of n2) 'Integer))
-       (add-real n1 n2)
-       (make-Integer (+ (Integer-value n1) (Integer-value n2)))))
+   (define  (add-integer n1 n2)
+     (if (not (eq (class-of n2) 'Integer))
+	 (add-real n1 n2)
+	 (make-Integer (+ (Integer-value n1) (Integer-value n2)))))
 
 Using multiple arguments to determine the correct implementation
 method is called *multiple dispatch* and for that we need
@@ -1514,32 +1514,32 @@ will allow us to define a class:
 
 .. parsed-literal::
 
- (define-class *classname* *superclass* (*field+*))
+   (define-class *classname* *superclass* (*field+*))
 
 which, as a side-effect, creates a flurry of class-oriented functions
 based on the identifiers used above.  A constructor:
 
 .. parsed-literal::
 
- (make-*classname* *arguments*)
+   (make-*classname* *arguments*)
 
 field accessors for an object of that type:
 
 .. parsed-literal::
 
- (*classname*-*field1* *obj*)
+   (*classname*-*field1* *obj*)
 
 field mutators:
 
 .. parsed-literal:: 
 
- (set-*classname*-*field1*! *obj* *value*)
+   (set-*classname*-*field1*! *obj* *value*)
 
 (note the trailing ``!``) and a predicate:
 
 .. parsed-literal:: 
 
- (*classname*? *obj*)
+   (*classname*? *obj*)
 
 .. _`generic functions`:
 
@@ -1559,8 +1559,8 @@ to distinguish behaviour rather than being forced to choose the first.
 
 .. parsed-literal:: 
 
- (define-generic (*name* *arguments*)
-   *body*)
+   (define-generic (*name* *arguments*)
+     *body*)
 
 Where ``body`` will commonly be a call to an error function to catch
 instances where the programmer has forgotten to define a
@@ -1571,8 +1571,8 @@ argument!).  That is done by making it a list (of itself):
 
 .. code-block:: scheme
 
- (define-generic (foo arg1 (arg2) arg3)
-   (error "bad args")
+   (define-generic (foo arg1 (arg2) arg3)
+     (error "bad args"))
 
 Here, we've made the second argument, ``arg2``, the distinguishing
 one.
@@ -1585,8 +1585,8 @@ A generic method (ie. a class-specific method) is introduced with:
 
 .. parsed-literal:: 
 
- (define-method (*name* *arguments*)
-   *body*)
+   (define-method (*name* *arguments*)
+     *body*)
 
 notably, syntactically identical to the ``define-generic`` above
 
@@ -1596,8 +1596,8 @@ to.  Our ``foo`` example might look like:
 
 .. code-block:: scheme
 
- (define-method (foo arg1 (arg2 <X>) arg3)
-   ...)
+   (define-method (foo arg1 (arg2 <X>) arg3)
+     ...)
 
 .. sidebox:: Here we really do mean class ``<X>`` as we allow angle
              brackets in symbol names.
@@ -1609,14 +1609,14 @@ Our number example looks like:
 
 .. code-block:: scheme
 
- (define-generic (add (n1) n2)
-   (wrong "no method defined for" n1 n2))
+   (define-generic (add (n1) n2)
+     (wrong "no method defined for" n1 n2))
 
- (define-method (add (n1 Integer) n2)
-   (add-integer n1 n2))
+   (define-method (add (n1 Integer) n2)
+     (add-integer n1 n2))
 
- (define-method (add (n1 Real) n2)
-   (add-real n1 n2))
+   (define-method (add (n1 Real) n2)
+     (add-real n1 n2))
 
 CLOS
 ----
@@ -1645,10 +1645,10 @@ everything else can be derived:
 
 .. code-block:: scheme
 
- (define (strlen s)
-   (string-length s))
- (define i 3)
- (strlen i)
+   (define (strlen s)
+     (string-length s))
+   (define i 3)
+   (strlen i)
 
 A type inferencing compiler, knowing only that ``string-length`` takes
 a *string* as an argument would deduce therefore that ``s``, the first

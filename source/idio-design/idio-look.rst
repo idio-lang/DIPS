@@ -57,7 +57,7 @@ on, I want, nay, *insist* that I be able to type:
 
 .. code-block:: idio
 
- ls -l
+   ls -l
 
 With no (obvious) punctuation, just like the shell.  Isn't that the
 point?
@@ -90,7 +90,7 @@ meta-characters the shell uses to spot pathname patterns:
 
 .. code-block:: idio
 
- ls -l *foo*.txt
+   ls -l *foo*.txt
 
 Is that:
 
@@ -122,7 +122,7 @@ like:
 
 .. code-block:: idio
 
- ls -l #P{ *foo*.txt }
+   ls -l #P{ *foo*.txt }
 
 cause palpitations?  In one sense it is a bit like preparing a regular
 expression in :lname:`Python` or :lname:`Perl`.
@@ -133,7 +133,7 @@ There's a very similar problem with plain filenames:
 
 .. code-block:: idio
 
- ls -l foo
+   ls -l foo
 
 ``foo``, here, will be looked to be evaluated -- and could be --
 otherwise will cause an *unbound* error like ``ls`` might.
@@ -143,8 +143,8 @@ with a string (no globbing!):
 
 .. code-block:: idio
 
- ls -l > "foo"
- open-input-file "foo"
+   ls -l > "foo"
+   open-input-file "foo"
 
 Single Word Feature
 -------------------
@@ -160,11 +160,11 @@ single word will be evaluated and its value printed:
 
 .. code-block:: idio
 
- Idio> n := 10
- Idio> n
- 10
- Idio> map
- #<CLOS map @51321/0x30c4580/Idio>
+   Idio> n := 10
+   Idio> n
+   10
+   Idio> map
+   #<CLOS map @51321/0x30c4580/Idio>
 
 
 giving us the value of ``n`` and some internal representation of the
@@ -188,15 +188,15 @@ you *must* put it in parentheses:
 
 .. code-block:: idio
 
- Idio> (ls)
- My Documents
- ...
+   Idio> (ls)
+   My Documents
+   ...
 
 That's true of functions as well:
 
 .. code-block:: idio
 
- osh := (open-output-string)
+   osh := (open-output-string)
 
 It's quite annoying for me where I habitually type ``make`` at the
 :lname:`Idio` prompt to have ``make`` printed back at me.  Not
@@ -215,18 +215,18 @@ for example, which is nominally:
 
 .. code-block:: scheme
 
- (cond (c1 e1)
-       (c2 e2)
-       (else e3))
+   (cond (c1 e1)
+	 (c2 e2)
+	 (else e3))
 
 ``cond`` by rights, should be invokable in the same way as ``ls``,
 ie. without leading parenthesis but that would lead us with:
 
 .. code-block:: scheme
 
- cond (c1 e1)
-      (c2 e2)
-      (else e3)
+   cond (c1 e1)
+	(c2 e2)
+	(else e3)
 
 which our line-oriented engine is going to see as three distinct
 statements -- albeit with the second two having exaggerated indents.
@@ -238,7 +238,7 @@ really a visual *aide-mémoir*, after all, we could have written:
 
 .. code-block:: scheme
 
- cond (c1 e1) (c2 e2) (else e3)
+   cond (c1 e1) (c2 e2) (else e3)
 
 and be done.  Except the condition and expression clauses are almost
 certainly complex and the resultant enormous line would be difficult
@@ -254,9 +254,9 @@ continuation character:
 
 .. code-block:: idio
 
- cond (c1 e1) \
-      (c2 e2) \
-      (else e3)
+   cond (c1 e1) \
+	(c2 e2) \
+	(else e3)
 
 But, be honest, it looks a bit clumsy.  And I can say that with some
 confidence as I have, out of a duty to see it through, written *all*
@@ -267,9 +267,9 @@ This gives us the dreadful:
 
 .. code-block:: idio
 
- if (some test) \
-    (truth-fully) \
-    (not so truthy)
+   if (some test) \
+      (truth-fully) \
+      (not so truthy)
 
 I know, I know!  (And it gets worse.)
 
@@ -279,10 +279,10 @@ silently added -- but the result is like the `Curate's egg`_:
 
 .. code-block:: idio
 
- ls -l
- (if (some test)
-    (truth-fully)
-    (not so truthy))
+   ls -l
+   (if (some test)
+      (truth-fully)
+      (not so truthy))
 
 and, to be honest, I find it less appealing than the clumsy variant.
 The line-continuation style has the decency to be consistent.
@@ -307,7 +307,7 @@ So, if I had typed:
 
 .. code-block:: idio
 
- zcat file | tar tf -
+   zcat file | tar tf -
 
 then the reader will have read in six words in a(n implied) list.  It
 can scan along, find that ``|`` is an infix operator and call its
@@ -316,8 +316,8 @@ this into:
 
 .. code-block:: scheme
 
- (| (zcat file)
-    (tar tf -))
+   (| (zcat file)
+      (tar tf -))
 
 .. sidebox:: Always a good position.
 
@@ -337,7 +337,7 @@ expressions so that if you'd typed:
 
 .. code-block:: idio
 
- zcat file | (tar tf - | grep foo)
+   zcat file | (tar tf - | grep foo)
 
 (I'm leaving ``foo`` in there as it fails my point about symbols and
 expansion but is easier to read whilst we mull over the idea.)
@@ -348,16 +348,16 @@ can be re-written as:
 
 .. code-block:: scheme
 
- (| (tar tf -)
-    (grep foo))
+   (| (tar tf -)
+      (grep foo))
 
 to become part of the outer line-oriented expression when it is
 eventually completely read in (by hitting the end of line):
 
 .. code-block:: idio
 
- zcat file | (| (tar tf -)
-		(grep foo))
+   zcat file | (| (tar tf -)
+		  (grep foo))
 
 This time, even though there's a ``|`` in the middle of the second
 expression it isn't directly in the outer expression which looks, to
@@ -365,7 +365,7 @@ the reader, like:
 
 .. parsed-literal::
 
- *rhubarb* *rhubarb* | *rhubarb* *rhubarb*
+   *rhubarb* *rhubarb* | *rhubarb* *rhubarb*
 
 .. aside:: I should be careful of referencing 1970s British TV comedy
            for fear of attracting :ref-title:`The Phantom Raspberry
@@ -375,24 +375,24 @@ and can be transformed into:
 
 .. code-block:: scheme
 
- (| (zcat file)
-    (| (tar tf -)
-       (grep foo)))
+   (| (zcat file)
+      (| (tar tf -)
+	 (grep foo)))
 
 Contrast that with multiple instances of the operator in the same
 expression:
 
 .. code-block:: idio
 
- zcat ... | tar ... | grep ...
-
+   zcat ... | tar ... | grep ...
+ 
 which we might transform into:
 
 .. code-block:: scheme
 
- (| (zcat ...) 
-    (tar ...) 
-    (grep ...))
+   (| (zcat ...) 
+      (tar ...) 
+      (grep ...))
 
 It's more subtle than that, though, as a pipeline (and the logical
 operators ``and`` and ``or``) take multiple words as their arguments,
@@ -403,13 +403,13 @@ redirection) take only a single argument either side.
 
 .. code-block:: scheme
 
- (+ 1 2 3)
+   (+ 1 2 3)
 
 but
 
 .. code-block:: idio
 
- 1 + 2 3
+   1 + 2 3
 
 is incorrect in regular arithmetic.  That means that the code for
 operators needs to do some syntax checking.  It's not great that
@@ -434,9 +434,9 @@ quite likely to be *executed* as:
 
 .. code-block:: scheme
 
- (| (| (zcat ...) 
-       (tar ...) 
-    (grep ...)))
+   (| (| (zcat ...) 
+	 (tar ...) 
+      (grep ...)))
 
 Even if its nominal form is all three children parented by the same
 ``|`` operator.
@@ -452,7 +452,7 @@ redirection are all ordered by precedence:
 
 .. code-block:: idio
 
- tar *.txt 2>/dev/null | gzip > foo || echo whoops
+   tar *.txt 2>/dev/null | gzip > foo || echo whoops
 
 should be interpreted as first ``pipeline || pipeline``, then ``cmd+io
 | cmd+io`` then, finally, arrange ``io`` followed by executing
@@ -460,11 +460,11 @@ should be interpreted as first ``pipeline || pipeline``, then ``cmd+io
 
 .. code-block:: scheme
 
- (or (| (io-> 2 /dev/null
- 	      tar *.txt)
-        (io-> 1 foo
- 	      gzip))
-     echo whoops)
+   (or (| (io-> 2 /dev/null
+		tar *.txt)
+	  (io-> 1 foo
+		gzip))
+       echo whoops)
 
 using some putative ``(io-> fd file cmd . args)`` function to handle
 IO redirection (which doesn't handle multiple redirections so doesn't
@@ -482,19 +482,19 @@ Such transforms will also mean that:
 
 .. code-block:: idio
 
- echo 1 + 2 3 * 4
+   echo 1 + 2 3 * 4
 
 will be re-written as:
 
 .. code-block:: scheme
 
- (echo (+ 1 2) (* 3 4))
+   (echo (+ 1 2) (* 3 4))
  
 resulting in:
 
 .. code-block:: sh
 
- 3 12
+   3 12
 
 but the original form was hard for the human mind to scan -- the
 pedantic grouping of sub-expressions of :lname:`Scheme` would have
@@ -502,7 +502,7 @@ forced us to write:
 
 .. code-block:: idio
 
- echo (1 + 2) (3 * 4)
+   echo (1 + 2) (3 * 4)
 
 which is, at least, clearer in intent!
 
@@ -511,10 +511,10 @@ drawn out over multiple lines for clarity:
 
 .. code-block:: idio
 
- if (this and
-     that and
-     the-other) \
-    ...
+   if (this and
+       that and
+       the-other) \
+      ...
 
 So I feel that if the last word on a line is an infix operator then
 the expression is assumed to continue on the next line.
@@ -524,10 +524,10 @@ That said, I've gotten quite used to writing the more
 
 .. code-block:: idio
 
- if (and this
-	 that
-	 the-other) \
-    ...
+   if (and this
+	   that
+	   the-other) \
+      ...
 
 but the trailing operator trick stills stands.
 
@@ -559,17 +559,17 @@ If you're a :lname:`Scheme`\ r, you're quite used to:
 
 .. code-block:: scheme
 
- (let ((a 1))
-   (+ a 1))
+   (let ((a 1))
+     (+ a 1))
 
 whereas others would be more at home with a more :lname:`ALGOL`-ish:
 
 .. code-block:: idio
 
- {
-   a = 1
-   a + 1
- }
+   {
+     a = 1
+     a + 1
+   }
 
 where ``{`` starts a lexical block in which we can introduce lexically
 scoped variables.  They would likely all be introduced as a ``let*``
@@ -579,13 +579,13 @@ derived from another:
 
 .. code-block:: idio
 
- {
-   a = 1
-   b = a + 1
-   
-   odd? = function ... even? ...
-   even? = function ... odd? ...
- }
+   {
+     a = 1
+     b = a + 1
+
+     odd? = function ... even? ...
+     even? = function ... odd? ...
+   }
 
 Additionally, the lexical block has an implied ``begin`` meaning the
 last calculated value is the one to be returned by the block.
@@ -610,7 +610,7 @@ prevalent in :lname:`C`:
 
 .. code-block:: c
 
- if (a = 1) ...
+   if (a = 1) ...
 
 is probably not what you want, and started off thinking that a
 :lname:`Pascal`-style ``:=`` would come in handy.  We can also make it
@@ -620,8 +620,8 @@ an infix operator:
 
 .. code-block:: idio
 
- a := 1
- ...
+   a := 1
+   ...
 
 which would be transformed by the reader into ``(:= a 1)`` and then
 the evaluator can introduce the variable ``a`` giving it the value 1.
@@ -630,20 +630,20 @@ to be a ``define`` or a ``let``.  In a lexical block, for example:
 
 .. code-block:: idio
 
- {
-  a := 1
-  ...
-  a
- }
+   {
+    a := 1
+    ...
+    a
+   }
 
 would get transformed into:
 
 .. code-block:: scheme
 
- (let ((a 1))
-  (begin
-   ...
-   a)
+   (let ((a 1))
+    (begin
+     ...
+     a))
 
 in other words, after any ``:=`` statement, the entire rest of the
 lexical block becomes the body of the implied ``let`` such that the
@@ -651,20 +651,20 @@ lexical block becomes the body of the implied ``let`` such that the
 
 .. code-block:: idio
 
- a := 1
- b := a + 2
- ...
- b
+   a := 1
+   b := a + 2
+   ...
+   b
 
 would get transformed into:
 
 .. code-block:: scheme
 
- (let ((a 1))
-  (let ((b (a + 2)))
-   (begin
-    ...
-    b))
+   (let ((a 1))
+    (let ((b (a + 2)))
+     (begin
+      ...
+      b)))
 
 which, I think, works OK.
 
@@ -673,9 +673,9 @@ I have, however, failed in my visual-distinction task in that to
 
 .. code-block:: idio
 
- a := 1
- ...
- a = a + 1
+   a := 1
+   ...
+   a = a + 1
 
 Noting that the *reader* will transform ``a + 1`` into ``(+ a 1)``
 *first* as ``+`` has a higher infix operator precedence than the
@@ -683,7 +683,7 @@ Noting that the *reader* will transform ``a + 1`` into ``(+ a 1)``
 
 .. code-block:: scheme
 
- (= a (+ a 1))
+   (= a (+ a 1))
 
 Function calls
 --------------
@@ -692,13 +692,13 @@ Function calls in assignments come out in the wash, here, as:
 
 .. code-block:: idio
 
- a = func sol bruh va
+   a = func sol bruh va
 
 is transformed into:
 
 .. code-block:: scheme
 
- (= a (func sol bruh va))
+   (= a (func sol bruh va))
 
 and ``(func sol bruh va)`` is a regular evaluable form returning its
 result to the assignment operator, ``=``.
@@ -708,7 +708,7 @@ so you need to type:
 
 .. code-block:: idio
 
- a = (func)
+   a = (func)
 
 if you're not passing any arguments.  *\*shrugs\**
 
@@ -722,17 +722,17 @@ comes in a couple of forms.
 
 .. parsed-literal::
 
- define *variable* *value*
+   define *variable* *value*
 
- define (*func-name* *formals+*) *body*
+   define (*func-name* *formals+*) *body*
 
 or you can use one of the assignment infix operators:
 
 .. parsed-literal::
 
- *variable* := *value*
+   *variable* := *value*
 
- *function-name* := function (*formals+*) *body*
+   *function-name* := function (*formals+*) *body*
 
 The ``define`` form for functions is much cleaner but the assignment
 variant is used liberally when re-defining an existing function.
@@ -759,8 +759,8 @@ variable (onto the stack) and starts processing:
 
 .. code-block:: scheme
 
- (dynamic-let ((X 10))
-  (foo))
+   (dynamic-let ((X 10))
+    (foo))
 
 Normally, some function calls deeper, you would call ``(dynamic X)``
 to get the value of ``X``, your dynamic variable.
@@ -813,11 +813,11 @@ The reason for this dynamic nature is I want to be able to say:
 
 .. code-block:: idio
 
- {
-  PATH := path-prepend PATH /some/where/else
+   {
+    PATH := path-prepend PATH /some/where/else
 
-  do stuff
- }
+    do stuff
+   }
 
 Here, for the duration of this lexical block, ie. whatever effect we
 create should be unwound at the end of the block, I am creating a
@@ -836,11 +836,11 @@ So that should have been:
 
 .. code-block:: idio
 
- {
-  PATH :* path-prepend PATH /some/where else
+   {
+    PATH :* path-prepend PATH /some/where else
 
-  do stuff
- }
+    do stuff
+   }
 
 You might ask why didn't I just modify the value of ``PATH``?  Well,
 modifying it means that everyone after this lexical block will see my
@@ -855,7 +855,7 @@ case of:
 
 .. code-block:: sh
 
- PATH=/some/where/else:$PATH do stuff
+   PATH=/some/where/else:$PATH do stuff
 
 Un-setting Transient Variables
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -911,34 +911,34 @@ We can then rustle up something like:
 
 .. code-block:: idio
 
- getter := #f
- setter := #f
+   getter := #f
+   setter := #f
 
- {
-  p := 0
+   {
+    p := 0
 
-  getter = function () {
-	     p = p + 1
-	     p
-  }
+    getter = function () {
+	       p = p + 1
+	       p
+    }
 
-  setter = function (v) {
-	     p = v
-  }
- } 
+    setter = function (v) {
+	       p = v
+    }
+   } 
 
- cv :$ getter setter
+   cv :$ getter setter
 
- printf "%d %d\n" cv cv
- cv = 10
- printf "%d %d\n" cv cv
+   printf "%d %d\n" cv cv
+   cv = 10
+   printf "%d %d\n" cv cv
 
 which should display:
 
 .. code-block:: sh
 
- 1 2
- 11 12
+   1 2
+   11 12
 
 
 .. _functions:
@@ -951,19 +951,19 @@ now:
 
 .. code-block:: sh
 
- function foo ()
- {
-  echo $(( $1 + 1));
- }
+   function foo ()
+   {
+    echo $(( $1 + 1));
+   }
 
 other than a little textual transformation into, say:
 
 .. code-block:: idio
 
- function (a) {
-   b = a + 1
-   b
- }
+   function (a) {
+     b = a + 1
+     b
+   }
 
 the differences being that there's no function name in the function
 declaration and we have formal parameters.
@@ -977,11 +977,11 @@ If it wasn't on the end of that line:
 
 .. code-block:: idio
 
- function (a)
- {
-   b = a + 1
-   b
- }
+   function (a)
+   {
+     b = a + 1
+     b
+   }
 
 would be a semantic error as ``function (a)`` was read and deemed by
 the line-oriented code reader to be a whole expression.  But it is a
@@ -1004,11 +1004,11 @@ closures:
 
 .. code-block:: ruby
 
- { |n| n + 1 }		; Ruby
+   { |n| n + 1 }		; Ruby
 
 .. code-block:: swift
 
- { (n) in n + 1 }	; Swift - could have said { $0 + 1 }
+   { (n) in n + 1 }	; Swift - could have said { $0 + 1 }
 
 The more you're used to seeing it the easier it is to scan.
 
@@ -1022,7 +1022,7 @@ pipelines:
 
 .. code-block:: idio
 
- zcat file | tar tf -
+   zcat file | tar tf -
 
 I've not implemented it yet -- partly because ``&`` is used for pairs
 -- but you can image a form of postfix operator, ``&`` to background a
@@ -1030,7 +1030,7 @@ pipeline, like the shell:
 
 .. code-block:: idio
 
- zcat file | tar tf - &
+   zcat file | tar tf - &
 
 Previously I said I was going to reserve the :lname:`C`/shell logical
 operators ``&&`` and ``||`` for nefarious purposes.
@@ -1043,7 +1043,7 @@ call is the argument to the next:
 
 .. code-block:: idio
 
- func args || f2 || f3
+   func args || f2 || f3
 
 although you immediately think that the later functions should be
 allowed to have other arguments themselves (albeit ``f2`` and ``f3``
@@ -1056,21 +1056,21 @@ equivalent would be something like:
 
 .. code-block:: idio
 
- func args || f2 a1 _ a2 || f3 _ b1 b2
+   func args || f2 a1 _ a2 || f3 _ b1 b2
 
 However it might be done, you can recognise that it is a
-straight-forward enough transformation into a nested call:
+straightforward enough transformation into a nested call:
 
 .. code-block:: idio
 
- (f3 (f2 a1 (func args) a2) b1 b2)
+   (f3 (f2 a1 (func args) a2) b1 b2)
 
 On a different tack, ``&&``, might be used to "kick off in the
 background" a thread (should we have any):
 
 .. code-block:: idio
 
- keep-an-eye-on stuff &&
+   keep-an-eye-on stuff &&
 
 This double-punctuation character thing might have some mileage.
 
@@ -1104,7 +1104,7 @@ source code:
 
 .. code-block:: idio
 
- pair 1
+   pair 1
 
 is an error because no matter how many times you run or whatever
 external changes you make, ``pair`` takes two arguments and you've
@@ -1210,9 +1210,9 @@ any of the conditional forms in the shell-ish way:
 
 .. code-block:: console
 
- Idio> if (false) "worked" "failed"
- job 95645: (false): completed: (exit 1)
- "failed"
+   Idio> if (false) "worked" "failed"
+   job 95645: (false): completed: (exit 1)
+   "failed"
 
 .. sidebox:: For many many years I have had a :lname:`Bash`
              ``PROMPT_COMMAND`` which has figured out the exit/killed
@@ -1242,7 +1242,7 @@ be valid for:
 
 .. parsed-literal::
 
- trap *condition* *handler* *form+*
+   trap *condition* *handler* *form+*
 
 where
 
@@ -1260,13 +1260,13 @@ lexically once):
 
 .. code-block:: idio
 
- a := #[ 1 2 3 ]
+   a := #[ 1 2 3 ]
 
- trap ^rt-array-bounds-error (function (c) {
-				#f
- }) {
-   array-ref a 4
- }
+   trap ^rt-array-bounds-error (function (c) {
+				  #f
+   }) {
+     array-ref a 4
+   }
 
 where
 
@@ -1346,14 +1346,14 @@ sort it out:
 
 .. code-block:: idio
 
- a := #[ 1 2 3 ]
+   a := #[ 1 2 3 ]
 
- trap ^rt-array-bounds-error (function (c) {
-			        eprintf "Dun goofed!\n"
-				raise c
- }) {
-   array-ref a 4
- }
+   trap ^rt-array-bounds-error (function (c) {
+				  eprintf "Dun goofed!\n"
+				  raise c
+   }) {
+     array-ref a 4
+   }
 
 (no surprises that ``eprintf`` *printf*\ s to *stderr*)
 
@@ -1367,9 +1367,9 @@ from some safe place:
 
 .. code-block:: console
 
- Dun goofed!
+   Dun goofed!
 
- foo.idio:line 7: ^rt-array-bounds-error: array bounds error: abs (4) >= #elem 3: idio_array_ref
+   foo.idio:line 7: ^rt-array-bounds-error: array bounds error: abs (4) >= #elem 3: idio_array_ref
 
 (The ``abs (4)`` refers to the idea that you can index an array from
 the end using negative numbers but either way is more than the array's
@@ -1457,10 +1457,10 @@ multi-line s-exps:
 
 .. code-block:: scheme
 
- (let ((a 1))
-  #;(set! a
-          (+ a 1))
-  a)
+   (let ((a 1))
+    #;(set! a
+	    (+ a 1))
+    a)
 
 should avoid ``a`` changing value.
 
@@ -1515,11 +1515,11 @@ might be a bit unfortunate with something like:
 
 .. code-block:: idio
 
- #*
+   #*
 
- ; don't use *# here
+   ; don't use *# here
 
- *#
+   *#
 
 with the predictably hilarious result that the reader will find the
 closing ``*#`` in the middle of the line comment and start processing
@@ -1530,11 +1530,11 @@ surprise is ``\``:
 
 .. code-block:: idio
 
- #*
+   #*
 
- ; don't use \*# here
+   ; don't use \*# here
 
- *#
+   *#
 
 But wait, ``\`` is my favourite character for my comments!  *<sigh>*
 
@@ -1543,11 +1543,11 @@ character (ie. not whitespace) is the escape character:
 
 .. code-block:: idio
 
- #*%
+   #*%
 
- ; don't use \% %*# here
+   ; don't use \% %*# here
 
- *#
+   *#
 
 where ``\`` does nothing, ``%`` will first escape a space character
 then escape the ``*`` preventing the line comment ending the

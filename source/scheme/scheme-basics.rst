@@ -16,6 +16,10 @@ Scheme Basics
 
    -- Greenspun's tenth rule
 
+Obligatory, relevant XKCD:
+
+.. image:: https://imgs.xkcd.com/comics/lisp_cycles.png
+
 Why :lname:`Scheme`?  :lname:`Scheme` is incredibly simple so should
 be easy to understand the implementation of (famous last words) but
 has a sophistication that rivals any other programming language and
@@ -231,8 +235,8 @@ numbers, strings and so on.  The likes of:
   a pointer comparison.
 
   .. note:: Many punctuation characters are allowed in symbols which,
-            depending on taste, allows for a more readable style.  I
-            for one like a hyphen instead of an underscore.
+            depending on taste, allows for a more readable style.  I,
+            for one, like a hyphen instead of an underscore.
 
 	    :lname:`Scheme` is largely delimited by whitespace and
             parentheses which frees up a lot of characters to add
@@ -264,7 +268,7 @@ numbers, strings and so on.  The likes of:
 
 	    .. code-block:: bash
 
-	      a = 2
+	       a = 2
 
 	    for an assignment.
 
@@ -456,7 +460,7 @@ Some examples:
 
 .. code-block:: scheme
 
- 12
+   12
 
 This will be interpreted as the constructor for a number value.
 Evaluation of the constructor returns a number value.  Not much use as
@@ -464,7 +468,7 @@ it stands!
 
 .. code-block:: scheme
 
- (number-add a 1)
+   (number-add a 1)
 
 A list.  The first element of the list is expected to be a function.
 In this case it is the symbol ``number-add``.  Symbols, when evaluated
@@ -511,7 +515,7 @@ That said, ``number-add`` is not a standard function, ``+`` is:
 
 .. code-block:: scheme
 
- (+ a 1)
+   (+ a 1)
 
 Now, a famous bane of :lname:`Scheme` is that the function is *always*
 the first element of the list -- there are no infix or postfix
@@ -524,27 +528,31 @@ But that's bizarre, every other function call we make in the vast
 majority of programming languages uses prefix notation:
 
 .. code-block:: c
+   :caption: C
 
- number_add (a, 1);
+   number_add (a, 1);
 
 .. code-block:: perl
+   :caption: Perl
 
- number_add ($a, 1);
+   number_add ($a, 1);
 
 .. code-block:: tcl
+   :caption: Tcl
 
- [number_add $a 1]
+   [number_add $a 1]
 
 .. code-block:: scheme
+   :caption: Scheme
 
- (number-add a 1)
+   (number-add a 1)
 
 We don't skip a beat when reading those yet have a mental hiccup with
 regular arithmetic functions in prefix notation:
 
 .. code-block:: scheme
 
- (+ a 1)
+   (+ a 1)
 
 There's no particular answer to that.  Other than to enable infix
 notation -- which is messy in :lname:`Scheme` and so *Lisp* language
@@ -554,12 +562,16 @@ As an aside, prefix notation has a benefit in that ``+`` isn't limited
 to 2 arguments: ``(+ 1 2 3 4 5)`` is just fine.  As, indeed, is ``(+
 1)``.
 
+.. rst-class:: center
+
+---
+
 Extending our trivial example, now a list of lists:
 
 .. code-block:: scheme
 
- (+ 1 (* 2 3))
-
+   (+ 1 (* 2 3))
+		
 Aha!  We've got this.  The outer list is really ``(+ 1 X)`` where
 ``X`` is the result of evaluating the inner list, the expression ``(*
 2 3)``, so we would expect that ``+`` will we called with the
@@ -575,25 +587,25 @@ prefix function calls, every other language would look similar:
 
 .. code-block:: c
 
- add (1, mul (2, 3))
+   add (1, mul (2, 3))
 
 which, if you remove commas:
 
 .. code-block:: c
 
- add (1 mul (2 3))
+   add (1 mul (2 3))
 
 and pull the function names inside the parentheses:
 
 .. code-block:: scheme
 
- (add 1 (mul 2 3))
+   (add 1 (mul 2 3))
 
 and replace arithmetic function names with symbols:
 
 .. code-block:: scheme
 
-  (+ 1 (* 2 3))
+   (+ 1 (* 2 3))
 
 then we're back to :lname:`Scheme` -- we've only changed the syntactic sugar,
 not the substance of the expression.  Arithmetic precedence rules and
@@ -612,7 +624,7 @@ evaluation like the above.  ``if`` is a case in point:
 
 .. code-block:: scheme
 
- (if #t (carry-on) (sleep-forever))
+   (if #t (carry-on) (sleep-forever))
 
 The ``if`` form takes three arguments: a *condition* expression which
 should result in a boolean value, a *consequent* expression to be
@@ -716,7 +728,7 @@ let
 
 .. parsed-literal::
 
- (let *bindings* *body+*)
+   (let *bindings* *body+*)
 
 where ``bindings`` is a list of bindings and each binding is a list of
 a symbol and an expression and ``body+`` is one or more forms (hence
@@ -763,8 +775,8 @@ The result of the ``let`` form is the value of the last form in the
 
 .. code-block:: scheme
 
- (let ((a 2))
-   (+ a 1))
+   (let ((a 2))
+     (+ a 1))
 
 Here, ``bindings`` is ``((a 2))``, ie. a list of a single binding,
 ``(a 2)``, and the ``body+`` forms is just a single form, ``(+ a 1)``.
@@ -798,10 +810,10 @@ A fractionally more complex example:
 
 .. code-block:: scheme
 
- (let ((a 1)
-       (b 2))
-   (+ a b)
-   (- a b))
+   (let ((a 1)
+	 (b 2))
+     (+ a b)
+     (- a b))
 
 we've now bound two symbols, ``a`` and ``b``, to two numbers, ``1``
 and ``2`` and we have two forms in ``body+``.  The first form adds the
@@ -828,11 +840,11 @@ So :lname:`Scheme` re-wrote our little snippet of code to:
 
 .. code-block:: scheme
 
- (let ((a 1)
-       (b 2))
-   (begin
-    (+ a b)
-    (- a b)))
+   (let ((a 1)
+	 (b 2))
+     (begin
+      (+ a b)
+      (- a b)))
 
 and ``begin`` has consumed the result of the addition and will now
 evaluate the next form, a subtraction.  This is the last (original)
@@ -849,9 +861,9 @@ Let's get busy:
 
 .. code-block:: scheme
 
- (let ((a 1))
-   (let ((b 2))
-      a))
+   (let ((a 1))
+     (let ((b 2))
+	a))
 
 has an outer ``let`` binding ``a`` to 1 and its body is another
 ``let``.
@@ -869,9 +881,9 @@ Some visual gymnastics, now.
 
 .. code-block:: scheme
 
- (let ((a 1))
-   (let ((a 2))
-      a))
+   (let ((a 1))
+     (let ((a 2))
+	a))
 
 has an outer ``let`` binding ``a`` to 1 and its body is another
 ``let``.
@@ -889,10 +901,10 @@ What if the outer ``let``'s body did a bit more?
 
 .. code-block:: scheme
 
- (let ((a 1))
-   (let ((a 2))
-      a)
-   a)
+   (let ((a 1))
+     (let ((a 2))
+	a)
+     a)
 
 The inner ``let`` continues to create a new ``a`` bound to the number
 value 2 and returns it.  However, the inner ``let`` is the first of
@@ -902,11 +914,13 @@ ignored by the implicit ``begin``.  All of the bindings of the inner
 form, ``a`` the only binding for ``a`` in scope is that of the outer
 ``let`` meaning ``a`` evaluates to 1.
 
-``let`` has its limits, though, for a very specific reason::
+``let`` has its limits, though, for a very specific reason:
 
- (let ((a 1)
-       (b (+ a 1)))
-   (+ a b))
+.. code-block:: scheme
+
+   (let ((a 1)
+	 (b (+ a 1)))
+     (+ a b))
 
 This seems reasonable enough, ``a`` is bound to the number ``1``
 and ``b`` is going to be the result of adding ``1`` to ``a``.  
@@ -933,7 +947,7 @@ In :lname:`Scheme` function *values* are created with the special form
 
 .. parsed-literal::
 
- (lambda *formals* *body+*)
+   (lambda *formals* *body+*)
 
 Where ``formals`` is a list of formal parameters (possibly the empty
 list!) followed by a list of one or more body forms, evaluated in
@@ -942,7 +956,7 @@ syntactic transformation to a more pure form:
 
 .. parsed-literal::
 
- (lambda *formals* (begin *body+*))
+   (lambda *formals* (begin *body+*))
 
 Hmm, notice we haven't given the function a *name*.  What we have is a
 function constructor -- like the constructors for numbers and strings
@@ -961,9 +975,9 @@ on a theme!
 
 .. code-block:: scheme
 
- (let* ((a 1)
-        (b (+ a 1)))
-   (+ a b))
+   (let* ((a 1)
+	  (b (+ a 1)))
+     (+ a b))
 
 Finally, we can have variables dependent on previous ones!
 
@@ -973,17 +987,17 @@ later ones.  It has transformed:
 
 .. parsed-literal::
 
- (let* ((*formal1* *arg1*))
-        (*formal2* *arg2*))
-   *body+*))
+   (let* ((*formal1* *arg1*)
+	  (*formal2* *arg2*))
+     *body+*)
 
 into:
 
 .. parsed-literal::
 
- (let ((*formal1* *arg1*))
-   (let ((*formal2* *arg2*))
-     *body+*))
+   (let ((*formal1* *arg1*))
+     (let ((*formal2* *arg2*))
+       *body+*))
 
 Where each ``let`` only handles a single binding and the remaining
 bindings are performed in the body form of that binding, hence the
@@ -993,15 +1007,17 @@ expressions.
 ``letrec``, "let recursively," is a slightly different idea, it
 handles the situation where two or more function definitions are
 mutually dependent.  The usual example is these rather inefficient
-``odd?``/``even?`` predicates::
+``odd?``/``even?`` predicates:
 
- (letrec ((odd? (lambda (n) (if (= n 0)
-                                #f
-                                (even? (- n 1)))))
-          (even? (lambda (n) (if (= n 0)
-                                 #t
-                                 (odd? (- n 1))))))
-   (even? 4))
+.. code-block:: scheme
+
+   (letrec ((odd? (lambda (n) (if (= n 0)
+				  #f
+				  (even? (- n 1)))))
+	    (even? (lambda (n) (if (= n 0)
+				   #t
+				   (odd? (- n 1))))))
+     (even? 4))
 
 Here, each predicate will call the definition of the other, so who do
 we define first?  Does it matter, though, as these are function
@@ -1027,21 +1043,21 @@ elsewhere.  So ``letrec`` might be transformed from:
 
 .. parsed-literal::
 
- (letrec ((*formal1* *arg1*)
-          (*formal2* *arg2*))
-   *body+*)
+   (letrec ((*formal1* *arg1*)
+	    (*formal2* *arg2*))
+     *body+*)
 
 into:
 
 .. parsed-literal::
 
- (let ((*formal1* #<undefined>)
-       (*formal2* #<undefined>))
-   (let ((tmp1 *arg1*)
-         (tmp2 *arg2*))
-      (set! *formal1* tmp1)
-      (set! *formal2* tmp2)
-      *body+*)
+   (let ((*formal1* #<undefined>)
+	 (*formal2* #<undefined>))
+       (let ((tmp1 *arg1*)
+	     (tmp2 *arg2*))
+	  (set! *formal1* tmp1)
+	  (set! *formal2* tmp2)
+	  *body+*))
 
 which itself introduces a few issues: the idea of an *undefined* value
 (perhaps an internal implementation thing?); temporary variables (we
@@ -1066,7 +1082,7 @@ anywhere else where a symbol has not yet been introduced?
 
 .. code-block:: scheme
 
- (set! a 1)
+   (set! a 1)
 
 is an error in :lname:`Scheme` as ``a`` does not exist -- we can't change the
 value a symbol is bound to if the symbol doesn't have a binding yet.
@@ -1083,15 +1099,15 @@ binding you can subsequently ``set!``.
 
 .. code-block:: scheme
 
- (define a 1)
+   (define a 1)
 
 Introduces the binding of the symbol ``a`` to the number ``1`` after
 which anything can use it:
 
 .. code-block:: scheme
 
- (let ((b 2))
-   (+ a b))
+   (let ((b 2))
+     (+ a b))
 
 should return the number value 3 even though ``a`` was not introduced
 by the ``let``, the ``define`` at the top level has meant it is in
@@ -1101,9 +1117,9 @@ We could have written:
 
 .. code-block:: scheme
 
- (let ((b 2))
-   (define c 3)
-   (+ b c))
+   (let ((b 2))
+     (define c 3)
+     (+ b c))
 
 which would return the number value 5.  The ``define``, here, *inside*
 the ``let`` seems slightly wasteful -- as you could have simply had
@@ -1122,7 +1138,7 @@ obviously:
 
 .. code-block:: scheme
 
- (define +1 (lambda (n) (+ 1 n)))
+   (define +1 (lambda (n) (+ 1 n)))
 
 (a function called ``+1``?  *Outrageous!*)
 
@@ -1130,26 +1146,26 @@ This is such a common idiom that ``define`` has an alternate syntax:
 
 .. parsed-literal::
 
- (define (*name* *formals*) *body+*)
+   (define (*name* *formals*) *body+*)
 
 to be re-arranged as:
 
 .. parsed-literal::
 
- (define *name* (lambda (*formals*) *body+*))
+   (define *name* (lambda (*formals*) *body+*))
 
 ie. for our ``+1`` function:
 
 .. code-block:: scheme
 
- (define (+1 n) (+ 1 n))
+   (define (+1 n) (+ 1 n))
 
 or
 
 .. code-block:: scheme
 
- (define (+1 n)
-  (+ 1 n))
+   (define (+1 n)
+    (+ 1 n))
 
 That's a bit cleaner!
 
@@ -1168,17 +1184,17 @@ define the function -- and obviously don't pass any when you call it!
 
 .. code-block:: scheme
 
- (define (hi-string)
-  "hi!")
+   (define (hi-string)
+    "hi!")
 
- (hi-string)
+   (hi-string)
 
 For the ``lambda`` form it's not dissimilar, we just have an empty
 list:
 
 .. code-block:: scheme
 
- (lambda nil "hi!")
+   (lambda nil "hi!")
 
 although you must explicitly write ``nil`` otherwise the evaluator
 will be left with an incoherent set of arguments for ``lambda``, just
@@ -1195,8 +1211,8 @@ Some Formal Parameters
 
 .. code-block:: scheme
 
- (define (foo a b . c)
-  ...)
+   (define (foo a b . c)
+    ...)
 
 I must call ``foo`` with at least two arguments, for the formal
 parameters, ``a`` and ``b``, and any remaining arguments are bundled
@@ -1215,8 +1231,8 @@ For define, this is OK:
 
 .. code-block:: scheme
 
- (define (foo . c)
-  ...)
+   (define (foo . c)
+    ...)
 
 and works like above.  In fact the function ``list`` itself -- whose
 purpose is to bundle up its arguments into a list -- is usually rather
@@ -1224,8 +1240,8 @@ cheekily defined as:
 
 .. code-block:: scheme
 
- (define (list . ls)
-  ls)
+   (define (list . ls)
+    ls)
 
 where it has had the evaluator do the hard word of bundling the
 arguments into a list and passes it off as its own work.  Clever.
@@ -1234,8 +1250,8 @@ For the ``lambda`` form it is visually different:
 
 .. code-block:: scheme
 
- (lambda c
-  ...)
+   (lambda c
+    ...)
 
 where ``c`` is now a standalone symbol, not in a list of formal
 parameters, to capture all the arguments as a list.
@@ -1251,27 +1267,27 @@ scope of it's *definition* from far far away.
 
 .. code-block:: scheme
 
- (define a 1)
+   (define a 1)
 
- (define (a+ n) 
-   (+ a n))
+   (define (a+ n) 
+     (+ a n))
 
- (a+ 5)
+   (a+ 5)
 
 You'll expect to get the number value 6 -- which you do.  However,
 there's a couple of variations on a theme here:
 
 .. code-block:: scheme
 
- (set! a 2)
- (a+ 5)
+   (set! a 2)
+   (a+ 5)
 
 will result in the number value 7 but
 
 .. code-block:: scheme
 
- (let ((a 3)) 
-   (a+ 5))
+   (let ((a 3)) 
+     (a+ 5))
 
 will give you the number value 7 again.  Why?
 
@@ -1305,8 +1321,8 @@ Quoting
 ^^^^^^^
 
 There's a few *reader macros* to help us.  Reader macros aren't true
-macros as just described but rather allow for some cheap syntactic
-tricks to save typing.
+macros we will describe later but rather allow for some cheap
+syntactic tricks to save typing.
 
 If the evaluation engine sees a list it will assume the first element
 is a function and the remaining elements are arguments to that
@@ -1315,7 +1331,7 @@ evaluated?  We need to *quote* the list:
 
 .. code-block:: scheme
 
- (quote (1 2 3))
+   (quote (1 2 3))
 
 ``quote`` stops the evaluation engine from trying to find a function
 associated with the number constructor ``1``.  Typing ``(quote
@@ -1324,7 +1340,7 @@ shorthand:
 
 .. code-block:: scheme
 
- '(1 2 3)
+   '(1 2 3)
 
 The reader macro associated with ``'`` will read the next expression,
 ``thing``, say, and return the longwinded ``(quote thing)`` for the
@@ -1342,14 +1358,14 @@ associated with an identifier:
 
 .. code-block:: c
 
- int i = 3;
+   int i = 3;
 
 so that the compiler can keep track of things and call out any obvious
 errors:
 
 .. code-block:: c
 
- char *s = strlen (i);
+   char *s = strlen (i);
 
 Common :lname:`Scheme` Functions
 --------------------------------
@@ -1367,7 +1383,7 @@ This leads to the slightly odd:
 
 .. code-block:: scheme
 
- (eq? 1 1)
+   (eq? 1 1)
 
 returning ``#f``.
 
@@ -1388,30 +1404,30 @@ Conditional Expressions
 
 .. code-block:: scheme
 
- (if c1 s1
-     (if c2 s2)
-         (if c3 s3
-             ...)))
+   (if c1 s1
+       (if c2 s2
+	   (if c3 s3
+	       ...)))
 
 Cascading ``if`` clauses aren't easy on the eye.  ``cond`` is the
 alternative:
 
 .. code-block:: scheme
 
- (cond
-   (c1 s1+)
-   (c2 s2+)
-   (c3 s3+))
+   (cond
+     (c1 s1+)
+     (c2 s2+)
+     (c3 s3+))
 
 where, more than likely, each of the ``cX`` and ``sX+`` clauses are
 themselves lists:
 
 .. code-block:: scheme
 
- (cond
-   ((boolean? exp)	"boolean")
-   ((number? exp)	"number")
-   ((string? exp)	(string-append "string-" exp)))
+   (cond
+     ((boolean? exp)	"boolean")
+     ((number? exp)	"number")
+     ((string? exp)	(string-append "string-" exp)))
 
 ``cond`` is slightly different to ``if`` in that multiple expressions,
 the ``sX+``, are allowed if the condition is true.
@@ -1421,9 +1437,9 @@ It has an ``else`` form, of course, and a very different creature, an
 
 .. code-block:: scheme
 
- (cond
-   ((string-match str "foo")	=> func)
-   (else		(string-append "string-" exp)))
+   (cond
+     ((string-match str "foo")	=> func)
+     (else			(string-append "string-" exp)))
 
 .. sidebox:: My example is rather poor in that you might presume that
              ``string-match`` produces an index into a string but,
@@ -1432,19 +1448,21 @@ It has an ``else`` form, of course, and a very different creature, an
              accumulating a list of matches, maybe I should think
              harder about my examples....
 
-For ``=>`` the ``cX`` expression is evaluated resulting in some value.
-If the value is not false then ``func`` is applied to the value, ie.
-``(func value)``.
+For ``=>`` the ``cX`` expression is evaluated resulting in some
+:samp:`{value}`.  If the :samp:`{value}` is not false then ``func`` is
+applied to the :samp:`{value}`, ie.  :samp:`(func {value})`, or
+``(func (string-match str "foo"))`` if and only if ``(string-match str
+"foo")`` is not false.
 
 ``case`` is more like :lname:`C`’s ``switch`` or the shell's ``case``
 statements:
 
 .. code-block:: scheme
 
- (case key 
-   ((o1+)	e1+)
-   ((o2+)	e2+)
-   ((o3+)	e3+))
+   (case key 
+     ((o1+)	e1+)
+     ((o2+)	e2+)
+     ((o3+)	e3+))
 
 where ``key`` is evaluated and then compared to each of the ``on+``
 objects with ``eqv?``.  If any object matches ``key`` then the
@@ -1475,8 +1493,9 @@ So to add 1 to every element of a list:
 
 .. code-block:: scheme
 
- (define (inc-list lis)
-   (cons (+ (car lis) 1) (inc-list (cdr lis))))
+   (define (inc-list lis)
+     (cons (+ (car lis) 1)
+	   (inc-list (cdr lis))))
 
 Here we are ``cons``\ ing together the per-element calculation ``(+ X
 1)`` where ``X`` is the first element of the list and a recursive call
@@ -1492,10 +1511,11 @@ end of the list!
 
 .. code-block:: scheme
 
- (define (inc-list lis)
-   (if (pair? lis)
-       (cons (+ (car lis) 1) (inc-list (cdr lis))))
-       nil))
+   (define (inc-list lis)
+     (if (pair? lis)
+	 (cons (+ (car lis) 1)
+	       (inc-list (cdr lis))))
+	 nil)
 
 When we reach the last pair in the list, where the ``cdr`` is ``nil``
 and call ``inc-list`` on that ``nil`` then the ``if``’s condition is
@@ -1509,13 +1529,14 @@ Indeed, applying a function to each element of a list is the work of
 
 .. parsed-literal::
 
- (map *func* *list*)
+   (map *func* *list*)
 
 and in our "add 1" case, an anonymous function is suitable:
 
 .. code-block:: scheme
 
- (map (lambda (n) (+ n 1)) list)
+   (map (lambda (n) (+ n 1))
+	list)
 
 ``map`` itself will follow the result list idiom -- constructing the
 result list as the list is descended.
@@ -1531,11 +1552,13 @@ Particularly in bootstrap code you might see the peculiar:
 
 .. code-block:: scheme
 
- (define (foo args) ...)
- 
- (define bar
-   (let ((foo foo))
-     (lambda (args) ...)))
+   (define (foo args) ...)
+
+   (define bar
+     (let ((foo foo))
+       (lambda (args)
+	       ...use foo...
+	       )))
 
 What's the point of defining ``foo`` as ``foo`` in the ``let`` in
 ``bar``?
@@ -1554,12 +1577,12 @@ Anonymous closures returned from function calls are very common:
 
 .. code-block:: scheme
 
- (define (adder-factory arg)
-   (lambda (a)
-     (+ arg a)))
+   (define (adder-factory arg)
+     (lambda (a)
+       (+ arg a)))
 
- (define add3 (adder-factory 3))
- (add3 5)
+   (define add3 (adder-factory 3))
+   (add3 5)
 
 should get us the number 8 as a result.
 
@@ -1574,16 +1597,16 @@ delay the evaluation of some code.
 
 .. code-block:: scheme
 
- (define a (+ 3 5))
- (+ a 1)
+   (define a (+ 3 5))
+   (+ a 1)
 
 will perform the calculation ``(+ 3 5)`` and bind ``a`` to the result.
 No biggie.  But:
 
 .. code-block:: scheme
 
- (define a (lambda () (+ 3 5)))
- (+ (a) 1)
+   (define a (lambda () (+ 3 5)))
+   (+ (a) 1)
 
 Notice that ``a`` is a now a zero-argument function and therefore
 requires a zero-argument function invocation, ``(a)``, in the final
@@ -1600,7 +1623,7 @@ alternative)``?  Perhaps we could have transformed it into
 
 .. parsed-literal::
 
- (if *condition* *consequent-thunk* *alternative-thunk*)
+   (if *condition* *consequent-thunk* *alternative-thunk*)
 
 by replacing, say, ``consequent`` with ``(lambda () consequent)``,
 then neither of the consequent nor alternative expressions would be
@@ -1612,10 +1635,10 @@ pointless but the principle remains:
 
 .. code-block:: scheme
 
- (define (preparer args)
-   (lambda () 
-      ... args ...
-      ))
+   (define (preparer args)
+     (lambda () 
+	... args ...
+	))
 
 we can prepare some functionality to be evaluated on demand -- perhaps
 never, of course.

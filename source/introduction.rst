@@ -548,7 +548,7 @@ like:
 
 .. code-block:: sh
 
- ls -l *.txt
+   ls -l *.txt
 
 .. sidebox:: There have been several efforts to recreate green screen
              fonts, like glasstty_, but that's taking old-school

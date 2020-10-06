@@ -30,18 +30,21 @@ If everything is allocated on a 4 byte boundary then the last two bits
 
    xxxxxxxx xxxxxxxx xxxxxxxx xxxxxx00
 
-A properly allocated value's pointer (ie. an ``IDIO``) will always end
-``00``.  That suggests there's room for us to be a bit sneaky for some
-kinds of types.
+A pointer to properly allocated value (ie. an ``IDIO``) will always
+end ``00``.  That suggests there's room for us to be a bit sneaky for
+some kinds of types.
 
 Suppose we were to artificially craft a "pointer" that used one of the
-other three bit combinations then we could use the remaining 30 bits
-for our value.
+other three bit combinations, other than ``00``, then we could use the
+remaining 30 bits for our value.
 
 It would require that everywhere where we previously performed some
 test against a value's ``o->type`` we would now have to test those
 bottom two bits first, handle the three special cases and otherwise
 fall back to the generic ``o->type``.
+
+Numbers
+=======
 
 Let's try an example.  Suppose we were to use ``01`` for integers,
 hold that, for signed integers.  This gives us 30 bits for the
@@ -80,7 +83,7 @@ This is called a "tagged" type -- we're using the bottom two bits as a
 tag -- and, here, the whole thing for integers, is called a fixed
 width number or *fixnum*.
 
-We don't want bit-fiddle ourselves all day so there's a couple of
+We don't want bit-twiddle ourselves all day so there's a couple of
 :lname:`C` macros to help:
 
 .. code-block:: c
@@ -99,9 +102,90 @@ that's OK.
 In the meanwhile we have a relatively simple mechanism for handling a
 quite large range of numbers.  Plenty for most shell-ish purposes.
 
+fixnum.c
+--------
+
+:file:`fixnum.c` hosts not just the basic fixnum arithmetic but also
+is the front end for most arithmetic meaning it has to decide whether
+any of the numbers being processed are bignums and promote all the
+fixnums to bignums if that is the case.
+
+There is also the :lname:`Scheme`-ish arithmetic style that, say,
+``+`` for addition is not a binary function as in :lname:`C`,
+:samp:`a + b`, but is an :term:`n-ary` function, here, meaning it
+takes zero or more arguments.
+
+Fixnum arithmetic can overflow the limits of a fixnum,
+:samp:`FIXNUM-MAX + 1` is an obvious case, resulting in a shift to
+bignum arithmetic.
+
+Implementation
+^^^^^^^^^^^^^^
+
+Most of the arithmetic operations can be grouped and take a similar
+structure which can be abstracted into (rather large) :lname:`C`
+macros.
+
+For *fixnum* comparisons there is a
+``IDIO_DEFINE_FIXNUM_CMP_PRIMITIVE_(cname,cmp)`` which takes a
+:lname:`C` name snippet, :samp:`{cname}`, and a :lname:`C` comparison
+operator, :samp:`{cmp}` and generates a function.
+
+``IDIO_DEFINE_FIXNUM_CMP_PRIMITIVE_(le,<=)`` will generate a
+less-than-or-equal-to function called :samp:`idio_fixnum_primitive_le`
+wielding the :lname:`C` ``<=`` operator.
+
+These are called in the next group of macros to provide fixnum
+variants of the bignum hand-coded :samp:`idio_bignum_primitive_le` and
+friends.
+
 .. rst-class:: center
 
----
+\*
+
+For general arithmetic or comparisons we need to check for any bignums
+in the argument list and call either the fixnum or the bignum variant
+of the arithmetic implementation.  These checks are generic(-ish) and
+so are encapsulated in :lname:`C` macros.
+
+Division is *always* converted to bignums -- let's not waste any time!
+
+In all cases we are creating the (front-end) *primitive* and
+correspondingly we need to specific the :lname:`Idio` name, a
+:lname:`C` name snippet, an arity and varargs.  In fact our arithmetic
+macro is simply generating a regular :samp:`IDIO_DEFINE_PRIMITIVE{x}`
+macro.
+
+We've just said that our :lname:`Scheme`-ish arithmetic is n-ary but
+there is a subtle twist in that addition and multiplication can work
+with no arguments (resulting in 0 and 1, respectively) but subtraction
+and division require at least one argument.
+
+There's a bit more subtlety still in that:
+
+* for one argument there is an implied default value: :samp:`(+ {n})`
+  is implicitly :samp:`0 + {n}`, ditto subtraction, and :samp:`(/
+  {n})` is implicitly :samp:`1 / {n}`, ditto multiplication
+
+* for subtraction and division with more than one argument the first
+  is operated on by the rest: :samp:`(- {m} {n})` is :samp:`{m} - {n}`
+  and :samp:`(/ {m} {n})` is :samp:`{m} / {n}`
+
+  In other words, the implied default value is not used.
+
+``IDIO_DEFINE_ARITHMETIC_PRIMITIVE0V(name,cname)`` is used as
+``IDIO_DEFINE_ARITHMETIC_PRIMITIVE0V ("+", add)`` creating an
+:lname:`Idio` primitive called ``+`` which will call
+``idio_defprimitive_add()``.
+
+Similarly ``IDIO_DEFINE_ARITHMETIC_CMP_PRIMITIVE1V(name,cname)`` is
+used as ``IDIO_DEFINE_ARITHMETIC_CMP_PRIMITIVE1V ("le", le)`` for an
+:lname:`Idio` primitive ``le`` calling ``idio_defprimitive_le``.
+
+.. _constants:
+
+Constants
+=========
 
 Back to other possible limited width simple types.  We know we have a
 bunch of constants, in fact, it'll transpire we have half-a-dozen or
@@ -119,6 +203,10 @@ types (up to 8, then) meaning each constant type could have up to 27
 bits worth of space.  Definitely room for Unicode's 21 bits in one and
 I fancy we could squeeze our trio of ``#t``, ``#f`` and ``#n`` into
 another.
+
+And if it turns out that 8 different constant types isn't enough then
+we can revisit this and make it 16 or 32 or ... and still have room
+for what is almost certainly our biggest group of constants, Unicode.
 
 Let's try that, then, with ``10`` as the tag and ``ccc`` being our 3
 bits of "constant type differentiator":
@@ -138,18 +226,19 @@ block, we'll use ``000`` for ``ccc`` giving us a combined suffix of
    #define idio_S_true		(4 << 5) | 0x00010
    #define idio_S_false		(5 << 5) | 0x00010
 
-The other constant types are:
+The other constant types are (``ccc``):
 
-* reader tokens -- like lexer tokens, they're for flagging up states
-  and it's certainly easier to pass them around as full ``IDIO``
-  values.
+* (``001``) reader tokens -- like lexer tokens, they're for flagging
+  up states and it's certainly easier to pass them around as full
+  ``IDIO`` values.
 
-* intermediate code tokens -- *stuff* -- we'll get there!
+* (``010``) intermediate code tokens -- *stuff* -- we'll get there!
 
-* characters -- historic :lname:`Scheme`-style characters which were
-  essentially ASCII_/ISO8859_ or :lname:`C`-style bytes
+* (``011``) characters -- historic :lname:`Scheme`-style characters
+  which were essentially ASCII_/ISO8859_ or :lname:`C`-style bytes,
+  now deprecated
 
-* Unicode code points -- of course!
+* (``100``) Unicode code points -- of course!
 
 There are some macros for the above but they've become slightly
 involved as I've abstracted out the number of bits and the shifts and
@@ -187,10 +276,10 @@ Reading
 =======
 
 Reading numbers is a bit more awkward so we'll leave that to
-:ref:`bignums` -- imagine that we can't differentiate between ``3``
-and ``3.14`` based on the ``3`` until we've read it in completely in
-which case *all* numbers are read as bignums and "downgraded" as
-appropriate.
+:ref:`bignums` -- consider that we can't differentiate between ``3``
+and ``3.14`` based on the ``3`` until we've read the whole number in
+completely.  Therefore *all* numbers are read as bignums and
+"downgraded" as appropriate.
 
 We don't read in many constants -- most of them are internally
 generated by the reader or evaluator etc..  We do read in a few though
@@ -201,6 +290,7 @@ The reader has a large ``switch`` statement which, having found a
 
 .. csv-table::
    :header: "byte", "result"
+   :widths: auto
 
    ``n``, ``idio_S_nil``
    ``t``, ``idio_S_true``
@@ -232,14 +322,16 @@ characters are valid UTF-8 characters):
 
 ``idio_read_unicode()`` checks that the next character is ``+`` then
 reads hexadecimal characters (technically it calls the same generic
-hexadecimal number reading code as ``#xhhhh`` does) and creates a
-Unicode code point from the number: ``#U+0127`` creates the same
-U+0127 Unicode code point as ``#\ħ`` above.
+hexadecimal number reading code as ``#xhhhh`` does, see `Non-base-10
+numbers
+<http://dips.office.soho/implementing-idio/simple-types/bignums.html#non-base-10-numbers>`_)
+and creates a Unicode code point from the number: ``#U+0127`` creates
+the same U+0127 Unicode code point as ``#\ħ`` above.
 
 Writing
 =======
 
-Writing fixnums is quite easy as we know they are ``intptr_t`` (as
+Writing *fixnums* is quite easy as we know they are ``intptr_t`` (as
 they fit inside an ``IDIO`` "pointer") so we can print them back out
 with ``printf ("%td", IDIO_FIXNUM_VAL (o))``.
 
@@ -260,8 +352,6 @@ fixnum:
    Idio> n := 17
    Idio> format "%b\n" n
    "10001\n"
-
-That turns out to be quite handy for :ref:`bitsets`.
 
 For the constants we can capture the individual values and return
 specific strings:

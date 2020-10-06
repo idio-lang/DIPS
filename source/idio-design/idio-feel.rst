@@ -89,15 +89,15 @@ Hardly unexpected!  Multi-line, though, as that's normal, right?
 
 .. code-block:: idio
 
- str := "Line 1
- Line 2
- Line 3"
+   str := "Line 1
+   Line 2
+   Line 3"
 
 and we should be able to use familiar escape sequences:
 
 .. code-block:: idio
 
- printf "hi!\n"
+   printf "hi!\n"
 
 We should be able to poke about in strings and get individual index
 references back in the usual way.
@@ -167,9 +167,9 @@ The traditional :lname:`Scheme` reader input form for characters is:
 
 .. code-block:: idio
 
- #\A
- #\b
- #\1
+   #\A
+   #\b
+   #\1
 
 will create instances of the (now Unicode) characters, ``A``, ``b``
 and ``1``.
@@ -241,9 +241,9 @@ with ``ph`` (pair head) and ``pt`` (pair tail) respectively.
 
 .. code-block:: idio
 
- p := pair 1 2
- ph p			; 1
- pt p			; (2)
+   p := pair 1 2
+   ph p			; 1
+   pt p			; (2)
 
 The :lname:`Lisp`\ y ``cadr`` and friends become the :lname:`Idio`\ y
 ``pht`` etc..
@@ -255,7 +255,7 @@ greatest decision:
 
 .. code-block:: idio
 
- ph '(1 & 2)
+   ph '(1 & 2)
 
 is a mental hiccup for people used to backgrounding commands in the
 shell.  I fancy I will need to change my mind again.
@@ -265,7 +265,7 @@ based on the above, a varargs function is declared as:
 
 .. code-block:: idio
 
- define (foo a b & c) { ... }
+   define (foo a b & c) { ... }
 
 What I really want is to make that more in the style of EBNF_ where
 what we're really saying is that ``c`` captures "the rest" of the
@@ -274,7 +274,7 @@ written ``c*`` giving us:
 
 .. code-block:: idio
 
- define (foo a b c*) { ... }
+   define (foo a b c*) { ... }
 
 This requires a little tweak to the evaluator to identify a right-hand
 odd-number of ``*`` symbols in the name of the last formal argument
@@ -308,15 +308,15 @@ along the following lines:
 
 .. code-block:: idio
 
- a := make-array 2 "and"
- array-ref a 1			; "and" - default value here, #f normally
- array-set! a 0 "sue"
- array-ref a 0			; "sue"
+   a := make-array 2 "and"
+   array-ref a 1			; "and" - default value here, #f normally
+   array-set! a 0 "sue"
+   array-ref a 0			; "sue"
 
- array-push! a "rita"
- array-length a			; 3
+   array-push! a "rita"
+   array-length a			; 3
 
- array-ref a 99			; *error*
+   array-ref a 99			; *error*
 
 Naturally, armed with infix operators we can confuse ourselves with
 ``=+`` and ``=-`` for push and pop and ``+=`` and ``-=`` for shift and
@@ -327,13 +327,13 @@ I can say:
 
 .. code-block:: idio
 
- a =+ "too"
+   a =+ "too"
 
 to push an element on the end and:
 
 .. code-block:: idio
 
- a += "bob"
+   a += "bob"
 
 to *unshift* (a :lname:`Perl`-ism?) onto the front.
 
@@ -344,9 +344,9 @@ as:
 
 .. code-block:: idio
 
- a := #[ 1 2 3 ]
+   a := #[ 1 2 3 ]
  
- array-ref a 2			; 3
+   array-ref a 2			; 3
  
 
 Hashes
@@ -371,7 +371,7 @@ They're going to work in a similar way to arrays:
 
 .. code-block:: idio
 
- h := make-hash #n #n 10
+   h := make-hash #n #n 10
 
 the ``#n`` indicate to use the default equivalence and hashing
 functions (don't worry for now!).  The ``10`` is, again, a hint as to
@@ -379,16 +379,16 @@ how much memory to allocate.
 
 .. code-block:: idio
 
- hash-set! h "a" "apple"
- hash-ref h "a"			; "apple"
+   hash-set! h "a" "apple"
+   hash-ref h "a"			; "apple"
 
 and a similar initialiser using pairs:
 
 .. code-block:: idio
 
- h := #{ ("a" & "apple") ("b" & "banana") }
+   h := #{ ("a" & "apple") ("b" & "banana") }
 
- hash-ref h "b"			; "banana"
+   hash-ref h "b"			; "banana"
 
 .. sidebox:: But haven't implemented.
 
@@ -412,7 +412,7 @@ If I could define a structure *type* with:
 
 .. code-block:: idio
 
- define-struct bar x y
+   define-struct bar x y
 
 creating a structure type called ``bar`` with fields ``x`` and ``y``.
 The declaration of which would create a number of structure
@@ -420,15 +420,15 @@ manipulation functions allowing me to create an instance of one:
 
 .. code-block:: idio
 
- foo := make-bar 1 2
+   foo := make-bar 1 2
 
 whereon I can access the elements with getters and setters:
 
 .. code-block:: idio
 
- bar-x foo		; 1
- set-bar-y! foo 10
- bar-y foo		; 10
+   bar-x foo		; 1
+   set-bar-y! foo 10
+   bar-y foo		; 10
 
 That looks a little clumsy with a field reference being:
 
@@ -451,28 +451,28 @@ For our structure example:
 
 .. code-block:: idio
 
- foo.y			; 10
+   foo.y			; 10
 
 for arrays and hashes and strings you can do the sensible thing:
 
 .. code-block:: idio
 
- array.10
- hash."a"
+   array.10
+   hash."a"
 
 you can imagine these are reworked into
 
 .. code-block:: idio
 
- array-ref array 10
- hash-ref hash "a"
+   array-ref array 10
+   hash-ref hash "a"
 
 We ought to be able to use variables too as:
 
 .. code-block:: idio
 
- i := 10
- array.i
+   i := 10
+   array.i
 
 seems reasonable.
 
@@ -480,8 +480,8 @@ You can also *assign* to these constructs:
 
 .. code-block:: idio
 
- array.10 = "rita"
- hash."c" = "carrot"
+   array.10 = "rita"
+   hash."c" = "carrot"
 
 .. sidebox:: The implementation will make your head hurt.
 
@@ -539,7 +539,7 @@ so something like:
 
 .. code-block:: idio
 
- #T{ ... $(h."a") ... }
+   #T{ ... $(h."a") ... }
 
 Getting a little ahead of myself I was thinking about the problem of
 here-documents where the snippet may be targeted for a language which
@@ -567,7 +567,7 @@ The upshot of that is that we can let loose and say:
 
 .. code-block:: idio
 
- #T!%:;{ ... !%(a.3) $foo ... }
+   #T!%:;{ ... !%(a.3) $foo ... }
 
 where ``!%`` is now our ``unquote-splicing`` sigil (assuming ``a.3``
 results in a list, of course!) and on we go with, say, ``(... 1 2 $foo
@@ -596,7 +596,7 @@ shell-globbing meta-characters from :lname:`Idio`'s hungry hungry
 
 .. code-block:: idio
 
- ls -l #P{ *.txt }
+   ls -l #P{ *.txt }
 
 I guess, in a similar fashion, we should consider different
 meta-characters although it would require re-working internally as
@@ -610,7 +610,7 @@ You should you should be able to say:
 
 .. code-block:: idio
 
- txt-files := #P{ *.txt }
+   txt-files := #P{ *.txt }
 
  ...add/delete .txt files...
 
@@ -634,14 +634,14 @@ patterns:
 
 .. code-block:: perl
 
- cmd (glob ("*.txt"));
+   cmd (glob ("*.txt"));
 
 and it's not such a step to add an anonymous function to sort the
 results:
 
 .. code-block:: perl
 
- cmd (sort { ... } glob ("*.txt"));
+   cmd (sort { ... } glob ("*.txt"));
 
 That said, if we wanted to sort the files by *modification time*, say,
 we would want to hand the work off to a function that will *glob* the
@@ -651,7 +651,7 @@ sorted list:
 
 .. code-block:: perl
 
- cmd (do_sorting_stuff ("*.txt"));
+   cmd (do_sorting_stuff ("*.txt"));
 
 I think we can do something similar in :lname:`Idio`.  We need a
 little bit of help first in that we need an actual sorting function.
@@ -692,25 +692,25 @@ Here's a snippet showing the code for sorting by ``sb_size``.
 
 .. code-block:: idio
 
- sort-size := #n		; global scope
+   sort-size := #n		; global scope
 
- {
-  sort-stats := #n
+   {
+    sort-stats := #n
 
-  key-stat-size := function (p) {
-    sort-stats.p.sb_size
-  }
+    key-stat-size := function (p) {
+      sort-stats.p.sb_size
+    }
 
-  sort-size = function (l) {
-    sort-stats = make-hash #n #n ((length l) + 10)
+    sort-size = function (l) {
+      sort-stats = make-hash #n #n ((length l) + 10)
 
-    for-each (function (p) {
-      sort-stats.p = libc/stat p
-    }) l
+      for-each (function (p) {
+	sort-stats.p = libc/stat p
+      }) l
 
-    sort l C/< key-stat-size
-  }
- }
+      sort l C/< key-stat-size
+    }
+   }
 
 Using, ``sort-size`` as an example, where it is called with a list of
 pathnames.  It points the private variable ``sort-stats`` at a new
@@ -734,9 +734,9 @@ function simply call ``reverse`` on the results of ``sort-size``:
 
 .. code-block:: idio
 
- sort-size-reversed = function (l) {
-   reverse (sort-size l)
- }
+   sort-size-reversed = function (l) {
+     reverse (sort-size l)
+   }
 
 before we take the full :lname:`Lisp`\ y experience and note that
 these are all derivative and that I really only need to know a pair,
@@ -751,11 +751,11 @@ variable, say, ``~glob-sort~``, to be pointed at ``sort-size`` (or
 
 .. code-block:: idio
 
- ~glob-sort~ = sort-mtime
+   ~glob-sort~ = sort-mtime
 
- files := #P{ *.tgz }
+   files := #P{ *.tgz }
 
- rm -f files.0
+   rm -f files.0
 
 (maybe apply a bit more rigour to your algorithm...)
 
@@ -778,9 +778,9 @@ using :program:`awk`'s *stdin* for the script:
 
 .. code-block:: sh
 
- awk << EOT
- /pattern/ { print $USER, \$1; } 
- EOT
+   awk << EOT
+   /pattern/ { print $USER, \$1; } 
+   EOT
 
 then we see an issue in that we now have a mixture of shell variables,
 ``$USER``, and the targeted command's variables which now require
@@ -792,17 +792,17 @@ our own variables, for example:
 
 .. code-block:: sh
 
- awk << EOT
- /pattern/ { print %USER, $1; } 
- EOT
+   awk << EOT
+   /pattern/ { print %USER, $1; } 
+   EOT
 
 So, in the same style as we've seen for templates we might try:
 
 .. code-block:: idio
 
- awk << #S%{
- /pattern/ { print %USER, $1; }
- }
+   awk << #S%{
+   /pattern/ { print %USER, $1; }
+   }
 
 with ``#S`` telling the reader there's a string template coming, ``%``
 changing the ``unquote`` sigil from ``$`` to ``%`` and ``{`` through
@@ -832,7 +832,7 @@ An old favourite:
 
 .. code-block:: sh
 
- now=$(date +%Y%m%d-%H%M%S)
+   now=$(date +%Y%m%d-%H%M%S)
 
 (missing a time zone indication etc., yes, I know)
 
@@ -840,9 +840,9 @@ Remember :ref:`string ports`?
 
 .. code-block:: idio
 
- out := (open-output-string)
- date +%Y%m%d-%H%M%S > out
- now := get-output-string out
+   out := (open-output-string)
+   date +%Y%m%d-%H%M%S > out
+   now := get-output-string out
 
 That's how it is at the moment where the IO redirection operator is
 happy to do the right thing when given a string (for a filename) or a
@@ -862,7 +862,7 @@ something like:
 
 .. code-block:: idio
 
- date +%Y%m%d-%H%M%S >> now
+   date +%Y%m%d-%H%M%S >> now
 
 where the ``now`` variable should be assigned the result of the
 ``get-output-string`` on the temporary string handle (not shown but
@@ -879,27 +879,27 @@ I haven't written this yet but what in the shell looks like:
 
 .. code-block:: sh
 
- ... < <(cmd args)
+   ... < <(cmd args)
  
- diff <(pipeline using file1) <(pipeline using file2)
+   diff <(pipeline using file1) <(pipeline using file2)
 
 to become:
 
 .. code-block:: sh
 
- ... < /dev/fds/M
- 
- diff /dev/fds/M /dev/fds/N
+   ... < /dev/fd/M
+
+   diff /dev/fd/M /dev/fd/N
 
 is all timed rather nicely as process substitution occurs before IO
-redirection hence ``... < <(cmd args)`` becoming ``... < /dev/fds/M``
+redirection hence ``... < <(cmd args)`` becoming ``... < /dev/fd/M``
 and then ``<`` can (re-)open the file as input for ``...``.
 
 I was wondering if
 
 .. code-block:: idio
 
- ... <| cmd args
+   ... <| cmd args
 
 with ``<|`` symbolising the use of a named pipe for the following
 command might work -- I guess ``>|`` for the output equivalent.
@@ -914,7 +914,7 @@ delimited and we can have several on the same line.
 
 .. code-block:: sh
 
- ... <(cmd args)
+   ... <(cmd args)
 
 The problem here, though, is we need to convince the reader to do the
 right thing.  It will have seen both ``<`` and ``(`` to determine it
@@ -955,7 +955,7 @@ string rather than a list:
 * create a temporary file
 * write the string to the file
 * open the file for reading
-* generate the ``/dev/fds/N`` form
+* generate the ``/dev/fd/N`` form
 * run the command
 * clean up the file descriptor
 * remove the temporary file
@@ -965,17 +965,17 @@ a file is different for every command.  Here we might have said:
 
 .. code-block:: idio
 
- awk -f <( #S%{ ... } ) file+
+   awk -f <( #S%{ ... } ) file+
 
 which, because of the way the reader will consume multiple lines when
 reading a block might look like:
 
 .. code-block:: idio
 
- awk -f <( #S%{
-   awk-ish %this with $that
-   awk-ish the other
- }) file+
+   awk -f <( #S%{
+     awk-ish %this with $that
+     awk-ish the other
+   }) file+
 
 which takes a little to get used to -- in the sense that a command
 line trails over multiple lines -- but, I think, works OK.
@@ -1029,9 +1029,9 @@ and then I can:
 
 .. code-block:: idio
 
- import Art
+   import Art
 
- printf "shine a %s on %s\n" light darkness
+   printf "shine a %s on %s\n" light darkness
 
 and get an error about ``darkness`` being *unbound*.  I haven't
 defined ``darkness`` and nothing I have imported has exported it.
@@ -1047,9 +1047,9 @@ in the reader.  If I:
 
 .. code-block:: idio
 
- import libc
+   import libc
 
- read ...
+   read ...
 
 which ``read`` am I going to get?
 
@@ -1073,9 +1073,9 @@ it with:
 
 .. parsed-literal::
 
- import libc
+   import libc
 
- *module*/read ...
+   *module*/read ...
 
 so, ``*primitives*/read`` in this case.
 
