@@ -4,7 +4,7 @@
 Symbols and Keywords
 ********************
 
-
+.. _symbols:
 
 Symbols
 =======

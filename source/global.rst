@@ -46,6 +46,7 @@
 .. _Samba: https://www.samba.org/
 .. _SBCL: http://www.sbcl.org/
 .. _SRFI-14: https://srfi.schemers.org/srfi-14/srfi-14.html
+.. _SRFI-69: https://srfi.schemers.org/srfi-69/srfi-69.html
 .. _SRFI-95: https://srfi.schemers.org/srfi-95/srfi-95.html
 .. _SRFI: http://srfi.schemers.org
 .. _Scsh: https://scsh.net

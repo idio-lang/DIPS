@@ -15,6 +15,16 @@ Glossary
 
 	See also :term:`initialism`.
 
+   association list
+
+        A list of the form:
+
+	.. code-block:: scheme
+
+	   ((key1 value1)
+	    (key2 value2)
+	    ...)
+
    CLOS
 
 	Common Lisp Object System -- see CLOS_.

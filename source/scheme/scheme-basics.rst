@@ -443,7 +443,6 @@ well.
 In the meanwhile, things like hash tables are nice to have so a suite
 of "implemented in :lname:`Scheme`" examples have been created under
 the banner of *Scheme Requests For Implementations*, aka. SRFI_\ s.
-Yes, hash tables written using lists.
 
 Evaluation Model
 ================

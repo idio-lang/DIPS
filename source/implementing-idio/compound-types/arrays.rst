@@ -141,7 +141,8 @@ use :samp:`a[-{i}]` -- as we'll convert it into :samp:`a[{size} -
 {i}]`.
 
 So, the type we use must be ``ptrdiff_t`` and therefore the largest
-positive index is ``PTRDIFF_MAX``.
+positive index is ``PTRDIFF_MAX``.  We'll call it a "idio array index
+type" or ``idio_ai_t``.
 
 .. code-block:: c
    :caption: gc.h
