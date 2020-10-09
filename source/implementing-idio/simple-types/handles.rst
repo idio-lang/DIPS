@@ -340,7 +340,7 @@ theme -- which themselves are the underlying implementations for
 * :samp:`open-file-from-fd {fd} [{name} [{mode}]]` allows you to
   create a *handle* from a true :lname:`C` file descriptor
   :samp:`{fd}` (which must have been returned from a suitable
-  :lname:`libc` function and will be a :ref:`C_int` type).
+  :lname:`libc` function and will be a :ref:`C_int <C_int>` type).
 
   The file will be opened with :manpage:`fdopen(3)`.
 
@@ -642,7 +642,7 @@ as I'd rather target scripting, however it does get used.
 I've noted above that the REPL is :lname:`C`-only in the sense that
 there isn't an :lname:`Idio` entry-point.  Like most things it could
 probably do with being re-arranged slightly so that there is an
-:lname:`Idio` :ref:`primitive` which calls the existing
+:lname:`Idio` :ref:`primitive <primitive>` which calls the existing
 ``idio_load_handle_interactive()`` but one we could replace with a
 pure-:lname:`Idio` function.
 
@@ -666,5 +666,484 @@ Notably, then
 
 #. there is no :ref-title:`readline`-style interactive editing
 
-   (which is annoying)
+   (which is annoying -- although you can fall back on
+   :program:`rlwrap`)
+
+Operations
+==========
+
+File Handles
+------------
+
+See :file:`file-handle.c`.
+
+:samp:`open-file-from-fd {fd} [{name} [{mode}]]`
+
+      construct a file handle from :samp:`{fd}` using the optional
+      :samp:`{name}` instead of the default :samp:`/dev/fd/{fd}` and
+      the optional mode :samp:`{mode}` instead of ``re``
+
+:samp:`open-input-file-from-fd {fd} [{name}]`
+
+      construct a file handle from :samp:`{fd}` using the optional
+      :samp:`{name}` instead of the default :samp:`/dev/fd/{fd}` and
+      the optional mode :samp:`{mode}` instead of ``re``
+
+:samp:`open-output-file-from-fd {fd} [{name}]`
+
+      construct a file handle from :samp:`{fd}` using the optional
+      :samp:`{name}` instead of the default :samp:`/dev/fd/{fd}` and
+      the optional mode :samp:`{mode}` instead of ``we``
+
+:samp:`open-file {name} {mode}`
+
+      construct a file handle by opening the file :samp:`{name}` and
+      the mode :samp:`{mode}`
+
+:samp:`open-input-file {name}`
+
+      construct a file handle by opening the file :samp:`{name}` with
+      the mode ``re``
+
+:samp:`open-output-file {name}`
+
+      construct a file handle by opening the file :samp:`{name}` with
+      the mode ``we``
+
+:samp:`file-handle? {value}`
+
+      is :samp:`{value}` a file handle
+
+:samp:`input-file-handle? {value}`
+
+      is :samp:`{value}` an input file handle
+
+:samp:`output-file-handle? {value}`
+
+      is :samp:`{value}` an output file handle
+
+:samp:`file-handle-fd {fh}`
+
+      return the file descriptor associated with file handle
+      :samp:`{fh}`
+
+:samp:`file-handle-fflush {fh}`
+
+      call :manpage:`fflush(3)` on the underlying :lname:`C` ``FILE*``
+      object in file handle :samp:`{fh}`
+
+:samp:`close-file-handle-on-exec {fh}`
+
+      call :manpage:`fcntl(3)` on the underlying :lname:`C` file
+      descriptor in file handle :samp:`{fh}` with ``F_SETFD`` and
+      ``FD_CLOEXEC`` arguments.
+
+.. rst-class:: center
+
+---
+
+:samp:`find-lib {filename}`
+
+      search :envvar:`IDIOLIB` for :samp:`{filename}` using a set of
+      possible filename extensions
+
+:samp:`load-ebe {filename}`
+
+      search :envvar:`IDIOLIB` for :samp:`{filename}` using a set of
+      possible filename extensions and then load it in "expression by
+      expression."
+
+      :samp:`load {filename}` is the usual interface to this function.
+
+:samp:`load-aio {filename}`
+
+      [deprecated]
+
+      search :envvar:`IDIOLIB` for :samp:`{filename}` using a set of
+      possible filename extensions and then load it in "all in one."
+
+.. rst-class:: center
+
+---
+
+:samp:`file-exists? {filename}`
+
+      does :samp:`{filename}` exist
+
+      Technically, the test is a call to :manpage:`access(2)` with the
+      ``R_OK`` flag.
+      
+:samp:`delete-file {filename}`
+
+      :manpage:`remove(3)` :samp:`{filename}`
+      
+
+String Handles
+--------------
+
+See :file:`string-handle.c`.
+
+:samp:`open-input-string {string}`
+
+      construct an input string handle from the string
+      :samp:`{string}`
+
+:samp:`open-output-string`
+
+      construct an output string handle
+
+:samp:`string-handle? {value}`
+
+      is :samp:`{value}` a string handle
+
+:samp:`input-string-handle? {value}`
+
+      is :samp:`{value}` an input string handle
+
+:samp:`output-string-handle? {value}`
+
+      is :samp:`{value}` an output string handle
+
+.. _get-output-string:
+
+:samp:`get-output-string {sh}`
+
+      return a string constructed from the contents of the output
+      string handle :samp:`{sh}`
+
+
+Handles
+-------
+
+See :file:`handle.c`.
+
+:samp:`handle? {value}`
+
+      is :samp:`{value}` a handle
+
+:samp:`input-handle? {value}`
+
+      is :samp:`{value}` an input handle
+
+:samp:`output-handle? {value}`
+
+      is :samp:`{value}` an output handle
+
+:samp:`ready? {handle}`
+
+      is handle :samp:`{handle}` ready, ie. not at end-of-file
+
+:samp:`eof? {handle}`
+
+      has handle :samp:`{handle}` seen end-of-file
+
+:samp:`peek-char {handle}`
+
+      return the Unicode code point of the next character in handle
+      :samp:`{handle}` without moving the position in the handle
+      forward
+
+:samp:`puts {value} [{handle}]`
+
+      invoke the ``puts`` method associated with handle
+      :samp:`{handle}`, if supplied or the *current output handle*
+      otherwise, with :samp:`{value}`
+
+      ``puts`` will use the *printed* conversion of :samp:`{value}`
+      rather than the *displayed* version
+
+:samp:`flush-handle {handle}`
+
+      invoke the ``flush`` method associated with handle :samp:`{handle}`
+
+.. _seek-handle:
+
+:samp:`seek-handle {handle} {pos} [{whence}]`
+
+      invoke the ``seek`` method associated with handle
+      :samp:`{handle}` with :samp:`{pos}` and :samp:`{whence}`, if
+      supplied or ``'set`` otherwise
+
+      :samp:`{whence}` can be one of the *symbols* ``set``, ``end`` or
+      ``cur``.
+
+      See :ref:`handle-pos <handle-pos>` for the equivalent of a
+      ``tell-handle``.
+
+:samp:`rewind-handle {handle}`
+
+      invoke the ``seek`` method associated with handle
+      :samp:`{handle}` with a *position* of zero and *whence* of
+      ``set``.
+
+:samp:`close-handle {handle}`
+
+      invoke the ``close`` method associated with handle
+      :samp:`{handle}`
+
+:samp:`close-input-handle {handle}`
+
+      invoke the ``close`` method associated with input handle
+      :samp:`{handle}`
+
+:samp:`close-output-handle {handle}`
+
+      invoke the ``close`` method associated with output handle
+      :samp:`{handle}`
+
+:samp:`closed-handle? {handle}`
+
+      return ``#t`` if the handle :samp:`{handle}` has been closed and
+      ``#f`` otherwise
+
+:samp:`eof-object? {value}`
+
+      return ``#t`` if the value :samp:`{value}` is the end-of-file
+      value
+
+:samp:`handle-line [{handle}]`
+
+      return the current line number in handle :samp:`{handle}` if
+      supplied otherwise the current input handle
+
+      The line number can be invalidated by a :ref:`seek-handle
+      <seek-handle>` other than to position zero.
+
+.. _handle-pos:
+
+:samp:`handle-pos [{handle}]`
+
+      return the current position in handle :samp:`{handle}` if
+      supplied otherwise the current input handle
+
+:samp:`handle-location {handle}`
+
+      return a description of the location handle :samp:`{handle}`
+      consisting of the handle's name, line number and position
+
+:samp:`load-handle-ebe {handle}`
+
+      load from handle :samp:`{handle}` "expression by expression."
+
+      :samp:`load-handle {handle}` is the usual interface to this
+      function.
+
+:samp:`load-handle-aio {handle}`
+
+      [deprecated]
+
+      load from handle :samp:`{handle}` "all in one."
+
+
+.. rst-class:: center
+
+---
+
+:samp:`current-input-handle`
+
+      return the current input handle
+
+:samp:`current-output-handle`
+
+      return the current output handle
+
+:samp:`current-error-handle`
+
+      return the current error handle
+
+:samp:`set-input-handle! {handle}`
+
+      set the current input handle to handle :samp:`{handle}`
+
+:samp:`set-output-handle! {handle}`
+
+      set the current output handle to handle :samp:`{handle}`
+
+:samp:`set-error-handle! {handle}`
+
+      set the current error handle to handle :samp:`{handle}`
+
+.. rst-class:: center
+
+---
+
+:samp:`read [{handle}]`
+
+      invoke the reader with handle :samp:`{handle}` if supplied
+      otherwise the current input handle
+
+:samp:`read-expr [{handle}]`
+
+      invoke the expression reader with handle :samp:`{handle}` if
+      supplied otherwise the current input handle
+
+:samp:`read-line [{handle}]`
+
+      return the next canonical line of text (up to a newline) as a
+      string from handle :samp:`{handle}` if supplied otherwise the
+      current input handle
+
+:samp:`read-lines [{handle}]`
+
+      return the remaining lines of text as a string from handle
+      :samp:`{handle}` if supplied otherwise the current input handle
+
+:samp:`read-char [{handle}]`
+
+      return the UTF-8 character as a Unicode code point from handle
+      :samp:`{handle}` if supplied otherwise the current input handle
+
+.. _write:
+
+:samp:`write {value} [{handle}]`
+
+      invoke the ``puts`` method associated with handle
+      :samp:`{handle}` if supplied otherwise the current input handle
+      with :samp:`{value}`
+
+      ``write`` will use the *printed* conversion of :samp:`{value}`
+      rather than the *displayed* version.  See :ref:`display
+      <display>` below.
+
+:samp:`write-char {cp} [{handle}]`
+
+      invoke the ``putc`` method associated with handle
+      :samp:`{handle}` if supplied otherwise the current input handle
+      with Unicode code point :samp:`{cp}`
+
+      .. error::
+	 
+	 ``putc`` doesn't generate UTF-8
+
+:samp:`newline [{handle}]`
+
+      invoke the ``putc`` method associated with handle
+      :samp:`{handle}` if supplied otherwise the current input handle
+      with Unicode code point U+000A (LINE FEED)
+
+.. _display:
+
+:samp:`display {value} [{handle}]`
+
+      invoke the ``puts`` method associated with handle
+      :samp:`{handle}` if supplied otherwise the current input handle
+      with :samp:`{value}`
+
+      ``display`` will use the *displayed* conversion of
+      :samp:`{value}` rather than the *printed* version.  See
+      :ref:`write <write>` above.
+
+      A function ``display*`` (and sibling functions ``edisplay`` and
+      ``edisplay*``) have been written to display multiple values
+      separated by a space and with a trailing newline (to the current
+      error handle).  These are largely deprecated in favour of
+      :ref:`printf <printf>` (and :ref:`eprintf <eprintf>`)
+
+:samp:`%printf {handle} {format} {args}`
+
+      [deprecated in favour of :ref:`printf <printf>`]
+
+      rudimentary support for :manpage:`printf(3)` and can only handle
+      ``%[flags][width][.precision]s`` for strings (with all
+      :lname:`Idio` values being converted to strings).
+
+.. rst-class:: center
+
+---
+
+In :file:`common.idio` there are some extra utility functions.
+
+:samp:`%format {type} {format} {args}`
+
+      This ``%format`` function (in :file:`common.idio`) makes a much
+      better attempt at the vagaries of :manpage:`printf(3)` by
+      utilising some dynamic variables to convey the print conversion
+      *format* and *precision* to other parts of the system
+
+      You would not normally invoke ``%format`` directly but rather
+      use :ref:`format <format>` or one of the *printf* variants,
+      below.
+
+      :samp:`{type}` is one of the *symbols*:
+
+      * ``args`` in which case a ``%`` character in the format string
+        starts an escape sequence which has the general form
+        :samp:`%[{flags}][{prec}][.{width}]{K}` where :samp:`{K}` is
+        a :manpage:`printf(3)`-ish format character with arguments in
+        ``args``
+
+	So, like a normal *printf*.  The idea being that we can print,
+	say, :lname:`Idio` integers (fixnums or bignums) as decimal,
+	hexadecimal, octal and binary.
+
+      * ``keyed`` in which case a ``%`` character in the format string
+        starts an escape sequence which has the general form
+        :samp:`%[{flags}][{prec}][.{width}]{K}` where :samp:`{K}` is a
+        single Unicode code point (satisfying ``unicode-alphabetic?``)
+        which is expected to be a key in the optional hash table --
+        unless it is another ``%`` character.  The value associated
+        with the key will be printed according to the specification.
+
+      * ``timeformat`` which is essentially the same as ``keyed``
+        except we avoid a double application of any precision
+
+	This is to support the ``time`` function's
+	:envvar:`TIMEFORMAT` format string which is of the form:
+	``"Real %.3R\nUser %.3U\nSyst %.3S\n"`` where ``%R``, ``%U``
+	and ``%S`` are now the consumed real time, user time and
+	system time.
+
+      If :samp:`{K}` is a ``%`` character then a ``%`` is printed
+      according to the specification.
+
+      The possible flags are:
+
+      .. csv-table::
+	 :widths: auto
+
+	 ``-``, U+002D (HYPHEN-MINUS), left align the output within :samp:`{width}` if applicable
+	 :literal:`\ `, U+0020 (SPACE), use ``#\{space}`` as the left padding character
+	 ``0``, U+0030 (DIGIT ZERO), use ``#\0`` as the left padding character
+
+      The default padding character is ``#\{space}``.
+
+.. _format:
+
+:samp:`format {format} [{args}]`
+
+      An invocation of :samp:`%format 'args {format} [{args}]`.
+
+.. _hprintf:
+
+:samp:`hprintf {handle} {format} [{args}]`
+
+      For the ``h`` in ``hprintf`` think of the leading ``f`` in
+      ``fprintf`` in :lname:`C` -- this is the generic "print to
+      *handle*" variant.
+
+      In practice it calls :ref:`display <display>` with the result of
+      :samp:`format {format} [{args}]`.
+
+.. _printf:
+
+:samp:`printf {format} [{args}]`
+
+      A call to :ref:`hprintf <hprintf>` with the *current output
+      handle*.
+
+.. _eprintf:
+
+:samp:`eprintf {format} [{args}]`
+
+      A call to :ref:`hprintf <hprintf>` with the *current error
+      handle*.
+
+.. _sprintf:
+
+:samp:`sprintf {format} [{args}]`
+
+      A call to :ref:`hprintf <hprintf>` with an output string handle.
+      The result is a call to :ref:`get-output-string
+      <get-output-string>` on that output string handle.
+
 

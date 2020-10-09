@@ -167,8 +167,9 @@ So we might do:
 Both of those are very convenient, I have to say.  Are they
 *required*, though?  What would we do elsewhere?  Actually, for the
 former, I'm sure I'm not the only one who wrote a bunch of shell
-functions to manipulate Unix paths (``PATH``, ``LD_LIBRARY_PATH``,
-``PERL5LIB`` etc.) resulting in something like:
+functions to manipulate Unix paths (:envvar:`PATH`,
+:envvar:`LD_LIBRARY_PATH`, :envvar:`PERL5LIB` etc.) resulting in
+something like:
 
 .. code-block:: bash
 
@@ -340,7 +341,7 @@ we figure out its value then.
 Interestingly, and I said I learned something new every time I read
 the man page, if :lname:`Bash` determines there is no command then the
 variable assignments *do* affect the current shell's environment.  So,
-changing the current shell's ``PATH``:
+changing the current shell's :envvar:`PATH`:
 
 .. code-block:: bash
 
@@ -919,7 +920,7 @@ args`` and ``cmd args`` is echoed to *stdout* (and not run).
 Programmatically, then, shell commands can be worryingly
 non-deterministic -- and we haven't even started on what ``cmd`` is
 anyway, a shell function, a shell builtin, an executable expected to
-be found on your ``PATH``?
+be found on your :envvar:`PATH`?
 
 Expansion isn't quite performed all at once, brace, tilde, parameter,
 arithmetic, command (and optionally, process) substitution are

@@ -1,5 +1,7 @@
 .. include:: ../../global.rst
 
+.. _arrays:
+
 ******
 Arrays
 ******
@@ -297,3 +299,106 @@ Conditions
 ----------
 
 ``^rt-array-bounds-error``
+
+Operations
+==========
+
+:samp:`array? {value}`
+
+      is :samp:`{value}` an array
+
+:samp:`array [{args}]`
+
+      construct an array from :samp:`{default}`
+
+:samp:`make-array {size} [{args}]`
+
+      construct an array of :samp:`{size}` elements using the default
+      value :samp:`{default}` if supplied otherwise ``#f``
+
+:samp:`copy-array {array} [{depth} [{extra}]]`
+
+      return a copy array of :samp:`{array}`
+
+      :samp:`{depth}` can be the *symbol*:
+
+      * ``shallow`` meaning each element in the new array is simply a reference to the element n the original array
+
+      * ``deep`` meaning that each element in the new array is a
+        (recursive) copy of the element in the original array
+
+      :samp:`{extra}` indicates how much mor ethe array should be
+      grown -- presumably in preparation for some impending use.  This
+      avoids the risk of the new array doubling in size if the growth
+      is known in advance.
+
+:samp:`array-fill! {array} {fill}`
+
+      set every currently in-use element of array :samp:`{array}` to
+      :samp:`{fill}`
+
+:samp:`array-length {array}`
+
+      return the number of in-use elements of array :samp:`{array}`
+
+      Technically this returns the index of the highest in-use element
+      plus one.
+
+:samp:`array-ref {array} {index}`
+
+      return the value at index :samp:`{index} of array :samp:`{array}`
+
+      :samp:`{index}` must be an integer and within the bounds of the
+      used elements of the array.
+
+      :samp:`{index}` can be negative in which case the calculated
+      index is :samp:`{array-length} + {index}`.
+
+:samp:`array-set! {array} {index} {value}`
+
+      set the value at index :samp:`{index} of array :samp:`{array}`
+      to :samp:`{value}`
+
+      :samp:`{index}` must be an integer and within the bounds of the
+      used elements of the array.
+
+      :samp:`{index}` can be negative in which case the calculated
+      index is :samp:`{array-length} + {index}`.
+
+:samp:`array-push! {array} {value}`
+
+      add value :samp:`{value}` onto the *end* of array
+      :samp:`{array}`
+
+      This is a means to grow the size of the array.
+
+:samp:`array-pop! {array}`
+
+      return the value :samp:`{value}` at the *end* of array
+      :samp:`{array}` and decrease the size of the array by one.
+
+      This is a means to shrink the size of the array.
+
+:samp:`array-unshift! {array} {value}`
+
+      add value :samp:`{value}` onto the *start* of array
+      :samp:`{array}` -- all the other values are shifted up by one
+      index.
+
+      This is a means to grow the size of the array.
+
+:samp:`array-shift! {array}`
+
+      return the value :samp:`{value}` at the *start* of array
+      :samp:`{array}` and decrease the size of the array by one.
+
+      This is a means to shrink the size of the array.
+
+.. _array->list:
+
+:samp:`array->list {array}`
+
+      return the elements of array :samp:`{array}` as a list.
+
+      See also :ref:`list->array <list->array>`.
+

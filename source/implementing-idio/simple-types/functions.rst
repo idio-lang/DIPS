@@ -38,6 +38,8 @@ difference: *primitives* are instantaneous (mostly).  So far as the VM
 is concerned, the moment a *primitive* is called the answer is back in
 its hands.
 
+.. _primitives:
+
 Primitives
 ==========
 
@@ -578,4 +580,11 @@ code:
 
 When we come to *run* the closure, the closure value has had
 ``code_pc`` set to ``#4``.
+
+Operations
+==========
+
+:samp:`function? {value}`
+
+      is :samp:`{value}` a function, ie. a primitive or a closure
 

@@ -379,3 +379,102 @@ values getting a rendering that is quite readable to us programmers
 but "impossible" for the reader to consume (``#<`` is specifically
 invalid for this reason).
 
+Operations
+==========
+
+Numbers
+-------
+
+:samp:`fixnum? {value}`
+
+      is :samp:`{value}` a fixnum
+
+:samp:`integer? {value}`
+
+      is :samp:`{value}` a fixnum or an integer bignum
+
+:samp:`number? {value}`
+
+      is :samp:`{value}` a fixnum or a bignum
+
+:samp:`floor {number}`
+
+      the `floor
+      <https://en.wikipedia.org/wiki/Floor_and_ceiling_functions>`_ of
+      a number is the integral value less than or equal to the number
+
+:samp:`remainder {number}`
+
+      the remainder of a number is the value minus the floor of the
+      number
+
+:samp:`quotient {a} {b}`
+
+      the quotient of :samp:`{a}` and :samp:`{b}` is :samp:`{a} / {b}`
+
+:samp:`le {n} [...]`
+      
+:samp:`lt {n} [...]`
+
+:samp:`eq {n} [...]`
+      
+:samp:`ge {n} [...]`
+      
+:samp:`gt {n} [...]`
+
+      perform numeric comparisons between the arguments (a minimum of
+      one) and return ``#f`` if any adjacent pair of arguments fails
+      the comparison
+
+      :samp:`lt {n1} {n2} {n3} {n4}` is equivalent to:
+
+      .. code-block:: idio
+
+	 (and (lt n1 n2)
+	      (lt n2 n3)
+	      (lt n3 n4))
+
+      The default result is ``#t``.
+
+      Notice that the function names are alphabetic rather than the
+      traditional arithmetic symbols, ``<=``, ``<``, ``==``, ``>=``
+      and ``>``.  This is to maintain consistency and avoid semantic
+      clashes with our (preferred) use of angle brackets for IO
+      redirection.
+
+      You may recall that :lname:`Bash`'s ``[[`` builtin command uses
+      the same operators: ``-le``, ``-lt``, ``-eq``, ``-ge`` and
+      ``-gt``.
+
+      ``eq``, this numeric comparison, adds to the naming confusion
+      with ``eq?``, ``eqv?`` and ``equal?``.
+
+:samp:`+ {n} [...]`
+      
+:samp:`- {n} [...]`
+
+:samp:`* {n} [...]`
+      
+:samp:`/ {n} [...]`
+
+      perform the usual arithmetic functions of add, subtract,
+      multiply and divide
+
+:samp:`integer->char {integer}`
+
+      [deprecated]
+
+      convert an integer to a character -- limited to the range of fixnums
+
+:samp:`integer->unicode {integer}`
+
+      convert an integer to a Unicode code point      
+
+
+Constants
+---------
+
+By and large there are no specific operations that you can perform on
+a constant.
+
+However, see :ref:`Unicode code point operations` for special cases.

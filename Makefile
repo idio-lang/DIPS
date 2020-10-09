@@ -40,6 +40,7 @@ help:
 
 clean:
 	-rm -rf $(BUILDDIR)/*
+	-rm -f $(shell find source -name \*~)
 
 html5:
 	$(SPHINXBUILD) -b html5 $(ALLSPHINXOPTS) $(BUILDDIR)/html5

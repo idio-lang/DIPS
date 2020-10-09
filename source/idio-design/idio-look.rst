@@ -64,9 +64,10 @@ point?
 
 Mind you, with our :lname:`Scheme` hats on, ``ls`` is *undefined* in
 the program.  We know, with our shell hats on, that the shell will
-take it upon itself to have a rummage around the shell's ``PATH`` to
-find an ``ls`` executable.  In :lname:`Scheme`, though, we need to
-break the behaviour that ``ls`` is undefined.
+take it upon itself to have a rummage around the shell's
+:envvar:`PATH` to find an :program:`ls` executable.  In
+:lname:`Scheme`, though, we need to break the behaviour that ``ls`` is
+undefined.
 
 Similarly, for ``-l``.  Is that a funky function to subtract the value
 of ``l`` from its argument or just a string of characters to be passed
@@ -821,8 +822,8 @@ The reason for this dynamic nature is I want to be able to say:
 
 Here, for the duration of this lexical block, ie. whatever effect we
 create should be unwound at the end of the block, I am creating a
-*new* PATH variable which should be used by anyone looking up the
-``PATH`` environment variable if, say, they want to find an
+*new* ``PATH`` variable which should be used by anyone looking up the
+:envvar:`PATH` environment variable if, say, they want to find an
 executable.
 
 After this lexical block people can find the old value.

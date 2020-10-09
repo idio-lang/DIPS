@@ -229,3 +229,5 @@ can't readily incorporate (our men) :ref-author:`Chet Ramey` (after
 pedagogical stance of not incorporating things we can't explain.  No
 black boxes.
 
+(You can run :program:`rlwrap`, of course.)
+

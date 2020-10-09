@@ -55,6 +55,8 @@ int``\ s:
    #define IDIO_BITSET_SIZE(BS)		((BS)->u.bitset.size)
    #define IDIO_BITSET_BITS(BS,i)	((BS)->u.bitset.bits[i])
 
+where bit indexes start at zero in the usual way.
+
 We want a handy macro:
 
 .. code-block:: c
@@ -332,3 +334,110 @@ added unnecessary complexity to
 The various outputs are in :file:`.../lib/unicode.*.idio`.
 
 At the moment we're stuck with full Unicode only.
+
+Operations
+==========
+
+:samp:`bitset? {value}`
+
+      is :samp:`{value}` a bitset
+
+:samp:`make-bitset {size}`
+
+      construct a bitset of :samp:`{size}` bits
+
+:samp:`bitset-size {bs}`
+
+      return the size of bitset :samp:`{bs}`
+
+:samp:`bitset-set! {bs} {bit}`
+
+      set the bit indexed by :samp:`{bit} in bitset :samp:`{bs}`
+
+:samp:`bitset-clear! {bs} {bit}`
+
+      clear the bit indexed by :samp:`{bit} in bitset :samp:`{bs}`
+
+:samp:`bitset-ref {bs} {bit}`
+
+      return the bit indexed by :samp:`{bit} in bitset :samp:`{bs}`
+
+:samp:`copy-bitset {bs}`
+
+      return a copy of bitset :samp:`{bs}`
+
+:samp:`merge-bitset [{bs} ...]`
+
+      return a bitset that is the bitwise Inclusive OR of the supplied
+      bitsets
+
+      If the bitsets are a different size then a
+      ``^rt-bitset-size-mismatch-error`` condition will be raised.
+
+      If no bitsets are supplied the result is ``#n``.
+
+      .. note::
+
+	 This is ``ior-bitset``...
+
+:samp:`and-bitset [{bs} ...]`
+
+      return a bitset that is the bitwise AND of the supplied bitsets
+
+      If the bitsets are a different size then a
+      ``^rt-bitset-size-mismatch-error`` condition will be raised.
+
+      If no bitsets are supplied the result is ``#n``.
+
+:samp:`ior-bitset [{bs} ...]`
+
+      return a bitset that is the bitwise Inclusive OR of the supplied
+      bitsets
+
+      If the bitsets are a different size then a
+      ``^rt-bitset-size-mismatch-error`` condition will be raised.
+
+      If no bitsets are supplied the result is ``#n``.
+
+:samp:`xor-bitset [{bs} ...]`
+
+      return a bitset that is the bitwise Exclusive OR of the supplied
+      bitsets
+
+      If the bitsets are a different size then a
+      ``^rt-bitset-size-mismatch-error`` condition will be raised.
+
+      If no bitsets are supplied the result is ``#n``.
+
+:samp:`not-bitset {bs}`
+
+      return a bitset that is the bitwise complement the bitset
+      :samp:`{bs}`
+
+:samp:`subtract-bitset [{bs} ...]`
+
+      return a bitset that is the result of removing the bits set in
+      subsequent bitsets from the first
+
+      If the bitsets are a different size then a
+      ``^rt-bitset-size-mismatch-error`` condition will be raised.
+
+      If no bitsets are supplied the result is ``#n``.
+
+:samp:`equal-bitset? [{bs} ...]`
+
+      return ``#t`` if all the supplied bitsets are bitwise identical,
+      ``#f`` otherwise
+
+      If no bitsets are supplied the result is ``#t``.  (Should that
+      be the case?)
+
+:samp:`bitset-for-each-set {bs} {func}`
+
+      invoke :samp:`{func}` on each bit in bitset :samp:`{bs}` that is
+      set
+
+      The argument to :samp:`{func}` will be the index of the set bit
+
+
+

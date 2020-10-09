@@ -157,10 +157,10 @@ identifier names.
 ---
 
 As noted previously, the code point range is 2\ :sup:`21` integers but
-not all of those are valid.  A range of values in the first 65,536 is
-excluded as a side-effect of handling the UTF-16_ encoding when
-Unicode finally recognised that 65,536 code points was not, in fact,
-more than enough.
+not all of those are valid "characters".  A range of values in the
+first 65,536 is excluded as a side-effect of handling the UTF-16_
+encoding when Unicode finally recognised that 65,536 code points was
+not, in fact, more than enough.
 
     That's a slightly unfair comment as 16 bits was more than enough
     for the original Unicode premise of handling scripts and
@@ -700,3 +700,177 @@ There's a couple of qualification to that:
 
    (Actually, a trailing ``#<unspec>`` will also be printed which is
    the value that ``printf`` returned.)
+
+Operations
+==========
+
+.. _`Unicode code point operations`:
+
+Characters
+----------
+
+:samp:`unicode? {value}`
+
+      is :samp:`{value}` a Unicode code point
+
+:samp:`unicode->plane {cp}`
+
+      return the Unicode plane of code point :samp:`{cp}`
+
+      The result is a fixnum.
+
+:samp:`unicode->plane-cp {cp}`
+
+      return the lower 16-bits of the code point :samp:`{cp}`
+
+:samp:`unicode->integer {cp}`
+
+      convert code point :samp:`{cp}` to a fixnum
+
+:samp:`unicode=? {cp1} {cp2} [...]`
+
+      compare code points for equality
+
+      A minimum of two code points are required.
+
+
+Strings
+-------
+
+:samp:`string? {value}`
+
+      is :samp:`{value}` a string (or substring)
+
+:samp:`make-string {size} [{fill}]`
+
+      create a string of length :samp:`{size}` filled with
+      :samp:`{fill}` characters or U+0020 (SPACE)
+
+.. _`string->list`:
+
+:samp:`string->list {string}`
+
+      return a list of the Unicode code points in :samp:`{string}`
+
+      See also :ref:`list->string <list->string>`.
+
+.. _`string->symbol`:
+
+:samp:`string->symbol {string}`
+
+      return a symbol constructed from the UTF-8 Unicode code points
+      in :samp:`{string}`
+
+      See also :ref:`symbol->string <symbol->string>`.
+   
+:samp:`append-string [{string} ...]`
+
+      return a string constructed by appending the string arguments
+      together
+
+      If no strings are supplied the result is a zero-length string,
+      cf. ``""``.
+   
+:samp:`concatenate-string {list}`
+
+      return a string constructed by appending the strings in
+      :samp:`{list}` together
+
+      If no strings are supplied the result is a zero-length string,
+      cf. ``""``.
+   
+:samp:`copy-string {string}`
+
+      return a copy of string :samp:`{string}`
+   
+:samp:`string-length {string}`
+
+      return the length of string :samp:`{string}`
+   
+:samp:`string-ref {string} {index}`
+
+      return the Unicode code point at index :samp:`{index}` of string
+      :samp:`{string}`
+
+      Indexes start at zero.
+
+:samp:`string-set! {string} {index} {cp}`
+
+      set the Unicode code point at index :samp:`{index}` of string
+      :samp:`{string}` to be the Unicode code point :samp:`{cp}`
+
+      Indexes start at zero.
+
+      If the number of bytes required to store :samp:`{cp}` is greater
+      than the per-code point width of :samp:`{string}` a
+      ``^string-error`` condition will be raised.
+
+:samp:`string-fill! {string} {fill}`
+
+      set all indexes of string :samp:`{string}` to be the Unicode
+      code point :samp:`{fill}`
+
+      If the number of bytes required to store :samp:`{fill}` is
+      greater than the per-code point width of :samp:`{string}` a
+      ``^string-error`` condition will be raised.
+
+:samp:`substring {string} {pos-first} {pos-next}`
+
+      return a substring of string :samp:`{string}` starting at index
+      :samp:`{pos-first}` and ending *before* :samp:`{pos-next}`.
+
+      Indexes start at zero.
+
+      If :samp:`{pos-first}` and :samp:`{pos-next}` are inconsistent a
+      ``^string-error`` condition will be raised.
+
+:samp:`string<=? {s1} {s2} [...]`
+
+:samp:`string<? {s1} {s2} [...]`
+
+:samp:`string=? {s1} {s2} [...]`
+
+:samp:`string>=? {s1} {s2} [...]`
+
+:samp:`string>? {s1} {s2} [...]`
+
+      .. warning::
+
+	 Historic code for ASCII/Latin-1 :lname:`Scheme` strings
+	 badgered into working at short notice.
+
+	 These need to be replaced with something more Unicode-aware.
+
+      perform :manpage:`strncmp(3)` comparisons of the UTF-8
+      representations of the string arguments
+
+:samp:`split-string {string} {delim}`
+
+      split string :samp:`{string}` into a list of string delimited by
+      the code points in the string :samp:`{delim}`
+
+      ``split-string`` is meant to act like the shell's or
+      :program:`awk`'s word-splitting by ``IFS``.
+
+      Clearly it does not act like a regular expression string
+      delimitation in that multiple adjacent instances of delimiter
+      characters only provoke one "split."
+
+:samp:`split-string-exactly {string} {delim}`
+
+      split string :samp:`{string}` into a list of string delimited by
+      the code points in the string :samp:`{delim}`
+
+      ``split-string-exactly`` is meant to act more like a regular
+      expression matching system.
+
+      It was required to split the contents of the Unicode Character
+      Database file :file:`UnicodeData.txt` -- which has multiple
+      ``;``-separated fields, often with no value in a field -- to
+      help generate the code base for regular expression handling.
+
+:samp:`join-string {delim} {args}`
+
+      construct a string from the strings in :samp:`{args}` with the
+      string :samp:`{delim}` placed in between each pair of strings
+

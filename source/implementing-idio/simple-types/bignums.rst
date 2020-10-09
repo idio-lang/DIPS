@@ -411,3 +411,45 @@ Reals
 
 Real number bignums are printed by ``idio_bignum_real_as_string()``
 which supports ``e`` and ``f`` :manpage:`printf(3)`-style formatting.
+
+Operations
+==========
+
+:samp:`bignum? {value}`
+
+      is :samp:`{value}` a bignum
+
+:samp:`real? {bignum}`
+
+      is bignum :samp:`{bignum}` a real (ie. not an integer)
+
+:samp:`exact? {number}`
+
+      is number :samp:`{number}` an exact number (ie. an integer or
+      not inexact)
+
+:samp:`inexact? {number}`
+
+      is number :samp:`{number}` an inexact number (ie. not an integer
+      or is inexact)
+
+:samp:`exact->inexact {number}`
+
+      an inexact version of :samp:`{number}` is returned
+
+:samp:`inexact->exact {number}`
+
+      an exact version of :samp:`{number}` is returned
+
+:samp:`mantissa {number}`
+
+      the mantissa of :samp:`{number}` is returned
+
+:samp:`exponent {number}`
+
+      the exponent of :samp:`{number}` is returned
+
+:samp:`bignum-dump {bignum}`
+
+      display some of the internal structure of :samp:`{bignum}`
+

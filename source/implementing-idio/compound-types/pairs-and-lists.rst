@@ -138,3 +138,91 @@ language *itself* as well as being data structures within it.
 This is similar to the way that :ref:`symbols` can be values to be
 passed around as well as variable names.  Which role they play is
 context dependent.
+
+Operations
+==========
+
+Several list-oriented functions have the benefit of not being named
+after the value-type they manipulate.  The benefits of being the
+primary data structure, I guess.
+
+:samp:`pair {h} {t}`
+
+      construct a pair from :samp:`{h}` and :samp:`{t}`
+
+:samp:`pair? {value}`
+
+      is :samp:`{value}` a pair
+
+:samp:`ph {p}`
+
+      return the head of pair :samp:`{p}`
+
+:samp:`pt {p}`
+
+      return the tail of pair :samp:`{p}`
+
+:samp:`set-ph! {p} {value}`
+
+      set the head of pair :samp:`{p}` to :samp:`{value}`
+
+:samp:`set-pt! {p} {value}`
+
+      set the tail of pair :samp:`{p}` to :samp:`{value}`
+
+:samp:`reverse {list}`
+
+      return the list :samp:`{list}` reversed
+
+      This is very commonly used when a list is constructed in reverse
+      order when walking down an argument list and the corrected
+      reversed list is required.
+
+      There is a special case for when processing improper lists,
+      eg. ``(1 2 & 3)``, to accommodate which the underlying
+      :lname:`C` function for list reversal, ``idio_list_reverse()``,
+      indirects through ``idio_improper_list_reverse()``.
+
+:samp:`length {list}`
+
+      return the number of pairs in list :samp:`{list}`
+
+      This does not accommodate improper lists.
+
+:samp:`list [{args}]`
+
+      construct a list from :samp:`{args}`
+
+:samp:`append {a} {b}`
+
+      construct a list from list :samp:`{a}` and list :samp:`{b}` such
+      that the resultant list is a copy of list :samp:`{a}` except the
+      final pair's tail is a reference to list :samp:`{b}`.
+
+      Debatably, this should be a copy of list :samp:`{b}` too.
+
+.. _`list->array`:
+
+:samp:`list->array {list}`
+
+      return an array constructed from the elements of list
+      :samp:`{list}`
+
+      See also :ref:`array->list <array->list>`.
+
+.. _`list->string`:
+
+:samp:`list->string {list}`
+
+      return a string constructed from the Unicode code points in
+      :samp:`{list}`
+
+      See also :ref:`string->list <string->list>`.
+
+:samp:`nth {list} {n} [{default}]`
+
+      return the :samp:`{n}`\ :sup:`th` element of list :samp:`{list}`
+      starting at one
+
+      If there is no such element then :samp:`{default}` is returned
+      if supplied otherwise ``#n``.

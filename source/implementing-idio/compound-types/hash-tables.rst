@@ -306,15 +306,38 @@ Above and beyond the normal hash table accessors there is a
 
 :samp:`make-hash [{equiv-func} [{hash-func} [{size}]]]`
 
-      create a :samp:`{size}` (default is 32) element hash using:
-      
-      :samp:`{equiv-func}` if supplied or ``idio_equalp()`` if ``#n``
+      :samp:`{equiv-func}` defines the equivalence function when
+      comparing elements in the hash table and can be one of the
+      following:
 
-      :samp:`{equiv-func}` can be one of the *symbols* ``eq?``,
-      ``eqv?`` or ``equal?``
+      #. one of the *symbols*:
 
-      :samp:`{hash-func}` if supplied or
-      ``idio_hash_default_hash_C()`` if ``#n``
+	 - ``eq?`` meaning use the :lname:`C` implementation of ``eq?``
+
+	 - ``eqv?`` meaning use the :lname:`C` implementation of
+           ``eqv?``
+
+	 - ``equal?`` meaning use the :lname:`C` implementation of
+           ``equal?``
+
+      #. ``#n`` meaning use the :lname:`C` implementation of
+         ``equal?`` (cf. the symbol ``equal?`` above)
+
+	 ``make-hash #n`` and ``make-hash 'equal?`` are equivalent.
+
+      #. an :lname:`Idio` function which should be binary (ie. takes
+         two arguments) and returns ``#f`` or some other value
+
+      :samp:`{hash-func}` defines the hashing function for placing
+      elements in the hash table and can be one of the following:
+
+      * ``#n`` meaning use the :lname:`C` default hashing function
+
+      * an :lname:`Idio` function which should be unary (ie. takes one
+        argument) and returns an integer
+
+      :samp:`{size}` gives :lname:`Idio` a hint as to the size of the
+      allocated internal array
 
 :samp:`hash-equivalence-function {hash}`
 
@@ -331,6 +354,8 @@ Above and beyond the normal hash table accessors there is a
 :samp:`hash-size {hash}`
 
       return the number of elements in hash :samp:`{hash}`
+
+.. _hash-ref:
 
 :samp:`hash-ref {hash} {key} [{default}]`
 
@@ -375,13 +400,13 @@ Above and beyond the normal hash table accessors there is a
 
       :samp:`{func}` should be a unary function (takes 1 argument!)
 
-      :samp:`{default}` serves the same purpose as for ``hash-ref``
+      :samp:`{default}` serves the same purpose as for :ref:`hash-ref
+      <hash-ref>`
 
-      It is approximately:
+      It is approximately
 
-      .. parsed-literal::
-
-	 hash-set! *hash* *key* (*func* (hash-ref *hash* *key* [*default*]))
+      :samp:`hash-set! {hash} {key} ({func} (hash-ref {hash} {key}
+      [{default}]))`
 
 :samp:`hash-walk {hash} {func}`
 
@@ -425,3 +450,4 @@ Conditions
 ----------
 
 ``^rt-hash-error-key-not-found``
+
