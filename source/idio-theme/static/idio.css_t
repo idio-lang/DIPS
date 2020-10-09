@@ -144,7 +144,7 @@ dl.citation a.reference.external {
 }
 
 a.reference.external {
-    font-family: monospace;
+    font-family: serif;
 }
 
 pre {

@@ -12,32 +12,61 @@ Traditionally, :lname:`Scheme`\ s support the notion of a fixed length
 *vector* of values and *arrays* of multiple dimensions (quite possibly
 implemented using vectors).
 
-In :lname:`Idio` I wanted "arrays" (whatever they are) but in
-particular I wanted them to be dynamic in size (presuming a single
-dimension) so I could use them for *stacks* for the VM.  As a stack
-they will have to take on any old value and, as I had no pressing
-need, they are one dimensional.
+To throw fuel on the fire of potential confusion, :ref-author:`Alex
+Stepanov` the author of the :lname:`C++` :ref-title:`Standard Template
+Library` was looking for a name to distinguish his new "vector" type
+from the builtin arrays so, noting that both :lname:`Scheme` and
+:lname:`Common Lisp` used "vector" for a similar type, chose, uh,
+``vector`` (read more `here
+<https://stackoverflow.com/questions/581426/why-is-a-c-vector-called-a-vector>`_).
+
+He has subsequently admitted it is a mistake because his "vector" has
+nothing to do with a Mathematical vector which is a fixed length
+ordered sequence of values in a Set.
+
+So, not only a naming issue but is potentially compounded by by users
+coming from different backgrounds where overloaded names mean
+something else.
+
+In :lname:`Idio` I wanted "arrays" (whatever they are but `I'll know
+one when I see one
+<https://en.wikipedia.org/wiki/I_know_it_when_I_see_it>`_) and in
+particular I wanted them to be dynamic in size so I could use them for
+*stacks* for the VM (which presume a single dimension --
+:socrates:`wait, multi-dimensional stacks...`).  As a stack they will
+have to take on any old value and, as I had no pressing need, all
+arrays are one dimensional.
+
+I fancy that if we want multi-dimensional arrays then we should be
+calling them matrices.  I suppose then, a single dimensional matrix is
+equivalent to an array and a zero dimensional matrix is a (scalar)
+value.
 
 I read about :lname:`Lua`'s *sparse arrays* which seemed like a neat
 trick though I couldn't see any particular immediate use for them.
 They are implemented, of course, as part regular array, being `yea
-<https://en.wiktionary.org/wiki/yea>`_ big *[\*waves hands\*]*, and
-part hash table.
+<https://en.wiktionary.org/wiki/yea>`_ big *\*waves hands\**, and part
+hash table.
 
 What *is* interesting about that idea, going back to our shell arrays,
 or, rather, :lname:`Bash` arrays, which are slightly magical
-themselves or, numerically idiosyncratic, depending on your view.  In
-the first instance we can remove entries and the missing entries
-sort-of disappear:
+themselves or, numerically idiosyncratic, depending on your view, is
+that they support gaps.  In the first instance we can remove entries
+and the missing entries sort-of disappear:
 
 .. code-block:: bash
 
+   # create an array of three elements and remove the middle one
    % a=( 1 2 3 )
    % unset a[1]
+
+   # what's in our array now?
    % echo ${a[*]}
    1 3
    % echo ${#a[*]}
    2
+
+   # specifically:
    % echo ${a[1]}
    % echo ${a[2]}
    3
@@ -106,6 +135,8 @@ element on the end (like a stack) and I've allowed for the
 :lname:`Perl`-ish ``unshift`` to push an element on the front of an
 array.  But I don't like the arbitrary index mechanism.
 
+.. sidebox:: And not a mathematical vector.
+
 I suppose, in that sense, :lname:`Idio` arrays function much like a
 mildly extended :lname:`Scheme` vector, a *vector+*.
 
@@ -123,10 +154,11 @@ only to annoy the developers.)
 
 The reason it will fail is that every Idio array element is a pointer,
 ie 4 or 8 bytes, therefore we can't physically allocate nor address
-either 2**32 * 4 bytes or 2**64 * 8 bytes just for the array as those
-are 4 and 8 times larger than addressable memory.  So, in practice,
-we're limited to arrays of length 2**30 or 2**61 -- with no room for
-any other data (including the code doing the allocating)!
+either :samp:`2**32 * 4` bytes or :samp:`2**64 * 8` bytes just for the
+array as those are 4 and 8 times larger than addressable memory.  So,
+in practice, we're limited to arrays of length :samp:`2**30` or
+:samp:`2**61` -- with no room for any other data (including the code
+doing the allocating)!
 
 As a real-world example, on an OpenSolaris 4GB/32bit machine:
 
@@ -137,10 +169,10 @@ As a real-world example, on an OpenSolaris 4GB/32bit machine:
 was successful.  :samp:`2**30 - 1` was not.
 
 However, we accomodate negative array indices, eg. the nominal,
-:samp:`array[-{i}]`, which we take to mean the *i*\ :sup:`th` last
-index.  The means using a *signed type* even if we won't ever actually
-use :samp:`a[-{i}]` -- as we'll convert it into :samp:`a[{size} -
-{i}]`.
+:samp:`array[-{i}]`, which we take to mean the :samp:`{i}`\ :sup:`th`
+last index.  The means using a *signed type* for array indexing even
+if we won't ever actually use :samp:`a[-{i}]` -- as we'll convert it
+into :samp:`a[{size} - {i}]`.
 
 So, the type we use must be ``ptrdiff_t`` and therefore the largest
 positive index is ``PTRDIFF_MAX``.  We'll call it a "idio array index
@@ -174,7 +206,8 @@ where we have:
 
 * ``asize`` being the allocated size
 
-* ``usize`` being the used size, or user-visible size
+* ``usize`` being the used size, or user-visible size -- technically
+  the index of the last in-use index plus one
 
 * ``dv`` is the default value
 
@@ -190,7 +223,7 @@ but the initial used size can vary.  If the array is created from
 The only way to *add* elements is to push (or unshift) them onto the
 array.
 
-If the array is create from :lname:`Idio` primitives then the used
+If the array is created from :lname:`Idio` primitives then the used
 size will match the allocation size (which may be the number of
 arguments passed).
 
@@ -206,94 +239,6 @@ Writing
 -------
 
 Arrays will use the ``#[ ... ]`` reader format.
-
-Operations
-----------
-
-:samp:`array? {value}`
-
-      is :samp:`{value}` an array?
-
-:samp:`array {list}`
-
-      create an array from the element in :samp:`{list}`
-
-:samp:`make-array {size} [{default}]`
-
-      create a :samp:`{size}` element array initialised with
-      :samp:`{default}` if supplied or ``#f`` otherwise
-
-:samp:`copy-array {arr} [{depth} [{extra}]]`
-
-      copy array :samp:`{arr}`
-
-      :samp:`{depth}` can be the symbol ``'deep`` or ``'shallow``
-      where ``'deep`` will recursively copy the elements of
-      :samp:`{arr}` whereas ``'shallow`` will just reference the same
-      values as in :samp:`{arr}`
-
-      :samp:`{extra}` is the number of additional elements to add to
-      the allocated size when copying :samp:`{arr}` which can be used
-      to prevent the auto-doubling in allocated size if you can
-      predict the number of :samp:`{extra}` elements you might be
-      about to use.
-
-:samp:`array-fill! {arr} {fill}`
-
-      set all the elements of :samp:`{arr}` to :samp:`{fill}`
-
-:samp:`array-length {arr}`
-
-      notionally: return the number of elements of array :samp:`{arr}`
-
-      In practice it is the highest used index plus one.
-
-:samp:`array-ref {arr} {index}`
-
-      return the value at index :samp:`{index}` of array :samp:`{arr}`
-
-      :samp:`{index}` can be negative in which case the determined
-      value is :samp:`{used size} + {index}`.  Hence ``-1`` is the
-      last element, ``-2`` is the penultimate element, etc..
-
-:samp:`array-set! {arr} {index} {value}`
-
-      set the value at index :samp:`{index}` of array :samp:`{arr}` to
-      :samp:`{value}`
-
-:samp:`array-push! {arr} {value}`
-
-      append :samp:`{value}` to array :samp:`{arr}`
-
-      This will increase the used size of :samp:`{arr}` by one.
-      
-:samp:`array-pop! {arr}`
-
-      return the last accessible value in array :samp:`{arr}`
-
-      It will return ``#n`` if the array has no elements.
-      
-      Otherwise this will decrease the used size of :samp:`{arr}` by
-      one.
-      
-:samp:`array-unshift! {arr} {value}`
-
-      prepend :samp:`{value}` to array :samp:`{arr}`
-
-      This will increase the used size of :samp:`{arr}` by one.
-      
-:samp:`array-shift! {arr}`
-
-      return the first value in array :samp:`{arr}`
-
-      It will return ``#n`` if the array has no elements.
-      
-      Otherwise this will decrease the used size of :samp:`{arr}` by
-      one.
-      
-:samp:`array->list {arr}`
-
-      return the elements of array :samp:`{arr}` as a list
 
 Conditions
 ----------
