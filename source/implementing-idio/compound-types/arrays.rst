@@ -227,6 +227,10 @@ If the array is created from :lname:`Idio` primitives then the used
 size will match the allocation size (which may be the number of
 arguments passed).
 
+If the array is grown, by push or unshift, then at some point the used
+size will reach the allocated size.  At this point the array will be
+doubled in size.
+
 Reading
 -------
 
@@ -254,12 +258,14 @@ Operations
 
 :samp:`array [{args}]`
 
-      construct an array from :samp:`{default}`
+      construct an array from the arguments :samp:`{args}`
 
-:samp:`make-array {size} [{args}]`
+      The initial used size will be the length of :samp:`{args}`.
 
-      construct an array of :samp:`{size}` elements using the default
-      value :samp:`{default}` if supplied otherwise ``#f``
+:samp:`make-array {size} [{default}]`
+
+      construct an array of :samp:`{size}` elements setting each to
+      the default value :samp:`{default}` if supplied otherwise ``#f``
 
 :samp:`copy-array {array} [{depth} [{extra}]]`
 
@@ -267,15 +273,18 @@ Operations
 
       :samp:`{depth}` can be the *symbol*:
 
-      * ``shallow`` meaning each element in the new array is simply a reference to the element n the original array
+      * ``shallow`` meaning each element in the new array is simply a
+        reference to the element in the original array
 
       * ``deep`` meaning that each element in the new array is a
         (recursive) copy of the element in the original array
 
-      :samp:`{extra}` indicates how much mor ethe array should be
-      grown -- presumably in preparation for some impending use.  This
-      avoids the risk of the new array doubling in size if the growth
-      is known in advance.
+      :samp:`{extra}` indicates by how many more elements the array's
+      *allocation* should be grown -- presumably in preparation for
+      some impending use.  This avoids the risk of the new array
+      doubling in size if the growth is known in advance.  The initial
+      in-use size will be the same size as the original array
+      :samp:`{array}`.
 
 :samp:`array-fill! {array} {fill}`
 
@@ -291,7 +300,8 @@ Operations
 
 :samp:`array-ref {array} {index}`
 
-      return the value at index :samp:`{index} of array :samp:`{array}`
+      return the value at index :samp:`{index}` of array
+      :samp:`{array}`
 
       :samp:`{index}` must be an integer and within the bounds of the
       used elements of the array.
@@ -301,7 +311,7 @@ Operations
 
 :samp:`array-set! {array} {index} {value}`
 
-      set the value at index :samp:`{index} of array :samp:`{array}`
+      set the value at index :samp:`{index}` of array :samp:`{array}`
       to :samp:`{value}`
 
       :samp:`{index}` must be an integer and within the bounds of the
@@ -322,7 +332,8 @@ Operations
       return the value :samp:`{value}` at the *end* of array
       :samp:`{array}` and decrease the size of the array by one.
 
-      This is a means to shrink the size of the array.
+      This is a means to shrink the in-use size of the array.  An
+      array's *allocated* size is not current reduced.
 
 :samp:`array-unshift! {array} {value}`
 
@@ -337,7 +348,8 @@ Operations
       return the value :samp:`{value}` at the *start* of array
       :samp:`{array}` and decrease the size of the array by one.
 
-      This is a means to shrink the size of the array.
+      This is a means to shrink the in-use size of the array.  An
+      array's *allocated* size is not current reduced.
 
 .. _array->list:
 

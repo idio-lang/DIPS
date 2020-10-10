@@ -1436,6 +1436,15 @@ Comments
 :lname:`Scheme` has a rich set of comment mechanisms.  So let's do
 *more*.
 
+Unfortunately, the normal scripting comment character, ``#`` has been
+sucked into playing the wake-up call to the reader that a "funny"
+expression is coming.  Even more annoying, the stock :lname:`Scheme`
+comment character is ``;``, which is a shell's normal statement
+separator.  *Bah!*
+
+I can't honestly claim to have spent too much time thinking about it.
+Things are different, get used to it.
+
 Line
 ----
 

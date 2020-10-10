@@ -183,6 +183,8 @@ primary data structure, I guess.
       :lname:`C` function for list reversal, ``idio_list_reverse()``,
       indirects through ``idio_improper_list_reverse()``.
 
+      You cannot reverse an improper list in :lname:`Idio`.
+
 :samp:`length {list}`
 
       return the number of pairs in list :samp:`{list}`

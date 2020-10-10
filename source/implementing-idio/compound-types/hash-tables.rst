@@ -295,7 +295,7 @@ Writing
 Hash tables will use the ``#{ ... }`` reader format.
 
 Operations
-----------
+==========
 
 Above and beyond the normal hash table accessors there is a
 :lname:`Scheme`-ish functional feel.
@@ -337,7 +337,9 @@ Above and beyond the normal hash table accessors there is a
         argument) and returns an integer
 
       :samp:`{size}` gives :lname:`Idio` a hint as to the size of the
-      allocated internal array
+      allocated internal array.  The actual size is likely to be some
+      function of the smallest :samp:`2**n - 1` that is greater than
+      or equal to :samp:`{size}`.
 
 :samp:`hash-equivalence-function {hash}`
 
@@ -354,6 +356,9 @@ Above and beyond the normal hash table accessors there is a
 :samp:`hash-size {hash}`
 
       return the number of elements in hash :samp:`{hash}`
+
+      There is no function to return the actual allocated size though
+      :ref:`idio-dump <idio-dump>` might disclose it.
 
 .. _hash-ref:
 

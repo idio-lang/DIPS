@@ -427,6 +427,42 @@ the point of creation and the module the closure was created in.
 Remember that many closures are created with the intent of managing
 private variables.  It is quite unlike, say, :lname:`C`.
 
+Documentation
+-------------
+
+Like `Emacs Lisp
+<https://www.gnu.org/software/emacs/manual/html_node/elisp/>`_ we
+should allow the user to write a documentation string for their
+function which should be the third argument of four, :samp:`function
+{formals} {docstr} {body}` or :samp:`define ({name} {formals})
+{docstr} {body}`.
+
+If there are only three arguments then the :samp:`{body}` takes
+precedence -- if all you want is your function to return a string then
+that seems legitimate.
+
+The use of :samp:`{docstr}` will need to adhere to our "single line"
+reader processing -- which is partly why strings are allowed to be
+multi-line.  So we'll have something like:
+
+.. code-clock:: idio
+   :caption: common.idio
+
+   define (atom? x) "predicate to test if object is an atom
+
+   :param x: object to test
+   " {
+     not (pair? x)
+   }
+
+Notice how the multi-line documentation string continues the "single
+line" from the end of the declaration through to the start of the body
+form.
+
+At the moment the documentation string is not processed though I would
+expect some ReStructuredText-style formatting to handle parameter
+definitions and cross-references.
+
 Implementation
 --------------
 

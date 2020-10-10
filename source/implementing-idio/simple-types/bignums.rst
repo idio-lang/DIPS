@@ -165,11 +165,11 @@ Summing that up:
      #define IDIO_BSA_AVAIL(BSA)	((BSA)->avail)
      #define IDIO_BSA_SIZE(BSA)		((BSA)->size)
 
-  From ``refs`` you can deduce I has an intention to use reference
-  counting for these significand arrays as the low-level mechanics of
-  bignums didn't seem appropriate for the main GC to get involved in.
-  It turns out no reference counting occurs (other than creation and
-  destruction).
+  From ``refs`` you can deduce that I had an intention to use
+  reference counting for these significand arrays as the low-level
+  mechanics of bignums didn't seem appropriate for the main GC to get
+  involved in.  It turns out no reference counting occurs (other than
+  creation and destruction).
 
   ``avail`` is the number of segments in the significand array and
   ``size`` is the number in use.  That might seem a bit odd but shift
@@ -192,7 +192,7 @@ Summing that up:
 * we have some bignum definitions:
 
   .. code-block:: c
-     :caption: gc.h
+     :caption: bignum.h
 
      #ifdef __LP64__
      #define IDIO_BIGNUM_MDPW          18
@@ -208,9 +208,9 @@ Summing that up:
 
 Where ``IDIO_BIGNUM_SIG_SEGMENTS`` is the maximum number of segments
 we will use.  Suffice it to say that whilst the results will be more
-accurate calculates becomes exponentially longer the more segments you
-use.  Here, 32-bit computers using two segments will be to some degree
-slower than 64-bit machines using one segment.
+accurate calculations becomes exponentially longer the more segments
+you use.  Here, 32-bit computers using two segments will be to some
+degree slower than 64-bit machines using one segment.
 
 Bignums are comparatively expensive to operate -- they require memory,
 time to consume, time to operate with and time to print out -- so we
@@ -258,7 +258,8 @@ several characters:
   ``l``/``L`` -- I don't know what the history of those are.
 
 * other exponent-able numbers can use ``d``/``D``, ``e``/``E``,
-  ``f``/``F`` -- and ``s``/``S`` and ``l``/``L``
+  ``f``/``F`` -- and ``s``/``S`` and ``l``/``L`` -- which seem to be
+  the generally accepted set of exponent characters.
 
 ``+10``, ``1.``, ``-20.1``, ``0.3e1``, ``-4e-5``, ``6L7``
 
@@ -287,7 +288,7 @@ format and make some decisions about the way forward:
 
   (That should be more closely analysed for leading sign characters.)
 
-  ``idio_fixnum_c()`` in :file:`fixnum.c` uses :manpage:`strtoll(3)`
+  ``idio_fixnum_C()`` in :file:`fixnum.c` uses :manpage:`strtoll(3)`
   which I think is non-controversial and we shouldn't be pushing the
   boundaries of an ``intptr_t``.
 
@@ -394,23 +395,41 @@ Integers
 
 Integer number bignums are printed by
 ``idio_bignum_integer_as_string()`` but the format is fixed to being
-decimal.
+*decimal*.
 
-The problem relates to us having split the value of the bignum into
-DPW *decimal* segments.  If I've got the second segment in my hands
-and its value is 1, that won't guarantee to be 1 in any other format,
-in the same way that the 1 in 1234 won't guarantee to be a 1 in the
-hex (#x4D2), octal (#o2322) or binary (#b10011010010) -- OK, a
-reasonable chance with the binary.
+    The problem relates to us having split the value of the bignum
+    into DPW *decimal* segments.  If I've got the first of two
+    segments in my hands and its value is 1, that won't guarantee to
+    be 1 in any other format.
+
+    For example, imagine we can store 3 digits per word then 1234 will
+    be stored as 1 and 234.  Then the 1 in the first segment won't
+    guarantee to be a 1 in the hex (#x4D2), octal (#o2322) or binary
+    (#b10011010010) -- OK, a reasonable chance with the binary.
+
+    To generate some other :samp:`{base}`, hexadecimal, say, we would
+    have to do the reverse of the reader's input method for
+    non-base-10 numbers.  We would need to calculate :samp:`1234 %
+    {base}`, subtract that from 1234, divide the result by
+    :samp:`{base}` and loop around again until the result was zero.
+
+    So, *do-able*, but expensive.  I haven't found a need.
 
 You can only usefully specify a precision which, for an integer, just
-becomes a padding with leading zeroes.
+becomes a padding with leading zeroes.  You can get this through
+:ref:`format <format>` or one of the *printf* functions.
 
 Reals
 -----
 
 Real number bignums are printed by ``idio_bignum_real_as_string()``
 which supports ``e`` and ``f`` :manpage:`printf(3)`-style formatting.
+You can get either of these through :ref:`format <format>` or one of
+the *printf* functions.
+
+The default output format is still the :lname:`Scheme`-ish one -- or
+rather the original :ref-title:`S9fES` format -- which is similar to
+the :manpage:`printf(3)` ``e`` except prints full precision.
 
 Operations
 ==========

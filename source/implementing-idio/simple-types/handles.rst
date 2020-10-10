@@ -333,51 +333,11 @@ with:
 * ``s_flags`` are the (*file handle*) stream-specific flags as seen
   above, such as a flag if the ``FILE`` is interactive.
 
-``idio_open_file_handle()`` is wrappered by several variations on a
-theme -- which themselves are the underlying implementations for
-:lname:`Idio` primitives:
-
-* :samp:`open-file-from-fd {fd} [{name} [{mode}]]` allows you to
-  create a *handle* from a true :lname:`C` file descriptor
-  :samp:`{fd}` (which must have been returned from a suitable
-  :lname:`libc` function and will be a :ref:`C_int <C_int>` type).
-
-  The file will be opened with :manpage:`fdopen(3)`.
-
-  The optional :samp:`{name}` overrides the default :file:`/dev/fd/X`
-  format.
-
-  The optional :samp:`{mode}` overrides the default ``re`` (the ``e``,
-  for ``O_CLOEXEC``, is ignored by :manpage:`fdopen(3)`, I now read --
-  why did I add it in?  Cut'n'paste?)
-
-* :samp:`open-input-file-from-fd {fd} [{name} [{mode}]]` works very
-  similarly
-
-* :samp:`open-output-file-from-fd {fd} [{name} [{mode}]]` works very
-  similarly barring the default :samp:`{mode}` is ``we``.
-
-* :samp:`open-file {name} {mode}` works along the same lines via the
-  ``idio_open_file_handle_C()`` function except it has to handle the
-  resource contention issue mentioned previously.
-
-  If the :manpage:`fopen(3)` call fails with ``EMFILE`` (a process
-  limit) or ``ENFILE`` (a system-wide limit) indicating the lack of
-  available file descriptors then it has to forcibly invoke the
-  garbage collector and try again.
-
-  For reasons that escape me, it tries that twice....
-
-* :samp:`open-input-file {name}` works as you would expect calling
-  ``idio_open_file_handle_C()`` with a mode of ``re``.
-
-* :samp:`open-output-file {name}` works as you would expect calling
-  ``idio_open_file_handle_C()`` with a mode of ``we``.
-
-* :samp:`static IDIO idio_open_std_file_handle (FILE *filep)` is used
-  to wrapper the usual three STDIO variables, ``stdin``, ``stdout``
-  and ``stderr``, with a :lname:`Idio` *handle*.  The handle's name is
-  set to be ``*stdin*``, ``*stdout*`` or ``*stderr*``:
+Of interest, :samp:`static IDIO idio_open_std_file_handle (FILE
+*filep)` is used to wrapper the usual three STDIO variables,
+``stdin``, ``stdout`` and ``stderr``, with a :lname:`Idio` *handle*.
+The handle's name is set to be ``*stdin*``, ``*stdout*`` or
+``*stderr*``.
 
 *File handles* need a *finalizer* which will :manpage:`close(2)` the
 contained file descriptor when the GC is trying to free the
@@ -699,6 +659,16 @@ See :file:`file-handle.c`.
 
       construct a file handle by opening the file :samp:`{name}` and
       the mode :samp:`{mode}`
+
+      ``open-file`` has to handle the resource contention issue
+      mentioned previously.
+
+      If the :manpage:`fopen(3)` call fails with ``EMFILE`` (a process
+      limit) or ``ENFILE`` (a system-wide limit) indicating the lack
+      of available file descriptors then it has to forcibly invoke the
+      garbage collector and try again.
+
+      For reasons that escape me, it tries that twice....
 
 :samp:`open-input-file {name}`
 
