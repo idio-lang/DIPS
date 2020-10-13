@@ -9,6 +9,9 @@ way of describing it.  I want to have the power and expressibility of
 a proper programming language whilst at the same time utilising the
 elegant abstractions of the shell for command orchestration.
 
+But command orchestration is the ultimate goal -- just with some nice
+programming features.
+
 My background has been a mixture of Unix systems administration,
 provisioning hardware and software infrastructure and developing tools
 and toolchains for engineers.  I've covered a lot of ground albeit
@@ -443,16 +446,24 @@ I've implemented :lname:`Idio` in :lname:`C` -- and using C99_ in
 particular -- as, if nothing else, it's a programming language I'm
 familiar with although by no means an expert.
 
-I could have written :lname:`Idio` in :lname:`Go` or :lname:`Rust` (or
-:lname:`D` or ...) but that would mean:
+There's plenty of reasons not to use :lname:`C` so I could have
+written :lname:`Idio` in :lname:`Go` or :lname:`Rust` (or :lname:`D`
+or ...) but that would mean:
 
 #. I have to learn a new language -- wait... I'm learning a new
    language in order that I can design and implement my own?
 
-#. everyone looking at the implementation has to learn the language
-   *and* the nuances of this other language *and* figure out if I've
-   written something brilliant or am just getting away with it.  All
-   of us doing that in a new language.  Doesn't seem... right.
+#. everyone looking at the implementation has to
+
+   * learn the new language
+
+   * *and* the nuances of this other language
+
+   * *and* figure out if I've written something brilliant or am just
+     getting away with it.
+
+   All of us doing that in a new language whilst figuring out how to
+   make the target language work.  Doesn't seem... right.
 
 #. everyone has to be able to *get hold of* this other language
 
@@ -466,7 +477,7 @@ The downside of this is that we're writing everything in :lname:`C`
 with all its attendant issues with memory management and pointer
 mangling and everything else that people throw in the face of
 :lname:`C`.  OK, sure.  Let's just write safe, secure code.  It can't
-be that hard...
+be that hard....
 
 .. rst-class:: paragraph-header
 
@@ -478,45 +489,47 @@ virtual machines I can convince to run on either.  That gives me a
 reasonable pool of operating systems with enough variance to keep my
 :lname:`C` porting honest.
 
-One question arises, *how* broad should that pool be?  I've wrestled a
+One question arises, how *broad* should that pool be?  I've wrestled a
 little with how much effort should I put into *old* operating systems.
 I might be able to get hold of versions of Linux and, say, Solaris,
 from the late 90s but am I looking for usable completeness or
-technical completeness?  Does anyone, and this is critical, *who wants
-to run* a new shell actually run one of these old operating systems?
+technical completeness?  Does anyone, and this is critical, who *wants
+to run a new shell* actually run one of these old operating systems?
 
 The chances are that if you're still running an Operating System
 released in the 90s then it is critical infrastructure -- otherwise
 you wouldn't still be running it -- and you're not likely to (be
-allowed to) run dodgy new code on it.
+allowed to) run new code with a dubious provenance on it.
 
-That said, there is some technical interest in ensuring that the code
-is portable enough to run on such systems as it was the time of the
-transition from 32- to 64-bit computing and the various LP64_
+That said, there is some technical merit in ensuring that the code is
+portable enough to run on such systems as it was the time of the
+transition from 32-bit to 64-bit computing and the various LP64_
 variations that came with it.
 
 So I think the goal is to ensure that the shell works on a fleet of
-the latest Operating Systems together with a selection of Others which
-aren't expected to see much action but which force the code to be
-honest.
+the latest Operating Systems together with a selection of "others"
+which aren't expected to see much action but which force the code to
+be honest.
 
 A broad range without being too specific:
 
 .. csv-table:: Test Systems
    :header: "ISA", "OS", "bits", "notes"
 
-   "x86-64", "Fedora 32", 64
+   "x86-64", "Fedora 33", 64
    "x86-64", "Ubuntu 18", 64
    "x86-64", "Debian 10", 64 / 32
+   "x86-64", "CentOS 7", 64
    "x86-64", "CentOS 6", 64 / 32
    "x86-64", "OpenIndiana Hipster", 64
    "x86-64", "OpenIndiana a151", 64 / 32
-   "x86-64", "Solaris 10", 32, WIP
    "x86-64", "FreeBSD 10", 32
    "x86-64", "Mac OS 10.15.5", 64, 10.15.6 breaks virtualisation software
    "i386", "Mac OS 10.5.8", 32
    "ARMv7", "Raspbian 9", 32
    "x86-64", "Windows 10 via WSL", 64
+
+   "x86-64", "Solaris 10", 32, WIP
 
 .. rst-class:: smaller
 

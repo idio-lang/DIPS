@@ -138,6 +138,7 @@ want to record meta-information like the primitive's *signature* and
 That sort of data, describing the primitive, looks like:
 
 .. code-block:: c
+   :caption: gc.h
 
    typedef struct idio_primitive_desc_s {
        struct idio_s *(*f) ();
@@ -183,8 +184,8 @@ Let's break this down:
 * ``"pair"`` is the :lname:`C` string name which will become the
   function's :lname:`Idio` name
 
-  In this case, I could expect to find an :lname:`Idio` function
-  called ``pair``:
+  In this case, I can expect to find an :lname:`Idio` function called
+  ``pair``:
 
   .. code-block:: console
 
@@ -263,7 +264,8 @@ passed, it defaults to the *current output handle*.
 
 I'd lean towards a signature string of ``v [handle]`` but this ability
 to be more specific about the meaning of varargs parameters is
-inconsistent with closures.  *Dunno.*
+inconsistent with closures which can only report ``v & args`` from the
+formal parameters.  *Dunno.*
 
 The documentation string is for use with ``help`` where it will get
 printed out.  I have this fanciful idea that the documentation string
@@ -287,7 +289,8 @@ The actual ``pair`` PRIMITIVE looks like:
    }
 
 Note the assertions of the parameters being passed in.  The only
-difference is that we'll fill in the ``sigstr`` and ``docstr`` fields.
+difference is that we've filled in the ``sigstr`` and ``docstr``
+fields.
 
 You can immediately guess that the non-``_DS`` variants simply call
 the ``_DS`` variants with ``""`` for the signature and documentation
@@ -326,7 +329,8 @@ into which we need to "add" our primitive:
        IDIO_ADD_PRIMITIVE (pair);
    }
 
-``IDIO_ADD_PRIMITIVE`` is another :lname:`C` macro which expands into:
+:samp:`IDIO_ADD_PRIMITIVE(pair)` is another :lname:`C` macro which
+expands into:
 
 .. code-block:: c
 
@@ -387,7 +391,7 @@ couple of familiar looking fields:
 
 .. code-block:: console
 		
-   #<SI 0x1c9cc20 struct-rlimit rlim_cur:1024 rlim_max:524288>
+   #<SI struct-rlimit rlim_cur:1024 rlim_max:524288>
 
 Had we stored the result in a variable and quizzed the (simplistic)
 help system it would have told us a bit more about the structure
@@ -396,7 +400,7 @@ instance:
 .. code-block:: console
 
    Idio> x := libc/getrlimit libc/RLIMIT_NOFILE
-   #<SI 0x1cb9940 struct-rlimit rlim_cur:1024 rlim_max:524288>
+   #<SI struct-rlimit rlim_cur:1024 rlim_max:524288>
    Idio> help x
    struct-instance: x 
 
@@ -415,12 +419,13 @@ In essence, a closure needs two things:
 
 * some code (*duh!*)
 
-* an *environment* within which that code is run
+* an *environment* within which that code is run -- from which we
+  access the *free variables* (non-lexical variables) in the function
 
 In our case we have compiled our code for a *byte compiler* which
 means everything is a bit more like assembly language programming and
-the *code* becomes a *program counter* such that we jump to that *PC*
-and keep processing.
+the *code* becomes a *program counter* (PC) such that we jump to that
+*PC* and keep processing.
 
 The *environment*, here, is the combination of the lexical context at
 the point of creation and the module the closure was created in.
@@ -433,7 +438,7 @@ Documentation
 Like `Emacs Lisp
 <https://www.gnu.org/software/emacs/manual/html_node/elisp/>`_ we
 should allow the user to write a documentation string for their
-function which should be the third argument of four, :samp:`function
+function which should be the third argument of four: :samp:`function
 {formals} {docstr} {body}` or :samp:`define ({name} {formals})
 {docstr} {body}`.
 
@@ -445,7 +450,7 @@ The use of :samp:`{docstr}` will need to adhere to our "single line"
 reader processing -- which is partly why strings are allowed to be
 multi-line.  So we'll have something like:
 
-.. code-clock:: idio
+.. code-block:: idio
    :caption: common.idio
 
    define (atom? x) "predicate to test if object is an atom
@@ -509,7 +514,12 @@ Let's take a look:
 Creation
 ^^^^^^^^
 
-Creating a closure is a little bit of art.
+Creating a closure is a little bit of art.  In the first instance, we
+don't have to but we will encode the *creation* of the closure as well
+as the code for the *implementation* of the closure in the output byte
+code.  Subsequently, we have a generated code stream that means if we
+could store the byte code out as a loadable module then we have the
+creation code embedded in it.
 
 When we hit a function abstraction:
 
@@ -530,7 +540,36 @@ In addition we have the lexical context (we *should* have the lexical
 context, *we're* doing the evaluation!) and the current module.
 
 In combination we have everything we require to satisfy the need to
-create a closure.  The process is:
+create a closure.  Remember, though, with a function declaration,
+we're only looking to define the function, not run it, so:
+
+.. code-block:: idio
+
+   x := 1
+   define (y a b) {
+       a + b
+   }
+   z := x + 1
+
+is the pseudo-code:
+
+.. parsed-literal::
+
+   define :samp:`{x}` as the result of evaluating :samp:`1`
+
+   define :samp:`{y}` as the result of evaluation the function definition
+   :samp:`function (a b) \\{ a + b }` into a closure value
+
+   define :samp:`{z}` as the result of evaluating :samp:`{x} + 1`
+
+In other words, we're not *running* the function during this process,
+just establishing it as something that can be run.
+
+A *closure value* is, from the data structure above, a program
+counter, a code length, a future frame (of arguments) and a pointer to
+an environment.
+
+The process is:
 
 #. we'll create the code for the body in a temporary array
 
@@ -563,23 +602,24 @@ create a closure.  The process is:
    right now, we'll add a ``JUMP`` instruction followed by the code
    length (again)
 
-   This means that when this creation code is *run*, we'll see
-   ``CREATE-CLOSURE`` (and some arguments) then a ``JUMP`` and carry
-   on.  The ``CREATE-CLOSURE`` has been given the *offset* to the
+   This means that when this creation code is *run*, we'll see:
+
+   * ``CREATE-CLOSURE`` (and its three arguments: code length,
+     signature string and documentation string) then a
+
+   * ``JUMP`` to
+
+   * the definition of :samp:`{z}` in the example, above.
+
+   The ``CREATE-CLOSURE`` has been given the *offset* to the
    ``code_pc`` and can create the closure value.  *Neat!*
 
-   This is actually very slightly more involved -- and requires that
-   the *offset* mentioned above is in cahoots -- as the jump could be
-   quite short in which case the "jump length" can be encoded in a
-   byte or it could be quite long in which case the jump length will
-   take a (variable, depending on the size of the function body)
-   number of bytes to encode.
-
-   Either way, we want to jump over the function body.
+   However we do it, we want to jump over the function body so as not
+   to run it.
 
 #. We can now copy the function body from the temporary array
 
-   The first byte (in the normal byte code array) of which is
+   The first byte of which (now in the normal byte code array) is
    ``code_pc``.
 
    But wait, this is now an *unknown* number of bytes beyond the
@@ -596,8 +636,8 @@ create a closure.  The process is:
 
    #. it is a long jump in which case we encode the jump length in
       (yet another) temporary byte code array and can say that the
-      *offset* is one plus the length of this temporary array (plus
-      one because the jump instruction takes one byte!)
+      *offset* is one plus the length of this temporary array -- plus
+      one because the jump instruction takes one byte!
 
    The code generator can now add the correct *offset* to the
    ``code_pc`` after the ``CREATE-CLOSURE`` instruction.
@@ -609,13 +649,15 @@ code:
    :linenos:
 
    ...
-   CREATE-CLOSURE (length of #3) [fixed features]
+   CREATE-CLOSURE (length of #3) sigstr docstr
    JUMP to #5
-   function body
+   function body (including a trailing RETURN)
    ...
 
 When we come to *run* the closure, the closure value has had
-``code_pc`` set to ``#4``.
+``code_pc`` set to ``#4`` and will stop processing before it hits
+``#5`` -- the definition of :samp:`{z}` -- because it has a ``RETURN``
+statement stamped on the end.
 
 Operations
 ==========
