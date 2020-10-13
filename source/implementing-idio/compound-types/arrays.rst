@@ -359,3 +359,6 @@ Operations
 
       See also :ref:`list->array <list->array>`.
 
+
+.. include:: ../../commit.rst
+

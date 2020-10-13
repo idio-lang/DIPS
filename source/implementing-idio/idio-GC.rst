@@ -578,3 +578,6 @@ The GC does some work.  At the time of writing just to start up and
 shut down I see that it grinds through, amongst other things, 1.5
 *million* ``pair``\ s.  Only 131 thousand of those were still "in use"
 as the GC shut down.  I say, only, but what are *they* being used for?
+
+.. include:: ../commit.rst
+

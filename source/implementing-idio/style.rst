@@ -510,3 +510,6 @@ the calling code as they fall in the ``default`` clause of a
 ``switch`` statement and are in the "impossible" category.  It should
 be documented as "impossible" but the error raising code should
 remain.  A developer *will* fall into it.
+
+.. include:: ../commit.rst
+

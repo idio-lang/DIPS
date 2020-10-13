@@ -22,3 +22,6 @@ simple types.
    bitsets
    c-types
    functions
+
+.. include:: ../../commit.rst
+

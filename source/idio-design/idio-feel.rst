@@ -1081,3 +1081,6 @@ so, ``*primitives*/read`` in this case.
 
 You can't ask for names that aren't exported.  That would be wrong.
 
+
+.. include:: ../commit.rst
+

@@ -26,7 +26,6 @@
 }
 
 body {
-    font-family: Verdana, serif;
     font-size: unset;
 }
 
@@ -164,3 +163,11 @@ p strong.program {
     font-family: monospace;
 }
 
+div.footer {
+    text-align: center;
+}
+
+div.gitcommit {
+    text-align: center;
+    font-size: smaller;
+}

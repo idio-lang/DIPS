@@ -9,3 +9,6 @@ Scheme
 
    scheme-basics
    advanced-scheme
+
+.. include:: ../commit.rst
+

@@ -1655,3 +1655,6 @@ a *string* as an argument would deduce therefore that ``s``, the first
 argument of ``strlen``, should be a *string*, that ``i`` is a *number*
 therefore the function call ``(strlen i)`` is a type error.
 
+
+.. include:: ../commit.rst
+

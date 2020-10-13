@@ -478,3 +478,6 @@ By and large there are no specific operations that you can perform on
 a constant.
 
 However, see :ref:`Unicode code point operations` for special cases.
+
+.. include:: ../../commit.rst
+

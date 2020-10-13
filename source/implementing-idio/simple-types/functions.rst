@@ -666,3 +666,6 @@ Operations
 
       is :samp:`{value}` a function, ie. a primitive or a closure
 
+
+.. include:: ../../commit.rst
+

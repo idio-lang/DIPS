@@ -235,3 +235,6 @@ partly means that the first GC cannot be removed but also complicates
 the algorithm for marking in-use values which now have to be
 multi-GC-aware.
 
+
+.. include:: ../commit.rst
+

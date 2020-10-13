@@ -341,3 +341,6 @@ JSON (no comments, NULL, "true"/true) -> JSON5
 YAML
 
 TOML
+
+.. include:: ../commit.rst
+

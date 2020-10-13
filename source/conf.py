@@ -35,6 +35,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinxcontrib.bibtex',
     'sphinx.ext.graphviz',
+    'sphinx_git',
     'aside',
     'idio_lexer'
 ]
@@ -58,6 +59,16 @@ import idio_lexer
 #
 html_theme = 'idio-theme'
 html_theme_path = ['.']
+
+# Alabaster theme options
+html_theme_options = {
+    'code_font_family': "'Source Code Pro', 'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace",
+    'font_family': "'Open Sans', 'Verdana', serif"
+}
+
+# affects creation of last_updated used in the footer block in
+# idio-theme/_templates/layout.html
+html_last_updated_fmt = '%Y%m%d-%H%M%S'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

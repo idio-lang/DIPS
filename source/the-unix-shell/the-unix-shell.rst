@@ -1588,3 +1588,6 @@ Much of the complexity of job control is for interactive sessions.
 Non-interactive shell scripts can still background jobs and the
 signalling and terminal management differ.
 
+
+.. include:: ../commit.rst
+

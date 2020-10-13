@@ -1117,3 +1117,6 @@ In :file:`common.idio` there are some extra utility functions.
       <get-output-string>` on that output string handle.
 
 
+
+.. include:: ../../commit.rst
+

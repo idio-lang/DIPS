@@ -9,3 +9,6 @@ References
    .. rubric:: Bibliography
 
 .. bibliography:: refs.bib
+
+.. include:: commit.rst
+

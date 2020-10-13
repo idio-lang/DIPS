@@ -18,3 +18,6 @@ simple types.
    arrays
    hash-tables
    structures
+
+.. include:: ../../commit.rst
+

@@ -10,3 +10,6 @@ The Unix Shell
    shells
    the-unix-shell
    extra
+
+.. include:: ../commit.rst
+

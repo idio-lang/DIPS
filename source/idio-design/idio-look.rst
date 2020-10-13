@@ -1564,3 +1564,6 @@ then escape the ``*`` preventing the line comment ending the
 multi-line comment.  The nominal result being ``...\ *#...``.
 
 *No, you can't use whitespace as an escape character!*
+
+.. include:: ../commit.rst
+

@@ -141,3 +141,6 @@ Glossary
 .. _`Tiny-CLOS`: http://community.schemewiki.org/?Tiny-CLOS
 
 .. _`Computer terminal`: https://en.wikipedia.org/wiki/Computer_terminal
+
+.. include:: commit.rst
+

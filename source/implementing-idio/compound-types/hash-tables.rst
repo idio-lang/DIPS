@@ -456,3 +456,6 @@ Conditions
 
 ``^rt-hash-error-key-not-found``
 
+
+.. include:: ../../commit.rst
+

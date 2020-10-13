@@ -228,3 +228,6 @@ primary data structure, I guess.
 
       If there is no such element then :samp:`{default}` is returned
       if supplied otherwise ``#n``.
+
+.. include:: ../../commit.rst
+

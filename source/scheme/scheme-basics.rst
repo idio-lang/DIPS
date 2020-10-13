@@ -1642,3 +1642,6 @@ pointless but the principle remains:
 we can prepare some functionality to be evaluated on demand -- perhaps
 never, of course.
 
+
+.. include:: ../commit.rst
+

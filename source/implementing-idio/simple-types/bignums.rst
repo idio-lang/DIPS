@@ -472,3 +472,6 @@ Operations
 
       display some of the internal structure of :samp:`{bignum}`
 
+
+.. include:: ../../commit.rst
+

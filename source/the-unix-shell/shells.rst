@@ -231,3 +231,6 @@ black boxes.
 
 (You can run :program:`rlwrap`, of course.)
 
+
+.. include:: ../commit.rst
+

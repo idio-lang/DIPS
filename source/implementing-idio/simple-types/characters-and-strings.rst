@@ -874,3 +874,6 @@ Strings
       construct a string from the strings in :samp:`{args}` with the
       string :samp:`{delim}` placed in between each pair of strings
 
+
+.. include:: ../../commit.rst
+

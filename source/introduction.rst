@@ -576,3 +576,6 @@ like ``$PATH`` etc..
 Man pages, see :manpage:`man(1)`, are most likely to refer to whatever
 primary development system I happen to be using -- almost certainly a
 Linux variant.  Solaris and BSDs may vary.
+
+.. include:: commit.rst
+

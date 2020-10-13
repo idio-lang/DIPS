@@ -305,3 +305,6 @@ Operations
       set the value associated with keyword :samp:`{keyword}` in
       the keyword table :samp:`{kt}` to :samp:`{value}`
 
+
+.. include:: ../../commit.rst
+

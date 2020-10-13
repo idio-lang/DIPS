@@ -403,3 +403,6 @@ Structure Instances
       return ``#f`` unless the structure instance of :samp:`{si}` is
       :samp:`{st}` in which case return ``#t``
 
+
+.. include:: ../../commit.rst
+
