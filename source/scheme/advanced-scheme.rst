@@ -23,6 +23,9 @@ limitations of the :lname:`C` pre-processor are, you have the full
 power of :lname:`Scheme` at your disposal.  Including, of course,
 other macros.
 
+Of interest, :lname:`Python` is considering `Syntactic Macros
+<https://www.python.org/dev/peps/pep-0638/>`_.
+
 To be fair, raw macros are "a bit tricky" so people have gone a bit
 meta and written syntax transforming macros for you to use.  These let
 you, in turn, create syntax transforming macros.  It seems a bit

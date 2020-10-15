@@ -94,6 +94,10 @@ div.sidebox p {
     line-height: 1.1em;
 }
 
+div.sidebox pre {
+    font-size: small;
+}
+
 .center {
     text-align: center;
 }
