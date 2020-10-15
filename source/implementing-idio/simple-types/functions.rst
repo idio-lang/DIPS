@@ -455,8 +455,7 @@ multi-line.  So we'll have something like:
 
    define (atom? x) "predicate to test if object is an atom
 
-   :param x: object to test
-   " {
+   :param x: object to test" {
      not (pair? x)
    }
 
