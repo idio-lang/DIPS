@@ -78,6 +78,7 @@ structure of the :samp:`{value}` -- and then call ``idio_debug()``.
 
    style
    virtual-machine/index
+   reader/index
    garbage-collection
    idio-GC
    simple-types/index
