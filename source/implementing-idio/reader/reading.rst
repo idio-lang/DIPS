@@ -16,7 +16,7 @@ the relative construction of *forms*.
 
 Forms are, of course, just lists which are a native :lname:`Lisp`
 type.  Whatever the internal construction, the *printed* format looks
-like, uh, the input format.
+like, uh, the source code format.
 
 So, ``(foo a b)``, being a list of three elements, that is, a linked
 list of three *pairs*, has whatever internal format it has in
@@ -28,9 +28,8 @@ elements pointing at three different symbols (which themselves have
 some internal format).
 
 The obvious thing to do instead is to ask the :lname:`Idio` engine to
-print out this internal format which will give us... ``(foo a b)``.
-
-Which might leave us scratching our heads as to whether we've actually
+print out this internal format which will give us... ``(foo a b)`` --
+which might leave us scratching our heads as to whether we've actually
 done anything at all!  *Tricky!*
 
 Equally tricky are strings and numbers.  For most regular integers,
@@ -49,12 +48,12 @@ friendly format in the source code, say, ``123.0``, which when printed
 becomes a normalized form, ``1.23e+2``.
 
 Which, although satisfied that something has happened, I find somehow
-unsettling as it's not how I would have written it.
+unsettling as that's not the format I would have written it in.
 
 Anyway the point of this diversion is that there's going to be a
 degree of confusion when we talk about reading something in and then
 describing the internal format using its printed representation which
-is, usually, *exactly the same* as the input format.
+is, usually, *exactly the same* as the source code format.
 
 We'll have to go on a degree of trust.  You'll be glad, by and large,
 that you **don't** have to go and inspect the internal :lname:`C` data
@@ -108,7 +107,7 @@ and again the value returned from the successful execution will be
 ``#t``.
 
 We have now successfully evaluated :samp:`{func}` and :samp:`{arg}`
-giving the form we want to invoke as:
+giving the values for the form we want to invoke:
 
 .. parsed-literal::
 
@@ -127,7 +126,7 @@ pass to the function.  Just like we'd expect:
    (+ ( 2 * 3) (6 / 2))
    
 to have its arguments evaluated into :samp:`({+} {6} {3})` before
-invoking the (presumably) addition function.
+invoking the addition function.
 
 Supplementary Processing
 ========================
@@ -179,15 +178,15 @@ done.
 
 The implementation of this is not *Art*, I have to say and my
 :lname:`C` naming scheme has let me down.  It needs revisiting.  (At
-the time it was "Tack something on the end to make it different."
-We've all been there....)
+the time the naming scheme was "Tack something on the end to make it
+different."  I think we've all been there....)
 
 Quasiquotation Interpolation Characters
 ---------------------------------------
 
 .. sidebox::
 
-   There are moments when you think... "Yes!  *Genius!*"
+   There are moments when you think, "Yes!  *Genius!*"
 
    ...before realising how crushingly obvious it was.
 
@@ -231,17 +230,16 @@ memory) pair -- as opposed to *copying* it -- then we are always
 referring [sic] to the same thing.
 
 This being a :lname:`Lisp`\ y language, you can use pairs as the keys
-into a hash table.  If you're thinking what I'm thinking (*hey, I*
-have *just given you the two clues*) then we can put these two
-together.  For each expression we read in we can have recorded the
-handle and line which, together with the expression itself, can become
-a "lexical object."
+into a hash table.  If you're thinking what I'm thinking then we can
+put these two together.  For each expression we read in we can have
+recorded the handle and line which, together with the expression
+itself, can become a "lexical object."
 
-In practice this is a regular :lname:`Idio` structure with fields:
-(the handle's) ``name``, ``line``, (handle) ``pos`` and ``expr``
-(again, just in case).  Given that we intend that the key to the
-"source properties" hash table be ``expr`` then it's not a good idea
-to have ``expr`` somewhere in the value meaning we will have 1) a
+In practice this lexical object is a regular :lname:`Idio` structure
+with fields: (the handle's) ``name``, ``line``, (handle) ``pos`` and
+``expr`` (again, just in case).  Given that we intend that the key to
+the "source properties" hash table be ``expr`` then it's not a good
+idea to have ``expr`` somewhere in the value meaning we will have 1) a
 circular data structure and 2) therefore some difficulty garbage
 collecting it.  To fix that the source properties hash table is
 flagged as having weak keys.  When ``expr`` goes out of scope then we
@@ -265,8 +263,8 @@ expressions of a function call.
 The second part means that it has to pass the source expression onto
 the code generator.  The code generator needs to install the
 expression as a constant in order that it can subsequently embed a
-``SRC-EXPR`` and integer argument into the byte code which the VM can
-process by assigning the integer into the *expr* register.
+``SRC-EXPR`` opcode and integer argument into the byte code which the
+VM can process by assigning the integer into the *expr* register.
 
 Should the code generate a failure when running then it is possible to
 use the expression register to look up the expression in the constants
@@ -293,8 +291,9 @@ things here:
    function calls so we've got the basics.
 
 #. an error in *reading* an atom from the source code will trigger a
-   ``^read-error`` and the reader will flag up the problem there and
-   then -- including handle and line number
+   ``^read-error`` from the reader -- no waiting for run-time -- and
+   the reader will flag up the problem there and then -- including
+   handle and line number
 
 The point about stashing the source code's source location away is for
 when we come to *run* the code, potentially a long time later, we can
@@ -312,199 +311,136 @@ By and large the general process to read a line is quite simple:
 
 #. done
 
-(I felt I had to add a third step just to give it some credibility.)
+(I felt I had to add a third step just to give the process some
+substance.)
 
-Expressions
------------
+Comments
+--------
 
-Reading individual expressions is where the action is.
+:lname:`Scheme`, at least, comes with two comment types: line and
+(nestable) block comments.
 
-Broadly, the kind of expression is determined by the first character
-we read, for example:
+Line Comments
+^^^^^^^^^^^^^
 
-.. csv-table::
-   :widths: auto
+I've kept the standard :lname:`Lisp` ``;`` as a comment character even
+though that clashes with the statement terminator from the shell.
 
-   ``(``, a list up to the matching ``)``
-   ``{``, a block up to the matching ``}``
-   ``"``, a string up to the next non-escaped ``"``
-   ``#``, something weird
-
-with a fallback of the accumulation of characters being a *word* (a
-*symbol* -- but I prefer the shell-ish term, "word").
-
-In fact numbers fall into this word category as well (partly due to
-the funny number formats that :lname:`Scheme` accepts) and are
-differentiated from words because we can subsequently figure out it is
-a number.
-
-(And there's whitespace and all the rest of it.)
-
-Talking of whitespace and all-encompassing words, :lname:`Idio` likes
-a bit of whitespace as I've noted before.  If you're not using it then
-you're creating an interesting symbol.
-
-This means that some words (from a reader perspective) are not a lean
-form of arithmetic but are actual symbols (and possibly variables):
-
-.. code-block:: console
-
-   Idio> 3pi/4
-   #i2.35619449019234491e+0
-
-``3pi/4`` is a symbol and is, perhaps not surprisingly, ``3 * pi / 4``
-but now as a handy variable.
-
-Word Separators
-^^^^^^^^^^^^^^^
-
-The inverse of expressions, perhaps, but it's useful to know what
-prevents as word consuming the entire rest of the file.
-
-Whitespace
-""""""""""
-
-An obvious word break is whitespace although it's currently being
-implemented with questionable adherence to whitespace.
-
-In the first instance, born in the ASCII/Latin-1 era, whitespace was
-in two parts:
-
-* SPACE and TAB for gaps between words
-
-* NEWLINE and CARRIAGE RETURN for ends of line -- which should cover
-  the myriad of Unix, Mac OS and Windows variants
+Without a statement terminator, one-liners (of which I've written "a
+few" myself) are impossible.  That'll make life interesting.
 
 .. sidebox::
 
-   I think I've only seen FORM FEED of those two in the wild and only
-   then as ``^L`` in Emacs Lisp files.
+   He says, avoiding looking.
 
-However, even in those simplistic times it still didn't honour ASCII's
-VERTICAL TAB or FORM FEED.
+On the other hand, wherever I've written a script version of my one
+liner I don't recall a case where I've continued to use a one-liner in
+the script.  I always flatten it out to the line-by-line mode that I
+would have written the script in in the first place.
 
-So, a poor start and remains in exactly the same poor position until I
-can make a decision about whether to go all in with Unicode category
-types.
+I suspect that's because mentally I am now committing myself to the
+permanence of the script and therefore I am pre-empting the inevitable
+addition of debugging and better support for edge cases that precludes
+the code being bunched up.
 
-Bracketing Characters
-"""""""""""""""""""""
+One-liners are transient *hacks*, right?
 
-For parentheses, I would normally go with just a right parenthesis,
-``)``, causing a word break so that the last expressing in a list can
-butt up it: ``(this that)``.
+Block Comments
+^^^^^^^^^^^^^^
 
-However, I have also (followed others and) used left parenthesis,
-``(`` as a word break meaning that you cannot have ``foo(bar`` as a
-symbol.  It'll be too confusing in ``(this foo(bar)``.
+I like the idea of nested comments -- meaning you aren't annoyed by an
+inner comment that you're enclosing causing the wider comment to end
+prematurely.  However, I'm breaking with :lname:`Scheme` and using
+``#*`` ... ``*#`` for generic block comments and reserving the
+(mutually aware and equally nested) ``#|`` ... ``|#`` for some as
+yet-undocumented semi-literate programming style.
 
-Similarly, for the array constructor ``#[...]`` the right bracket,
-``]``, is a word break allowing the words inside to butt up against
-it.
+Unicode
+-------
 
-Currently, left bracket, ``[`` *is* allowed in symbols.  Maybe I
-should revisit that.
+By and large, the reader should be reading Unicode code points from
+the UTF-8 encoded source file.
 
-Currently, both left and right brace, ``{`` and ``}``, are allowed in
-words.  Hmm.
+*Something* has to read bytes at a time in order to perform the UTF-8
+decoding and that's handled in ``idio_read_character_int()`` (``_int``
+for internal as it returns an ``idio_unicode_t``, a :lname:`C`
+Unicode-ish type that also handles ``EOF`` as opposed to something
+returning an :lname:`Idio` Unicode code point -- a kind of constant).
 
-Double Quote
-""""""""""""
+Of interest, ``idio_read_string()`` -- which is called when the first
+character is ``"``, U+0022 (QUOTATION MARK) -- also reads data in a
+byte at a time.  Whether that's right or wrong partly relates to how
+we handle UTF-8 decoding errors.
 
-I must have has a reason for this.  Perhaps sanity to avoid symbols
-like ``foo"bar``.
+UTF-8 Decoding Failure
+^^^^^^^^^^^^^^^^^^^^^^
 
-Semicolon
-"""""""""
+There's a general problem with UTF-8 in that someone will invariably
+(or maliciously) get it wrong in which case your UTF-8 decoder needs
+to handle the fault gracefully.  There are no rules about handling
+faults.  :ref-author:`Markus Kuhn`'s `UTF-8 Test File
+<https://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt>`_
+contains several examples of bad UTF-8 encodings which your UTF-8
+decoder should survive.
 
-This is the line-comment character, everything after it is discarded
-to the end of the line.
+In that document he also notes the possibilities of representing
+decoding failure.  The decoder should mark the failure with ``�``,
+U+FFFD (REPLACEMENT CHARACTER) but it's less clear about what to do
+next.  Having found one decoding failure, should you display another
+replacement character to represent each subsequent incorrect byte in
+the input stream (until you can resynchronise) or leave it as one
+replacement character representing the failed block?
 
-If you're really determined you can escape the semicolon in the
-source: ``a\;b`` will create a symbol called ``a;b``.
+The current :lname:`Idio` code generates a replacement character for
+each failed byte.
 
-Dot
-"""
+Strings
+"""""""
 
-You can't have ``.`` in a word.  Unless it's a number....
+The next question is for strings.  We're simultaneously decoding UTF-8
+*and* looking for the end of string marker, another ``"`` character.
 
-``.`` is used for the ``value-index`` operator so we can say
-:samp:`{thing}.{field}` and ``value-index`` will figure out the right
-form of access of :samp:`{field}` within :samp:`{thing}`.
+If all is well then the UTF-8 decoding proceeded smoothly and the
+*next* byte or code point is ``"``.  Job done.
 
-Not a word Break
-^^^^^^^^^^^^^^^^
+However, if we're reading a code point at a time and the input stream
+contained a valid UTF-8 multi-byte sequence byte followed by ``"`` --
+an invalid byte sequence as subsequent bytes in a UTF-8 multi-byte
+sequence should have the top two bits of each byte set to ``10`` --
+then the UTF-8 decoder will have consumed the ``"`` and discarded it
+as part of an invalid sequence.
 
-These are, maybe unexpectedly, not (currently) word breaks.
+The string construction process will continue through the input stream
+looking for a "true" ``"`` to end the string -- and probably find one
+at the start of the next string and we'll find ourselves toggling the
+classification of strings and code.
 
-The pair separator, ``&``.  You must currently separate the head and
-tail expressions from ``&`` with whitespace.  That allows ``a&b`` as a
-valid symbol.
+On the other hand if we read the input stream a byte at a time then
+the string will be terminated when we hit a *byte* matching ``"``
+irrespective of its position in any UTF-8 multi-byte sequence.  We
+will then send the collected bytes off to the UTF-8 decoder which
+will, presumably, find the start of a UTF-8 multi-byte sequence
+followed by no more bytes and substitute in the replacement character.
 
-.. sidebox::
+We don't know if the ``"`` following the valid UTF-8 sequence byte was
+incorrect or the, seemingly valid, UTF-8 prefix byte was incorrect.
 
-   I suppose this allows you to have a sequence of ``a``, ``a'`` and
-   ``a''`` if it pleases you so.
+I can't see that there's a *correct* behaviour: code points or bytes.
+Both are functional although I'm in favour of the byte by byte
+matching because:
 
+#. the error is identified sooner -- probably, there are always
+   pathological cases
 
-Interpolation characters which have no function other than as the
-first character of a word in which case they are handled separately
-anyway.  ``a$b``, ``a@b`` and ``a'b`` (assuming the default
-interpolation characters) are all valid symbols.
+#. it's the way the code was originally written for an ASCII/Latin-1
+   world
 
-
-
-Lists
-^^^^^
-
-Ignoring the implied list in the overall line-oriented handling from
-above, reading a list expression is quite easy.  So we'll do a more
-complicated example.
-
-The "...up to the matching..." part reflects the lists-within-lists
-nature of :lname:`Lisp`\ y languages.  When we read:
-
-.. code-block:: idio
-
-   (+ (2 * 3) (6 / 2))
-
-we'll have:
-
-* identified this as a list because the first character is ``(`` so
-  we'll have called the ``idio_read_list()`` function which reads "up
-  to the matching" ``)``
-
-  * we'll read the expression ``+``
-
-  * we start to read the next expression which begins with ``(`` so
-    it's another list and we simply recurse into ``idio_read_list()``
-    again
-
-    * we can now read the expressions ``2`` then ``*`` then ``3``
-
-    * then we hit ``)`` and we can construct and return a list from
-      our three expressions: ``(2 * 3)`` -- I told you this becomes
-      confusing!
-
-  * the outer list gets a second expression, ``(2 * 3)``
-
-  * we can read the next expression which also begins with ``(`` so
-    off we go again:
-
-    * ``6`` and ``/`` and ``2`` gives ``(6 / 2)``
-
-  * the outer list gets a third expression, ``(6 / 2)``
-
-  * and finally we get our own ``)`` and can create and return a list
-    from our own three expressions: ``(+ (2 * 3) (6 / 2))``
-
-* we get ``(+ (2 * 3) (6 / 2))`` in our hands
-
-The net result of which is a data structure in :lname:`C` whose
-printed representation is *exactly* what we read in from the source
-code....  However, it *is* now in :lname:`C` memory.
-
-
+There's another issue with collecting code points: we'll need to store
+them in a :lname:`C` ``uint32_t`` array as we can't predict how big
+any of them are going to be.  Only when we've seen them all can we
+correctly size the :lname:`Idio` 1, 2 or 4 byte array string.  Most of
+the time collecting ``uint32_t`` code points in the first pass is
+going to be pretty inefficient.
 
 .. include:: ../../commit.rst
 

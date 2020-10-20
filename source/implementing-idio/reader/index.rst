@@ -20,6 +20,7 @@ set of representation-altering features.
    :maxdepth: 2
 
    reading
+   reading-expressions
 
 .. include:: ../../commit.rst
 
