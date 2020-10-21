@@ -1,5 +1,7 @@
 .. include:: ../../global.rst
 
+.. _`simple types`:
+
 ************
 Simple Types
 ************

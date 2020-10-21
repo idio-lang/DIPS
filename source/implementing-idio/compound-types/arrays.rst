@@ -320,12 +320,16 @@ Operations
       :samp:`{index}` can be negative in which case the calculated
       index is :samp:`{array-length} + {index}`.
 
+.. _`array-push`:
+
 :samp:`array-push! {array} {value}`
 
       add value :samp:`{value}` onto the *end* of array
       :samp:`{array}`
 
       This is a means to grow the size of the array.
+
+.. _`array-pop`:
 
 :samp:`array-pop! {array}`
 
@@ -335,6 +339,8 @@ Operations
       This is a means to shrink the in-use size of the array.  An
       array's *allocated* size is not current reduced.
 
+.. _`array-unshift`:
+
 :samp:`array-unshift! {array} {value}`
 
       add value :samp:`{value}` onto the *start* of array
@@ -342,6 +348,8 @@ Operations
       index.
 
       This is a means to grow the size of the array.
+
+.. _`array-shift`:
 
 :samp:`array-shift! {array}`
 

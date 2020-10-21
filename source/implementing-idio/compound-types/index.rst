@@ -1,5 +1,7 @@
 .. include:: ../../global.rst
 
+.. _`compound types`:
+
 **************
 Compound Types
 **************

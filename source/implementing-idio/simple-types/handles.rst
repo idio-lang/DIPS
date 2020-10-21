@@ -602,7 +602,7 @@ as I'd rather target scripting, however it does get used.
 I've noted above that the REPL is :lname:`C`-only in the sense that
 there isn't an :lname:`Idio` entry-point.  Like most things it could
 probably do with being re-arranged slightly so that there is an
-:lname:`Idio` :ref:`primitive <primitive>` which calls the existing
+:lname:`Idio` :ref:`primitive <primitives>` which calls the existing
 ``idio_load_handle_interactive()`` but one we could replace with a
 pure-:lname:`Idio` function.
 

@@ -202,6 +202,24 @@ recursing into reading the block (between the ``{`` and the
 corresponding ``}``) with the (possibly new) set of interpolation
 characters.
 
+The quasi-quotation characters are:
+
+.. csv-table::
+   :widths: auto
+
+   unquote, ``$``
+   unquote-splicing, ``@`` -- as in ``$@``
+   quote, ``'``
+   escape, :literal:`\\`
+
+In effect, ``#T{...}`` is really ``#T$@'\{...}``.
+
+If you don't want to change one of the earlier ones, say you want to
+change the *quotation* character but leave the *unquote* and
+*unquote-splicing* characters alone, use ``.`` so that ``#T..!{...}``
+changes the quotation character to ``!`` for the duration of the
+expression.  This may be useful when you are an embedded template.
+
 A minor fault is that anything printing a template doesn't know what
 the interpolation characters used were so it defaults to the standard
 :lname:`Idio` ones.
@@ -314,66 +332,30 @@ By and large the general process to read a line is quite simple:
 (I felt I had to add a third step just to give the process some
 substance.)
 
-Comments
---------
-
-:lname:`Scheme`, at least, comes with two comment types: line and
-(nestable) block comments.
-
-Line Comments
-^^^^^^^^^^^^^
-
-I've kept the standard :lname:`Lisp` ``;`` as a comment character even
-though that clashes with the statement terminator from the shell.
-
-Without a statement terminator, one-liners (of which I've written "a
-few" myself) are impossible.  That'll make life interesting.
-
-.. sidebox::
-
-   He says, avoiding looking.
-
-On the other hand, wherever I've written a script version of my one
-liner I don't recall a case where I've continued to use a one-liner in
-the script.  I always flatten it out to the line-by-line mode that I
-would have written the script in in the first place.
-
-I suspect that's because mentally I am now committing myself to the
-permanence of the script and therefore I am pre-empting the inevitable
-addition of debugging and better support for edge cases that precludes
-the code being bunched up.
-
-One-liners are transient *hacks*, right?
-
-Block Comments
-^^^^^^^^^^^^^^
-
-I like the idea of nested comments -- meaning you aren't annoyed by an
-inner comment that you're enclosing causing the wider comment to end
-prematurely.  However, I'm breaking with :lname:`Scheme` and using
-``#*`` ... ``*#`` for generic block comments and reserving the
-(mutually aware and equally nested) ``#|`` ... ``|#`` for some as
-yet-undocumented semi-literate programming style.
-
 Unicode
--------
+=======
 
 By and large, the reader should be reading Unicode code points from
 the UTF-8 encoded source file.
 
 *Something* has to read bytes at a time in order to perform the UTF-8
-decoding and that's handled in ``idio_read_character_int()`` (``_int``
-for internal as it returns an ``idio_unicode_t``, a :lname:`C`
-Unicode-ish type that also handles ``EOF`` as opposed to something
-returning an :lname:`Idio` Unicode code point -- a kind of constant).
+decoding and that's handled in ``idio_read_character_int()`` -- where
+``_int`` is for internal as it returns an ``idio_unicode_t``, a
+:lname:`C` Unicode-ish type that also handles ``EOF`` as opposed to
+something returning an :lname:`Idio` Unicode code point -- a kind of
+constant.
 
 Of interest, ``idio_read_string()`` -- which is called when the first
 character is ``"``, U+0022 (QUOTATION MARK) -- also reads data in a
 byte at a time.  Whether that's right or wrong partly relates to how
 we handle UTF-8 decoding errors.
 
+In the meanwhile, then, you can use Unicode code points in symbols and
+therefore variable names, as interpolation characters and, obviously,
+in strings.
+
 UTF-8 Decoding Failure
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 There's a general problem with UTF-8 in that someone will invariably
 (or maliciously) get it wrong in which case your UTF-8 decoder needs
@@ -395,7 +377,7 @@ The current :lname:`Idio` code generates a replacement character for
 each failed byte.
 
 Strings
-"""""""
+^^^^^^^
 
 The next question is for strings.  We're simultaneously decoding UTF-8
 *and* looking for the end of string marker, another ``"`` character.
@@ -406,9 +388,9 @@ If all is well then the UTF-8 decoding proceeded smoothly and the
 However, if we're reading a code point at a time and the input stream
 contained a valid UTF-8 multi-byte sequence byte followed by ``"`` --
 an invalid byte sequence as subsequent bytes in a UTF-8 multi-byte
-sequence should have the top two bits of each byte set to ``10`` --
-then the UTF-8 decoder will have consumed the ``"`` and discarded it
-as part of an invalid sequence.
+sequence should have the top two bits of each byte set to ``10``,
+clearly not true for 0x22 -- then the UTF-8 decoder will have consumed
+the ``"`` and discarded it as part of an invalid sequence.
 
 The string construction process will continue through the input stream
 looking for a "true" ``"`` to end the string -- and probably find one
@@ -425,9 +407,9 @@ followed by no more bytes and substitute in the replacement character.
 We don't know if the ``"`` following the valid UTF-8 sequence byte was
 incorrect or the, seemingly valid, UTF-8 prefix byte was incorrect.
 
-I can't see that there's a *correct* behaviour: code points or bytes.
-Both are functional although I'm in favour of the byte by byte
-matching because:
+I can't see that there's a *correct* choice between the two
+mechanisms: reading code points or reading bytes.  Both are functional
+although I'm in favour of the byte by byte matching because:
 
 #. the error is identified sooner -- probably, there are always
    pathological cases
