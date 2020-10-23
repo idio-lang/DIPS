@@ -204,7 +204,7 @@ or :lname:`Python`
 Clearly, there's a lot more syntactic clutter, which I'm nominally
 against, but I usually end up trying to control the output anyway.
 
-.. _here-document:
+.. _shell-here-document:
 
 Here-document
 -------------
@@ -284,7 +284,7 @@ Shell Commands
 *compound commands*, *coprocesses* and *function definitions*. Let's
 take a look at those.
 
-.. _`simple command`:
+.. _`shell simple command`:
 
 Simple Commands
 ---------------
@@ -436,7 +436,7 @@ to have it parsed out of the line for us but that, to us doing
 language design, is a problem.  *We* now have to parse it out.  I'm
 not getting good vibes about that.
 
-.. _pipeline:
+.. _`shell-pipeline`:
 
 Pipelines
 ---------
@@ -455,9 +455,9 @@ commands then that joy awaits us later on.  Probably more than once
 (because we are/should be committed).
 
 However, what this pipeline (and its minimalist variant friend, the
-:ref:`simple command <simple command>`, above) overlooks is that the
-shell is manipulating a secondary characteristic of Unix commands one
-we need to be in control of.
+:ref:`simple command <shell simple command>`, above) overlooks is that
+the shell is manipulating a secondary characteristic of Unix commands
+one we need to be in control of.
 
 By and large, when we construct a pipeline, in particular, or even a
 simple command we, the user, are looking for some side-effect of the
@@ -522,7 +522,7 @@ In most programming languages, when you invoke a command or function
 call you pass some arguments and you expect a result.  With the shell
 we do get a result, an exit status, albeit commonly overlooked.  We're
 not going to be able to overlook it with one particularly good example
-in :ref:`if <if>`, below.
+in :ref:`if <shell-if>`, below.
 
 All these commands, and, rather consistently, the builtins and
 user-defined functions, return a status with zero indicating success
@@ -537,7 +537,7 @@ We need to put our thinking caps on.  Not our *sleeping* caps, those
 nodding off at the back, our thinking caps.  How do we handle inline
 operators?
 
-.. _list:
+.. _shell-list:
 
 Lists
 -----
@@ -607,10 +607,10 @@ Compound Commands
 -----------------
 
 Compound commands are interesting because several of them operate on
-:ref:`list` which are built from :ref:`pipeline` which are built from
-:ref:`shell command` which are built from, er, compound commands.  I'm
-pretty sure I've done an ``if case ...`` combo but the therapy is
-helping a lot.
+:ref:`shell-list` which are built from :ref:`shell-pipeline` which are
+built from :ref:`shell command` which are built from, er, compound
+commands.  I'm pretty sure I've done an ``if case ...`` combo but the
+therapy is helping a lot.
 
 Let's take a look at them.
 
@@ -685,7 +685,7 @@ where the middle ``||`` is managing pipelines and the outer ``||``\ s
 are managing conditional expressions.
 
 It's inside ``[[`` that we get regular expression matching (as well as
-"regular" :ref:`pattern matching`).
+"regular" :ref:`shell pattern matching`).
 
 There's a lot of behaviour loaded in ``[[`` that feels like it's
 bundled in because that's the only place it could fit -- or ``[[`` was
@@ -712,13 +712,13 @@ Select
 useful than I think.  Who wants to interact with *users* anyway?
 They'll only type the wrong thing.
 
-.. _case:
+.. _shell-case:
 
 Case
 ^^^^
 
 I use ``case`` a lot as my GoTo means for doing conditional
-:ref:`pattern matching`:
+:ref:`shell pattern matching`:
 
 .. code-block:: bash
 
@@ -731,7 +731,7 @@ I use ``case`` a lot as my GoTo means for doing conditional
 
 Pattern matching is great!
 
-.. _if:
+.. _shell-if:
 
 If
 ^^
@@ -775,7 +775,8 @@ code of 0 or 1.  Which brings us neatly back round to the exit status.
 ``if`` will run the *condition* as a command and irrespective of the
 output or other side-effects will determine the truthiness (stop me if
 I'm getting too technical) based on the exit status of the command
-(technically, the exit status of the *condition* :ref:`list <list>`).
+(technically, the exit status of the *condition* :ref:`list
+<shell-list>`).
 
 That ``if`` is conditional on the exit status of the command is also
 evident when it is masked by the syntactic sugar of :ref:`command
@@ -821,7 +822,7 @@ seen nothing printed out.
 Similarly, ``while`` and the logical operators ``&&`` and ``||`` also
 mask any error trap.
 
-.. _while:
+.. _shell-while:
 
 While
 ^^^^^
@@ -858,7 +859,7 @@ A given.
 Technically, the body of a shell function is a :ref:`compound command
 <compound command>` hence why most function bodies look like ``{
 ... }``, the :ref:`group command <group command>`, but it could be a
-single :ref:`if <if>` or :ref:`case <case>` statement.
+single :ref:`if <shell-if>` or :ref:`case <shell-case>` statement.
 
 I'm not sure I've ever used the IO redirection for a shell function.
 
@@ -882,8 +883,8 @@ misunderstood.
 
 The real bugbears are :ref:`brace expansion <brace expansion>`,
 :ref:`word splitting <word splitting>` and :ref:`pathname expansion
-<pathname expansion>` (and parameter/array expansion) because they
-*change the number of words* in the command expression.
+<shell pathname expansion>` (and parameter/array expansion) because
+they *change the number of words* in the command expression.
 
 That's *bonkers*!  Are there any other languages which actively change
 the number of words they are processing?  (There must be, I can't
@@ -1292,7 +1293,7 @@ should work as expected without word splitting.
 
 I'm not a splitter.
 
-.. _`pathname expansion`:
+.. _`shell pathname expansion`:
 
 Pathname Expansion
 ------------------
@@ -1315,7 +1316,7 @@ some more matching operators (some of which are available by default
 in other shells).
 
 When it identifies a meta-character in a word then the whole word is
-treated as a pattern and filename :ref:`pattern matching`, aka
+treated as a pattern and filename :ref:`shell pattern matching`, aka
 *globbing*, begins.  Globbing_ began life at the very beginning of
 Unix as a standalone program, :program:`glob` (authored by one
 :ref-author:`Dennis Ritchie`), so it's "got some previous" but is now
@@ -1354,7 +1355,7 @@ results based on rules of its own choosing.
 
 Hint: sorted.
 
-.. _`pattern matching`:
+.. _`shell pattern matching`:
 
 Pattern Matching
 ^^^^^^^^^^^^^^^^
@@ -1391,7 +1392,7 @@ However, it is convenient to build strings using variables:
    echo "PATH=$PATH"
 
 which would require something like the templating mechanism I hinted
-at for :ref:`here-documents <here-document>`.
+at for :ref:`here-documents <shell-here-document>`.
 
 Parameters
 ==========
@@ -1477,7 +1478,7 @@ Signals and traps
 =================
 
 Signals in the shell are as complicated as anywhere else compounded by
-the "rules" for :ref:`Job Control`.
+the "rules" for :ref:`job control <shell job control>`.
 
 By and large, I avoid getting involved as it's hard and prone to
 hard-to-repeat errors.  Which is a shame as I'm now trying to write
@@ -1524,7 +1525,7 @@ which was spectacularly annoying.
 So, if there's one thing to do, we must be able to handle errors
 decently.
 
-.. _`job control`:
+.. _`shell job control`:
 
 Job Control
 ===========

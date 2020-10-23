@@ -1068,8 +1068,9 @@ In :file:`common.idio` there are some extra utility functions.
 
       The possible flags are:
 
-      .. csv-table::
+      .. csv-table:: ``%format`` supported flags
 	 :widths: auto
+	 :align: left
 
 	 ``-``, U+002D (HYPHEN-MINUS), left align the output within :samp:`{width}` if applicable
 	 :literal:`\ `, U+0020 (SPACE), use ``#\{space}`` as the left padding character

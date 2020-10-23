@@ -68,18 +68,19 @@ functions (modulo appropriate nuances).  So that means managing data
 types including structures and unions as well as the literal calling
 of functions.
 
-Consider :ref:`Job Control` where we have to be able to call exotic
-systems programming interfaces like :manpage:`setpgrp(2)` and
-:manpage:`tcsetpgrp(3)` to do basic shell work.  I like programming in
-:lname:`C` as much as the next guy (probably not true) but I'd rather
-be writing code in a language that abstracts me from the nitty gritty
-and let's me get on with the logic.  If a system call fails then raise
-some kind of error, hopefully some kind of exception, such that it can
-be handled by someone who has a bigger picture.  I just made a system
-call which failed, how do I know if that means the program should
-exit?  A shell is predicated on abstractions, like ``|``, which we
-know are 1) chock full of systems calls and 2) any of which can fail.
-No-one has stopped writing shell scripts because of that.
+Consider :ref:`job control <shell job control>` where we have to be
+able to call exotic systems programming interfaces like
+:manpage:`setpgrp(2)` and :manpage:`tcsetpgrp(3)` to do basic shell
+work.  I like programming in :lname:`C` as much as the next guy
+(probably not true) but I'd rather be writing code in a language that
+abstracts me from the nitty gritty and let's me get on with the logic.
+If a system call fails then raise some kind of error, hopefully some
+kind of exception, such that it can be handled by someone who has a
+bigger picture.  I just made a system call which failed, how do I know
+if that means the program should exit?  A shell is predicated on
+abstractions, like ``|``, which we know are 1) chock full of systems
+calls and 2) any of which can fail.  No-one has stopped writing shell
+scripts because of that.
 
 .. _`tcsetpgrp example`:
 
@@ -294,7 +295,8 @@ My bugbear here is :program:`make`.  For some reason it annoys me that
 embedding commands in :file:`Makefile`\ s is so complicated.  Anything
 beyond the most vanilla invocation becomes a hot mess.
 
-It feels like the :ref:`here-document` issue we've mentioned before.
+It feels like the :ref:`shell-here-document` issue we've mentioned
+before.
 
 .. aside:: Do I recall correctly that Ant_ was created because someone
            was having too hard a time with makefiles?

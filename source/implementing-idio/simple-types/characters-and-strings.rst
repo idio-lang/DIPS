@@ -92,8 +92,9 @@ characters, either.  Even within the same *font* I can see three
 different glyphs for U+0061 (LATIN SMALL LETTER A) -- even within the
 constraints of ReStructuredText:
 
-.. csv-table::
+.. csv-table:: The same code point in different fonts
    :widths: auto
+   :align: left
 
    a, regular
    *a*, italic
@@ -635,8 +636,9 @@ There are a couple of notes:
    <https://en.wikipedia.org/wiki/Escape_sequences_in_C>`_
    :lname:`Idio` also allows:
 
-   .. csv-table::
+   .. csv-table:: Supported escape sequences in strings
       :header: sequence, (hex) ASCII, description
+      :align: left
 
       ``\a``, 07, alert / bell
       ``\b``, 08, backspace

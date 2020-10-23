@@ -105,6 +105,17 @@ construction of lists:
    ...
    #define IDIO_LIST5(e1,e2,e3,e4,e5)	idio_pair (e1, ...)
 
+.. _`defining pairs in C`:
+
+Defining in :lname:`C`
+----------------------
+
+``idio_pair()`` is the creator of pairs.  Easy enough.
+
+There's no *list* creator *per se* but a list is a chain of pairs and
+there's a series of :lname:`C` helper macros to do the honours:
+``IDIO_LIST1(e1)``, ``IDIO_LIST2(e1, e2)``, etc..
+
 Reading
 -------
 

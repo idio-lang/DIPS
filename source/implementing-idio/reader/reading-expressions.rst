@@ -9,8 +9,9 @@ Reading individual expressions is where the action is.
 Broadly, the kind of expression is determined by the first character
 we read, for example:
 
-.. csv-table::
+.. csv-table:: Example reader expressions
    :widths: auto
+   :align: left
 
    ``(``, a list up to the matching ``)``
    ``{``, a block up to the matching ``}``

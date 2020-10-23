@@ -204,8 +204,9 @@ characters.
 
 The quasi-quotation characters are:
 
-.. csv-table::
+.. csv-table:: Quasi-quotation characters
    :widths: auto
+   :align: left
 
    unquote, ``$``
    unquote-splicing, ``@`` -- as in ``$@``

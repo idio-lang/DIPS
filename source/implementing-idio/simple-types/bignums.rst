@@ -306,9 +306,10 @@ There are several reader input forms for non-base-10 numbers all of
 which call ``idio_read_bignum_radix()`` in :file:`read.c` with a
 different *radix*:
 
-.. csv-table::
+.. csv-table:: Non-base-10 reader number formats
    :header: "form", "radix", "example", "decimal equivalent"
    :widths: auto
+   :align: left
 
    ``#b``, 2, ``#b101``, 5
    ``#o``, 8, ``#o101``, 65

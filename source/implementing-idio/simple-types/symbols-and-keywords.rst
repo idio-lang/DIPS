@@ -102,7 +102,75 @@ symbol's name is looked up to see if it already exists and if so the
 value retrieved.  If not a new symbol based on the name is created
 (added to the internal table) and returned.
 
+.. _`defining symbols in C`:
 
+Defining in :lname:`C`
+----------------------
+
+Defining a symbol in :lname:`C` is a little bit of a run around
+because we need three points of exposure.  Let's consider creating the
+:lname:`Idio` symbol ``:=`` which we are required to call
+``idio_S_colon_eq`` in the :lname:`C` code base.  The :lname:`C`
+snippet ``colon_eq`` will be our rendezvous point.
+
+#. we need to declare the :lname:`C` symbol in a header so everyone
+   can use it:
+
+   .. code-block:: c
+      :caption: :file:`symbol.h`
+
+      extern IDIO_SYMBOL_DECL (colon_eq);
+
+   :samp:`IDIO_SYMBOL_DECL({n})` creates the (expected?) simple
+   concatenation of ``idio_S_`` and :samp:`{n}`.
+
+#. we need to repeat the declaration without the ``extern``:
+
+   .. code-block:: c
+      :caption: :file:`symbol.c`
+
+      IDIO_SYMBOL_DECL (colon_eq);
+
+#. we need to assign something to our :lname:`C` variable
+
+   .. code-block:: c
+      :caption: :file:`symbol.c`
+
+      void idio_symbol_init ()
+      {
+          ...
+	  IDIO_SYMBOL_DEF (":=", colon_eq);
+	  ...
+      }
+
+   which creates the :lname:`Idio` symbol ``:=`` and assigns the
+   result to the :lname:`C` variable ``idio_S_colon_eq``.
+
+Special Cases
+^^^^^^^^^^^^^
+
+There are a few :lname:`C` versions of symbols which are even more
+fundamental, like ``idio_S_nil``, which are derived from ``#define``\
+s in :file:`idio.h`.
+
+These are required to exist for :lname:`C` functions to return during
+the construction of other symbols.  We can't have a problem *defining*
+``idio_S_nil`` only then to try to return ``idio_S_nil`` on failure.
+
+Consequently, there is no explicit creation of a corresponding
+:lname:`Idio` symbol for these :lname:`C` symbols.  For these special
+cases, the reader will recognise the character combination, ``#n``, in
+this case, and return ``idio_S_nil``.  (Well, technically, they'll set
+the expression element of the current lexical object to ``idio_S_nil``
+and return the lexical object, but you know what I mean.)
+
+Furthermore, if we're feeling `pernickety
+<https://en.wiktionary.org/wiki/pernickety>`_, ``idio_S_nil`` is a
+:lname:`C` ``IDIO`` constant, not a symbol.  However, its existence is
+in support of ``#n`` the :lname:`Idio` symbol.  I suppose, for
+clarification, this group of constants could be renamed "constant
+symbols" or "symbol constants" and we can argue about names rather
+than getting on and accepting that some things are just anomalous.
 
 Reading
 -------
@@ -134,9 +202,10 @@ Separators
 
 The set of separators is:
 
-.. csv-table::
+.. csv-table:: Word separators
    :header: Unicode, name, reasoning
    :widths: auto
+   :align: left
 
    U+0020, SPACE, whitespace
    U+0009, TAB, whitespace
@@ -255,6 +324,12 @@ punctuation character, (through :manpage:`ispunct(3)`).
 
 So ``:foo=bar`` is fine but ``:=bar`` is not -- and will be
 interpreted as a symbol.
+
+Defining in :lname:`C`
+----------------------
+
+Essentially, identical to :ref:`defining symbols in C <defining
+symbols in C>`.
 
 Implementation
 --------------

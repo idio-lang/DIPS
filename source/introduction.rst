@@ -515,6 +515,7 @@ A broad range without being too specific:
 
 .. csv-table:: Test Systems
    :header: "ISA", "OS", "bits", "notes"
+   :align: left
 
    "x86-64", "Fedora 33", 64
    "x86-64", "Ubuntu 18", 64

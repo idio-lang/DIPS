@@ -49,8 +49,9 @@ such that the evaluator is now getting a normalised form.
 Similarly, the other quasi-quoting characters are used in the same
 way:
 
-.. csv-table::
+.. csv-table:: Reader expansions of quasi-quoting characters
    :widths: auto
+   :align: left
 
    :samp:`${thing}`, :samp:`(unquote {thing})`
    :samp:`$@{thing}`, :samp:`(unquote-splicing {thing})`
@@ -58,8 +59,9 @@ way:
 Slightly differently, the *escape* character is used to suppress the
 reader macro behaviour:
 
-.. csv-table::
+.. csv-table:: Reader escape character uses
    :widths: auto
+   :align: left
 
    :samp:`\\${thing}`, :samp:`${thing}`
 

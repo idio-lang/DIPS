@@ -288,9 +288,10 @@ and they all start with ``#``.
 The reader has a large ``switch`` statement which, having found a
 ``#``, can ``case`` the next byte read:
 
-.. csv-table::
+.. csv-table:: Reading constants and characters
    :header: "byte", "result"
    :widths: auto
+   :align: left
 
    ``n``, ``idio_S_nil``
    ``t``, ``idio_S_true``

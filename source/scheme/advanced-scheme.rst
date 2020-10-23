@@ -33,6 +33,8 @@ redundant but the syntax transforming macros limit what you can do
 with the idea being to keep people away from the real deal when they
 don't need to be there.
 
+.. _`scheme-let`:
+
 let
 ---
 

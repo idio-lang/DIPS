@@ -79,10 +79,12 @@ structure of the :samp:`{value}` -- and then call ``idio_debug()``.
    style
    virtual-machine/index
    reader/index
+   evaluator/index
    garbage-collection
    idio-GC
    simple-types/index
    compound-types/index
+   advanced/index
 
 .. include:: ../commit.rst
 

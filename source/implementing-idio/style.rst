@@ -213,6 +213,7 @@ They aren't all quite like-for-like but the majority are:
 
 .. csv-table:: symbols
    :header: "C", "Idio"
+   :align: left
 
    ``idio_S_nil``, ``#n``
    ``idio_S_true``, ``#t``
@@ -226,6 +227,7 @@ There are a few other classes of :lname:`Idio` values that are used in
 
 .. csv-table:: classes of values
    :header: "prefix", "usage"
+   :align: left
 
    ``idio_S_``, symbols -- as above
    ``idio_T_``, reader tokens
