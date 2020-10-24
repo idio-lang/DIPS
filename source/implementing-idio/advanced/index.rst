@@ -14,6 +14,7 @@ More "advanced" stuff.
    :maxdepth: 2
 
    setters
+.. conditions
 
 .. include:: ../../commit.rst
 

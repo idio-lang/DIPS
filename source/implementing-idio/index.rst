@@ -85,6 +85,7 @@ structure of the :samp:`{value}` -- and then call ``idio_debug()``.
    simple-types/index
    compound-types/index
    advanced/index
+.. job-control
 
 .. include:: ../commit.rst
 
