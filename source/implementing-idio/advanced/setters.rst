@@ -9,8 +9,8 @@ Setters
 Setters comes from the idea of a :lname:`Scheme` generalised ``set!``
 -- described in SRFI-17_.
 
-I've not followed that directly but rustled up something along the
-same lines.
+I've not followed that SRFI directly but rustled up something along
+the same lines.
 
 The Problem
 ===========
@@ -19,7 +19,7 @@ The basic question is: how do I ``set!`` (assign to!) something that
 isn't a simple variable?
 
 An even more basic question might be *why* do you want to assign to
-such a thing?  Look, it happens!
+such a thing?  *Look, it happens!*
 
 In fact, we're going to make it happen.  We allow the idea of
 accessing some indexable value, like an array, using the ``.`` or
@@ -104,14 +104,14 @@ is looking a bit gnarly but if we just lay it out it'll be:
 
 .. code-block:: idio
 
-   set! (setter foo) setter-of-foo
+   set! (setter foo) setter-of-foo-func
 
 Which we've just suggested is setting the result of a function call
 for which we know the formula:
 
 .. code-block:: idio
 
-   (setter setter) foo setter-of-foo
+   (setter setter) foo setter-of-foo-func
 
 Almost!  What this is saying is that ``setter`` needs a setter whose
 job is to set the setter of its first argument.
@@ -127,7 +127,7 @@ little hash tables associated with a value.  So there is a big
 "properties" table, indexed by values, which gives you a little hash
 table of per-value properties, indexed by some keywords.  An obvious
 keyword, here, is ``:setter``.  In :lname:`C` that becomes
-``idio_KW_setter``.
+``idio_KW_setter`` -- where ``KW`` is for, uh, "keyword."
 
 We need a hook to get us going.  That's going to be a primitive called
 ``setter`` whose job is to return the ``:setter`` property for some
@@ -153,7 +153,8 @@ or a closure:
 Reasonably straightforward.  The fun is in :file:`closure.idio`.
 
 In the first instance, we'll ask for the "keyword table",
-``setter-kwt``, for ``setter`` and create one if it doesn't exist.
+``setter-kwt``, for ``setter`` itself and create one if it doesn't
+exist.
 
 .. sidebox::
 
@@ -176,7 +177,8 @@ but it might.  So we're just covering bases, here.)
 
 Now the interesting bit.  The "setter of setter" is a function that is
 going to be called with two arguments: a procedure, ``p``, and a
-setter, ``s``, for that procedure: :samp:`function (p s) ...`.
+setter, ``s``, for that procedure so our "setter of setter" is going
+to look like: :samp:`function (p s) ...`.
 
 This function's job is then to dig out the keyword table for ``p`` and
 assign ``s`` to the ``:setter`` keyword in that table.  Something
@@ -229,6 +231,16 @@ Not quite done yet.  Let's fill in some standard setters:
    set! (setter struct-instance-ref)		struct-instance-set!
 
    set! (setter value-index)			set-value-index!
+
+These statements work because in the assignment special form behaviour
+code we look out for the "name" that we are setting being a list and
+immediately rewrite the list as :samp:`(setter (ph {name})) (pt {name})
+{expr}` -- exactly as described above.
+
+We *have* created the bootstrap "setter of setter" just before
+defining these standard setters so *that* function is invoked to
+define the "setter of ``ph``" to be ``set-ph!``, the "setter of
+``pt``" to be ``set-pt!`` etc..
 
 .. include:: ../../commit.rst
 

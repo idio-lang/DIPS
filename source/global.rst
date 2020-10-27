@@ -56,7 +56,7 @@
 .. _Smalltalk: https://en.wikipedia.org/wiki/Smalltalk
 .. _Solid: https://github.com/chameco/Solid.git
 .. _`Stack Overflow`: https://stackoverflow.com
-.. _Stklos: https://stklos.net
+.. _STklos: https://stklos.net
 .. _TOML: https://toml.io/en/
 .. _Tcl: https://www.tcl-lang.org/
 .. _ULA: https://en.wikipedia.org/wiki/Unique_local_address

@@ -371,8 +371,8 @@ which potters about worrying about:
 
 ---
 
-There are two file loading mechanisms which derive from me changing my
-mind.
+There were two file loading mechanisms which derived from me changing
+my mind.
 
 Consider *how* we read and evaluate files (technically, *handles* but
 we're all used to thinking about files).  We could:
@@ -391,8 +391,8 @@ or
    evaluate all expressions
    run all expressions
 
-I ran, for a long time, with the latter, then changed my mind.
-:socrates:`Why?  What's the difference?`
+I ran, for a long time, with the latter, "all in one," then changed my
+mind (and deleted it).  :socrates:`Why?  What's the difference?`
 
 The problem is subtle and primarily affects *templates*, indeed,
 anything that has a meta-effect on the program, like *operators*.
@@ -416,7 +416,8 @@ That might not sound like a big problem but it does prevent you
 defining and using a macro within a module: for the latter variant,
 the definition isn't run until we've read and evaluated everything.
 In other words the evaluator will not have been informed that this new
-template exists until we've hit the end of the file.
+template exists until we've hit the end of the file and can run all
+the statements.
 
 Part of this might arise from me not having written enough gnarly code
 to require a template to be defined and used in the same module but
@@ -427,23 +428,19 @@ people are altogether more with it.
 
 \*
 
+I did keep the "expression by expression" and "all in one" variants
+around for a while but eventually ditched the "all in one" when
+documenting :ref:`module` and realising it was `banjaxed
+<https://en.wiktionary.org/wiki/banjaxed>`_ for similar reasons.
+
 So, the normal :lname:`C` file loading function is:
 
 .. code-block:: c
 
-   IDIO idio_load_file_name_ebe (IDIO filename, IDIO cs)
+   IDIO idio_load_file_name (IDIO filename, IDIO cs)
 
-and its :lname:`Idio` equivalent :samp:`load-ebe {filename}` (and
-``load`` is simply a reference to ``load-ebe``).  ``ebe`` stands for
+and its :lname:`Idio` equivalent :samp:`load {filename}` will load
 "expression by expression."
-
-The other mechanism uses ``aio`` in place of ``ebe`` with ``aio``
-standing for "all in one."
-
-A subtle difference between the two is the extra ``IDIO cs`` argument
-in :lname:`C`.  This is the list of *constants* known to the evaluator
-which includes the names of things.  This will be explained later when
-we get to evaluation.
 
 String Handles
 --------------
@@ -590,8 +587,7 @@ by users.
 load
 ^^^^
 
-There are handle-variants of ``load-ebe`` and ``load-aio``:
-``load-handle-ebe`` and ``load-handle-aio``.
+There is a handle-variant of ``load``: ``load-handle``.
 
 More interesting is the :lname:`C`-only
 ``idio_load_handle_interactive()`` which is the REPL.
@@ -717,20 +713,11 @@ See :file:`file-handle.c`.
       search :envvar:`IDIOLIB` for :samp:`{filename}` using a set of
       possible filename extensions
 
-:samp:`load-ebe {filename}`
+:samp:`load {filename}`
 
       search :envvar:`IDIOLIB` for :samp:`{filename}` using a set of
       possible filename extensions and then load it in "expression by
       expression."
-
-      :samp:`load {filename}` is the usual interface to this function.
-
-:samp:`load-aio {filename}`
-
-      [deprecated]
-
-      search :envvar:`IDIOLIB` for :samp:`{filename}` using a set of
-      possible filename extensions and then load it in "all in one."
 
 .. rst-class:: center
 
@@ -891,19 +878,9 @@ See :file:`handle.c`.
       return a description of the location handle :samp:`{handle}`
       consisting of the handle's name, line number and position
 
-:samp:`load-handle-ebe {handle}`
+:samp:`load-handle {handle}`
 
       load from handle :samp:`{handle}` "expression by expression."
-
-      :samp:`load-handle {handle}` is the usual interface to this
-      function.
-
-:samp:`load-handle-aio {handle}`
-
-      [deprecated]
-
-      load from handle :samp:`{handle}` "all in one."
-
 
 .. rst-class:: center
 

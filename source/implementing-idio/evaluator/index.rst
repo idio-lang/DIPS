@@ -44,7 +44,8 @@ primarily in the form of optimisation.
 .. toctree::
    :maxdepth: 2
 
-   evaluating
+   evaluating-basics
+   evaluating-functions
 .. expanding
 .. code generation
 

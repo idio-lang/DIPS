@@ -378,7 +378,7 @@ forgotten the details of) in no particular order:
 
 * :lname:`Scheme` implementations
 
-  * Stklos_ better known for its connection to the `GTK\+`_ toolkit it
+  * STklos_ better known for its connection to the `GTK\+`_ toolkit it
     uses a virtual machine, :term:`CLOS`, PCRE_ and more
 
   * GNU_'s Guile_

@@ -27,9 +27,9 @@ write the :term:`metacircular evaluator`):
   surprise)
 
   As we recursively evaluate the elements of a list, say, then the
-  expression will become the, say, head of the list.  When the
-  evaluation recursion unwinds, the expression "to hand" will revert
-  as expected.
+  expression to be evaluated will become the, say, head of the list.
+  When the evaluation recursion unwinds, the expression "to hand" will
+  revert as expected.
 
   We'll likely have ``eh`` and ``et`` as the head and tail of a
   pair/list and further derivatives.
@@ -82,7 +82,7 @@ write the :term:`metacircular evaluator`):
   * after the first variable assignment a variable ``a`` in scope
 
   * after the second variable assignment it then has a ``b`` in scope
-    and then an ``a``, now a level out
+    and then the ``a``, now a level out
 
   .. sidebox::
 
@@ -158,7 +158,7 @@ write the :term:`metacircular evaluator`):
   the evaluator can find the correct variable (*my* ``v`` not the
   other guy's) and to effect that we need to track any changes to the
   sense of the current module by latching onto any module changing
-  statements.
+  statements in the source code.
 
 In effect, all of the above become formal parameters to almost every
 function in the evaluator.
@@ -221,15 +221,18 @@ let you bootstrap everything else:
   **without** the evaluator evaluating either
 
 * ``lambda`` (or ``function`` in :lname:`Idio`) lets you define
-  abstractions which you can invoke
+  abstractions which you can subsequently invoke -- these are the
+  derived forms
 
 * ``define-macro`` (or ``define-template`` in :lname:`Idio`) lets you
-  define your own "special form" albeit all you can do is return more
-  code for the evaluator to evaluate.
+  define your own "special form" -- special in that the arguments are
+  not evaluated -- albeit all you can do is return more code for the
+  evaluator to evaluate.
 
 There are other special forms which have a genuine need to be handled
-specially and, of course, some that have snuck in because it is
-convenient etc..
+specially -- think of anything that needs to manipulate internal
+:lname:`C` state -- and, of course, some that have snuck in because it
+is convenient etc..
 
 So, the premise of the main evaluation loop is simply to look at the
 expression to hand and determine if it is special, a template or
@@ -333,15 +336,24 @@ You can imagine, though, in our `highfalutin
 we're going to "set" something.
 
 The intermediate language is a group of constants,
-:samp:`IDIO_I_{something}` -- with the ``_I_`` for intermediate,
+:samp:`IDIO_I_{some_thing}` -- with the ``_I_`` for intermediate,
 which, when we're finished doing whatever we intend to do with
 intermediate code, will be translated reasonably straightforwardly
 into our virtual machine's machine code, another group of constants,
-:samp:`IDIO_A_{something}` -- with the ``_A_`` for assembler.
+:samp:`IDIO_A_{some_thing}` -- with the ``_A_`` for assembler.
 
 Often, though, I'll refer to :samp:`SOME-THING {arg}` meaning the
 corresponding assembly code written in a more
 :lname:`Idio`-sympathetic way.
+
+The structure of the intermediate code is... you guessed it, a list of
+lists of lists.  The code generator is expecting that, of course, but
+as is descends the tree of intermediate code statements it will
+eventually reach the point where it has to emit a stream of byte code,
+one intermediate instruction at a time.
+
+In that sense the list of lists of lists becomes a depth-first
+sequence of instructions for the virtual machine.
 
 Specific Meaning
 ================
@@ -377,7 +389,7 @@ in other words, only the argument to ``quote``, the head-of-the-tail
 of the original ``e``, is used.
 
 What we're doing is returning an intermediate instruction to create a
-reference to a constant from :samp:`{v}`.
+"symbolic reference" to a constant from :samp:`{v}`.
 
 *We* haven't created the constant -- the code generator will do that
 -- but that is our intent.
@@ -411,7 +423,7 @@ if
 ``if`` is the canonical special form in the sense that it **must not**
 have its arguments evaluated before calling the "function" ``if`` --
 there is no function ``if``, of course, its behaviour is encoded in
-the special form's behaviour.
+the byte code generated from the special form's behaviour.
 
 The other :lname:`Scheme`\ ly aspect to ``if`` is that *everything* is
 "true" except ``#f``.
@@ -427,16 +439,17 @@ keep ``#t`` around.
 
 First, of course, there's a bit of argument checking.  ``if`` takes
 two or three arguments: :samp:`(if {condition} {consequent}
-{alternate})` and a variant for no "else" clause, :samp:`(if
-{condition} {consequent})`.
+{alternate})` and a variant for when there's no "else" clause,
+:samp:`(if {condition} {consequent})`.
 
 The latter causes us a problem when some wise-guy rumbles: :samp:`(if
-#f {consequent})`.  Um, ``if`` **must** return a value yet there is no
-:samp:`{alternate}` clause... what gives?  The :lname:`Scheme` answer
-appears to be: "void".  A special value suggesting "no computed
-answer."  The value has no printed representation -- well, it'll come
-out as ``#<void>`` which the reader will reject -- although you can
-test for it with the primitive ``void?``.
+#f {consequent})`.  Um, ``if`` **must** return a value -- *everything*
+returns a value -- yet there is no :samp:`{alternate}` clause... what
+gives?  The :lname:`Scheme` answer appears to be: "void".  A special
+value suggesting "no computed answer."  The "void" value has no
+printed representation -- well, it'll come out as ``#<void>`` which
+the reader will reject -- although you can test for it with the
+primitive predicate ``void?``.
 
 For the most part, you suspect it is used in situations where the
 result from the ``if`` clause is thrown away anyway.  In the
@@ -480,7 +493,8 @@ where we recursively figure out the meanings of the three arguments
 and return them in a list with the ``IDIO_I_ALTERNATIVE`` intermediate
 code.
 
-So, nothing interesting at all.
+So, nothing interesting at all.  The code generator for ``if`` is
+quite cunning, mind.
 
 .. _tailp:
 
@@ -496,27 +510,29 @@ alternate expression is in the middle of a sequence:
 
 .. parsed-literal::
 
-   *this*
-   if *condition* *consequent* *alternate*
-   *that*
+   define (foo) {
+     *this*
+     if *condition* *consequent* *alternate*
+     *that*
+   }
 
-then you assume that whatever is processing the sequence will
-recognise that this is not in tail position so us unsetting the
+then you assume that whatever is processing the sequence will have
+handled that this ``if`` is not in tail position so us unsetting the
 "tailp" flag is neither here nor there.
 
 What if we *are* in tail position?
 
 .. parsed-literal::
 
-   {
+   define (foo) {
      *this*
      *that*
      if *condition* *consequent* *alternate*
    }
 
-You sense that one of two possible code sequences will apply: either
-the evaluation of the :samp:`{condition}` results in "true" and then
-we'll run the code for the :samp:`{consequent}`:
+We know that one of two possible code sequences will apply: either the
+evaluation of the :samp:`{condition}` results in "true" and then we'll
+run the code for the :samp:`{consequent}`:
 
 .. parsed-literal::
 
@@ -555,21 +571,21 @@ is slightly back-to-front.
 The whole reason to have tail call optimisation is to avoid "blowing
 up the stack" by making too many nested function calls.  Every
 function call tacks a bit more *stuff* on the stack -- we save a bit
-of state in case the thing we call overwrites it -- and it will,
-eventually, add up.
+of state in case the thing we call overwrites it -- and that
+accumulated *stuff* will, eventually, add up.
 
 If we know that we're *in* a function call and the *last* thing we do
 in this function call is make a function call to someone else then we
 can skip any state preservation nonsense because whatever the guy
-we're about to call is going to return is what *we* would have
-returned ourselves in turn.  So this guy might as well return direct
-to our caller.
+we're about to call is going to return is what *we* would be returning
+ourselves in turn.  So this guy might as well return direct to our
+caller.
 
 The details for returning to our caller are on the stack ready for us
 to use so instead of the full function invocation palaver we effect a
 sort of function "goto."  This next guy *replaces* me and, instead of
-returning a value to me, will non-the-wiser be returning a value to my
-caller.
+returning a value to me, will non-the-wiser be returning the value to
+*my* caller.
 
 So, this "tailp" trickery **must** require that we're *in* a function
 call -- otherwise the replacement and expectation about a function
@@ -634,10 +650,12 @@ we've not just been left hanging in the wind, here.
 ``define`` itself has a couple of forms it can be used in:
 
 #. :samp:`define {name} {expression}` -- for the straightforward
-   assignment/binding of :samp:`{name}` to some value
+   assignment/binding of :samp:`{name}`, a symbol, to some value
+   resulting from the evaluation of :samp:`{expression}`
 
 #. :samp:`define ({name} {formals*}) {expression}` -- for the
-   definition of a function
+   definition of a function with the reultant function value assigned
+   to :samp:`{name}`
 
    :samp:`{expression}` will most likely be a block:
 
@@ -647,8 +665,13 @@ we've not just been left hanging in the wind, here.
         ...
       }
 
-   This second form is the equivalent of :samp:`define {name}
-   (function ({formals*}) {expression}`.
+   This second form is the equivalent of:
+
+   .. parsed-literal::
+
+      define *name* (function (*formals\**) *expression}*
+
+   and this rewrite is exactly what the evaluator does.
 
 .. sidebox::
 
@@ -660,7 +683,7 @@ into use as a synonym for the first form of ``define``: :samp:`{name}
 
 Of course, if it's the second form, ie. the second argument is a list,
 and we're implicitly constructing a function from it then we need to
-re-tag the newly created function with the source ode properties of
+re-tag the newly created function with the source code properties of
 the original.
 
 ``idio_meaning()`` invokes:
@@ -742,10 +765,13 @@ found.
 The "hocus-pocus" is important -- though the details aren't as it's a
 bit bespoke -- in that if the result of the variable lookup does not
 have a VM variable array index associated with it then we generate one
-right now.  We *are* defining the variable.  It definitely exists.
+right now.  We *are* defining the variable, it definitely exists.
 
 Almost done.  We now have an existing or new (top level) variable in
-our hands so we can do the real action, the assignment:
+our hands so we can do the real action, the assignment which, given
+that assignment, ``=`` or the :lname:`Scheme`-ish ``set!``, needs to
+be handled in its own right simply means we can jump on the back of
+it:
 
 .. code-block:: c
 
@@ -757,9 +783,6 @@ our hands so we can do the real action, the assignment:
 				       cs,
 				       cm);
 
-which, given that assignment, ``=`` or the :lname:`Scheme`-ish
-``set!``, needs to be handled in its own right simply means we can
-jump on the back of it.
 
 We pass in a "define" flag with :samp:`IDIO_MEANING_DEFINE ({flags})`
 which adds a prefix to what the assignment function will generate.
@@ -818,9 +841,10 @@ ultimately needs to do the real assignment.
 
     Unless it's left in as an option.
 
-Anyway, back to assignment.
+Anyway, back to assignment in ``idio_meaning_assignment()``.
 
-We'll skip the bit about :ref:`setters` and syntax checking.
+We'll skip the bit about :ref:`setters` (too advanced) and syntax
+checking (too dull).
 
 We'll figure out the meaning of the expression passed in:
 
@@ -851,7 +875,7 @@ The kind of variable is now important as it affects the code we want
 generated:
 
 * if it is a lexical variable then we can generate
-  :samp:`SHALLOW-ARGUMENT-REF{i}` or :samp:`DEEP-ARGUMENT-REF {d} {i}`
+  :samp:`SHALLOW-ARGUMENT-SET{i}` or :samp:`DEEP-ARGUMENT-SET {d} {i}`
   code as appropriate where the variable lookup will have informed us
   of the relevant values for :samp:`{d}` and :samp:`{i}` (and it's a
   "shallow" reference if :samp:`{d}` is zero)
@@ -925,13 +949,17 @@ only really differ by:
 
    * ``(or)`` is ``#f``
 
-#. how they decide to stop processing the sequence
+#. how they decide to stop processing the sequence and what value to
+   return
 
-   * ``begin`` -- when it gets to the end
+   * ``begin`` -- stop when it gets to the end of the sequence and
+     return the value of the last expression
 
-   * ``and`` -- when any value is ``#f``
+   * ``and`` -- stop if any value is ``#f`` and return the last value
+     computed
 
-   * ``or`` -- when any value is not ``#f``
+   * ``or`` -- stop when any value is not ``#f`` and return the last
+     value computed
 
     Remember, these are the sequence functions not the ``and`` and
     ``or`` *operators*.
@@ -945,13 +973,13 @@ Assuming they *do* have some arguments ``idio_meaning()`` calls:
    return idio_meaning_sequence (et, et, nametree, flags, eh, cs, cm);
 
 where ``eh`` will be ``begin``, ``and`` or ``or`` and ``et`` will be
-the arguments.
+the argument expressions.
 
 ``idio_meaning_sequence()`` does a quick test:
 
 * if the arguments are, in fact, a single argument then we call
   ``idio_meanings_single_sequence()`` which (recursively) returns the
-  meaning of the head of the list of arguments.
+  meaning of the head of the list of argument expressions.
 
 * otherwise we *would* have followed in the footsteps of
   :ref-title:`LiSP` in calling a function
@@ -984,313 +1012,116 @@ In other words:
 * :samp:`(and {e1} {e2} {e3})` becomes :samp:`(IDIO_I_AND {m1} {m2}
   {m3})`
 
-Function Calls
---------------
-
-Function definitions are called function *abstractions* (in the
-:lname:`Scheme`\ ly way) and function calls are called function
-*applications* -- we're applying the function to some arguments.
-
-Function calls are the far most interesting because there's a
-combinatorial explosion of possibilities.  (There's not *that* many!)
-The main culprits are:
-
-* "closed" or regular applications
-
-  A closed application is one where the expression is function
-  position is not a symbol (variable name) but an expression where
-  we're creating the function "on the fly":
-
-  .. code-block:: idio
-		  
-     (function (a b) (+ a b)) 1 2
-
-  will return ``3``.
-
-  Clearly *that* was a pointless example but you may recall the
-  discussion around :ref:`scheme-let` which transformed every ``let``
-  statement into an "on the fly" function call.  The very sort of
-  thing we're now calling a closed application of a function.
-
-  In other words, every time you use ``:=`` in a block you
-  automatically transform the rest of the block into the body of a
-  closed function.
-
-* some arguments or no arguments
-
-A function abstraction (definition) cares about whether the formal
-parameter list of the function is a proper list, :samp:`({a} {b})`, or
-an improper list, :samp:`({a} & {b})`, implying varargs.  In the case
-of a closed application we have to worry about that here too.
-
-In general we're calling the main function application with the
-function expression and the argument expressions:
-``idio_meaning_application (src, eh, et, ...)``.
-
-Primitive Functions
-^^^^^^^^^^^^^^^^^^^
-
-In the first instance, we can look at the expression in functional
-position and if it is a symbol then we can look it up.
-
-If that lookup tells us it is a predefined function (ie. a primitive)
-then we can do a quick argument check and assuming we're OK call
-``idio_meaning_primitive_application()``.  In this function we can
-look to use some specialised opcodes.
-
-The idea here, is that we can avoid the general function call
-invocation procedure -- which means creating an argument frame and
-then in the general function invocation code pulling the arguments off
-again -- and instead simply evaluate the arguments, pushing them on
-the stack in the normal fashion, then pop them off the stack and call
-the (primitive) function directly.
-
-.. sidebox::
-
-   If they're not in sync then I guess you'll find out pretty quick.
-
-This doesn't work for varargs (despite the code currently wasting time
-trying to do so) and you need this function and the VM to be in sync
-as to which primitives get the special treatment.
-
-If the primitive doesn't get the special treatment then it falls back
-into a regular function call.
-
-Regular Function Calls
-^^^^^^^^^^^^^^^^^^^^^^
-
-Regular function calls are reasonably straightforward.  We call
-``idio_meaning_regular_application (src, fe, aes, ...)`` with the
-function expression and argument expressions again.
-
-Careful, though, a regular function call could still have an actual
-function call in functional position.  This isn't the case of a closed
-function call -- where the expression is defining a function
-abstraction -- but just a regular function call.  Imagine that you
-stashed away a bunch of functions in a lookup table and you're
-accessing them now with a function call, :samp:`((hash-ref {my-funcs}
-{key}) {arg1} {arg2})`.
-
-It's often a symbol, though, so we just (de-)reference it.
-
-So there's a quick check to establish the right way to figure out the
-value in functional position:
-
-.. code-block:: c
-
-       IDIO fm;
-       if (idio_isa_symbol (fe)) {
-	   fm = idio_meaning_function_reference (fe, fe, nametree, flags, cs, cm);
-       } else {
-	   fm = idio_meaning (fe, fe, nametree, IDIO_MEANING_NOT_TAILP (flags), cs, cm);
-       }
-
-The expression in functional position isn't in tail position, of
-course.
-
-Then we need to walk down the list of arguments figuring out the
-meaning of each one in turn:
-
-.. code-block:: c
-
-       IDIO ams = idio_meanings (aes, aes, nametree, idio_list_length (aes), ams_flags, cs, cm);
-
-(The ``ams_flags`` (argument-meaning flags) are "not in tailp.")
-
-``idio_meanings()`` is just going to recurse down the argument list in
-an obvious fashion.  However, it does do it in a very :lname:`Scheme`\
-ly way.
-
-As it walks down the list it calculates the meaning for the current
-head of the list and figures out the current slot in the future
-*frame* of arguments.
-
-Before it issues it's "store" instruction it recurses on the rest of
-the arguments.
-
-That's fine until it reaches zero arguments left at which point it
-generates a frame allocation instruction with the original length of
-the argument list.
-
-Now, as the argument list recursion unwinds, we'll have seen the frame
-allocation, then a (reversed) sequence of expression meanings and then
-store in a slot instructions.
-
-The argument meanings is now a nested list of instructions which the
-code generator knows to walk into in order that it emit the final
-opcodes from the inside out.
-
-Each "meaning" argument-instruction list is "``STORE-ARGUMENT``, the
-meaning of this arg, slot #, the meaning of the remaining args" from
-which the code generator will:
-
-* generate the code for this arg (leaving the result in the *val* register)
-
-* ``PUSH-VALUE`` the result onto the stack
-
-* recurse into the other args which will repeat until
-
-* we get the ``ALLOCATE-FRAME`` instruction, leaving the frame in the
-  *val* register.
-
-Then, as the recursion unwinds, we use the slot argument to
-``POP-VALUE`` a value off the stack and into a slot in the frame.
-This means that the arguments are evaluated left to right (even if
-they're slotted into the frame, right to left).
-
-Finally, we actually get to use the "tailp" flag we've been carefully
-avoiding all this time:
-
-.. code-block:: c
-
-       if (IDIO_MEANING_IS_TAILP (flags)) {
-	   return IDIO_LIST4 (IDIO_I_TR_REGULAR_CALL, src, fm, ams);
-       } else {
-	   return IDIO_LIST4 (IDIO_I_REGULAR_CALL, src, fm, ams);
-       }
-
-where ``TR`` is "tail-recursive."
-
-Notice we pass in ``src`` which is placed in the *expr* register after
-the arguments are evaluated and just before invoking the function.
-
-Closed Function Calls
-^^^^^^^^^^^^^^^^^^^^^
-
-Closed function calls are complicated by us requiring to evaluate the
-function *abstraction* as well as the immediate function *application*
-(exactly as above).
-
-``idio_meaning_closed_application()`` runs through the list of formal
-parameters of the function definition and checks that the list of
-arguments matches.  Obviously, we handle a varargs situation.
-
-Depending on the varargs situation we'll be handling a
-(:lname:`Scheme`-ishly named) "fix(ed arguments) closed application"
-or a "dotted (ie. varargs) closed application".
-
-.. _`fixed closed application`:
-
-Fixed Closed Applications
-"""""""""""""""""""""""""
-
-If you recall our example:
-
-.. code-block:: idio
-
-   (function (a b) (+ a b)) 1 2
-
-The function expression, ``fe``, is ``(function (a b) (+ a b))`` and
-the list of argument expressions, ``aes``, is ``(1 2)``.  From that:
-
-.. csv-table::
-   :widths: auto
-   :align: left
-
-   ``ph fe``, ``function``, a symbol
-   ``pt fe``, ``((a b) (+ a b))``
-   ``pht fe``, ``(a b)``, formal parameters
-   ``ptt fe``, ``(+ a b)``, body
-
-``idio_meaning_fix_closed_application()`` is passed: ``fe``, the
-formal parameters, the body and the arguments.
-
-The first thing we do is rewrite or normalise the body.  If you recall
-the :ref:`scheme-let` discussion where ``let`` is rewritten into a
-closed function then we're looking to do that here.
-
-A couple of other rewrites occur including handling (potentially)
-mutually recursive functions defined inside a block:
-
-.. code-block:: idio
-
-   {
-     ...
-     define (odd? n) ...
-     define (even? n) ...
-     ...rest of block...
-   }
-
-which we can rewrite into ``letrec`` definitions with the rest of the
-block as the body of the ``letrec``:
-
-.. code-block:: idio
-
-   {
-     ...
-     (letrec ((odd? (function (n) ...))
-	      (even? (function (n) ...))) {
-       ...rest of block...
-     }
-   }
-
-Next we do a neat trick.  We *extend* the existing name tree with the
-list of formal parameters and then process the body (as an implied
-sequence) with the extended name tree.
-
-We return a slightly different instruction for the code generator.
-Rather than one of the two function call variants we use a ``FIX-LET``
-or ``TR-FIX-LET`` instruction ("tailp" is still applicable).
-
-The difference is in the way the function part is invoked.  For a
-regular function we prepared a frame of arguments then "jumped" into
-the (prepared elsewhere) function body, expecting the function body to
-return.
-
-For a closed application, we've only just evaluated the function body,
-there's nowhere to jump to!
-
-Instead, we prepare a frame of arguments in the usual way then simply
-run the body of the function.  The body of the function will access
-the formal parameters (in the frame we just prepared) and lexical
-variables further out in the usual way because we extended the name
-tree before evaluating the body.
-
-Dotted Closed Applications
-""""""""""""""""""""""""""
-
-For a varargs closed function, say:
-
-.. code-block:: idio
-
-   (function (a & b) (+ a b)) 1 2 3
-
-where we would expect ``b`` to have the value ``(2 3)``, everything
-proceeds in much the same way as for the :ref:`fixed closed
-application <fixed closed application>` until we get to the varargs
-parameter.
-
-To recap from the fixed closed application we issued a
-``STORE-ARGUMENT`` instruction which produces the following sequence
-of byte code:
-
-* evaluated the argument (leaving it in the *val* register) then
-
-* ``PUSH-VALUE`` the value onto the stack
-
-* recursed for the other arguments
-
-* ``POP-VALUE`` the value off into the n\ :sup:`th` slot
-
-We'll repeat the ``STORE-ARGUMENT`` instruction for the fixed formal
-parameters.  For the parameters after that we'll issue a
-``LIST-ARGUMENT`` together with the slot for the varargs variable.
-
-This time we'll evaluate all the arguments in order as before except
-when we see the ``LIST-ARGUMENT`` instruction we'll create a *pair*
-from the value we pop off the stack and the value currently in the
-varargs slot (which defaulted to ``#n``).  In this way we'll build a
-list from the arguments we pop of the stack.  They appear on the stack
-in the reverse of the order they were evaluated meaning that as we pop
-them off pushing them onto the head of a list we (eventually) end up
-with a list of the varargs arguments in the right order in the varargs
-slot.
-
-Of course, we'll then pop the fixed formal parameters off the stack
-and into their slots in the frame and everything has just worked.
+.. _module:
 
 module
 ------
+
+As mentioned previously, the evaluator cares about the current module
+and the virtual machine, not so much.  The virtual machine does retain
+the value for the current module if only to have a value to return for
+``(current-module)``.
+
+The evaluator, of course, needs to keep track of the current module so
+it can figure out which ``v`` you are referring to.
+
+Today it all just works but back when I was loading files a little
+differently, ``module`` and friends, required some evaluator support.
+This section gives a little history you might learn from.
+
+First, a quick diversion.
+
+.. aside::
+
+   I thought that *concomitant* was along the lines of "co-committed"
+   -- albeit with a funny spelling (so what's new in English?)
+
+   However, it is derived from *con* (together with) and *comes*
+   (companion) ultimately giving you the meaning "accompanying."
+
+   Here it is used to mean "must be defined with reference to each
+   other."
+
+In the source code you'll be using :samp:`module {m}` to change
+module.  ``module`` is a template, though, partly because it needs to
+be concomitant with ``load``.
+
+We have a semantic problem in that if you load in a file which, at the
+top, says ``module foo`` then when do you stop being in module
+``foo``?  Naturally, you will say, *at the end of the file*.  When is
+that, given that you are reading a sequence of statements from the
+file?
+
+There needs to be a hook into ``load`` to handle this -- but not the
+hook you necessarily expect.  ``load`` could also fail and quit early
+because of any kind of error when reading and evaluating the file.
+You would expect it to "unwind" the ``module`` statement then too.
+
+For handling modules I've taken an idea from STklos_, that of a module
+"stack" and lets you nested :samp:`(define-module {name} & {body})`
+statements.  ``define-module`` will catch any conditions an unwind the
+module stack.
+
+I don't actually use ``define-module`` but rather have a simple
+:samp:`module {name}` statement which flips the rest of the file (or
+to the next ``module`` statement) into module :samp:`{name}`.
+
+I did add an :samp:`(in-module {name} & {body})` which functions
+identically to ``define-module`` but just feels better purposed.  Not
+that I use *it* much but it can come in handy.
+
+OK, when we run ``load`` it needs to be module-aware -- and condition
+aware! -- and reset the current module back to whatever it was when
+``load`` started.  And remember to return the result of the actual
+(original) ``load`` call -- not that many people will look at it.
+
+Back to the evaluator.  In fact, back to when I was entertaining
+myself with the idea of reading all the expressions in from the
+source, evaluating them all then running the generated code from them
+all.  (Rather than, read, evaluate and run one expression, read,
+evaluate and run the next expression, etc..)
+
+The ``module`` statement -- as the evaluator sees it -- isn't going to
+change the sense of the current module until we actually get round to
+running the code which is going to be ages away after we've evaluated
+the rest of the statements in the file.  The very statements that want
+to know they're in a different module.  Hmm.
+
+The above diversion tells us that ``module`` is a template -- which
+ultimately calls the primitive :samp:`%set-current-module! {name}`.
+It seems we have a choice, we could replace the primitive
+``%set-current-module!`` with a special form (which makes a single
+function call to set the *mod* register in the VM) or we could have
+the evaluator spot ``module`` as a special form and then run the
+expander code for ``module`` anyway.
+
+For some reason I did the latter.
+
+Anyway, for the evaluator, when we see the ``module`` statement, we'll
+steal the argument (which must be a symbol because ``module`` is a
+template and so won't have had any arguments evaluated) and set the
+current module directly here and now.  This immediately affects all
+future variable lookups which will use the current module as its
+starting point.
+
+This *feels* slightly wrong.  We're changing the state of the
+currently running process whilst evaluating and therefore before any
+code is run.  However, it does mean that the evaluator has the correct
+sense of the current module and subsequent variable lookups do the
+right thing.
+
+Also note that nothing has set the module back to its original value.
+We *rely* on the improved ``load`` to do that work for us.
+
+There is a similar knock-on effect on module imports and, arguably,
+exports, as, in particular, module imports need updating immediately
+in order that the rest of the statements can successfully use
+variables exported from other modules.  We can't wait until the code
+is run before knowing what we've imported from other modules.
+
+So, the problem here is *entirely* the "all in one" loading method.
+If we read, evaluate and run a statement at a time then everything
+just falls into place.
 
 .. include:: ../../commit.rst
 
