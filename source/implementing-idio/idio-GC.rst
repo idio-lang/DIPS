@@ -158,11 +158,68 @@ As a partial defence against appalling efficiency I added:
 The operation of the GC is the tri-colour algorithm described
 previously.
 
-I think it could really do with some pools (rather than a used list).
-
 Back in the real world, there is plenty of work being done with
 garbage collectors and many projects use the `Boehm GC`_.  OpenJDK_ is
 now using the `Shenandoah GC`_.
+
+Allocators
+----------
+
+I think it could really do with some pools (rather than a used list).
+
+This brings us on to the subject of `allocators
+<https://en.wikipedia.org/wiki/C_dynamic_memory_allocation>`_ (of
+memory) rather than garbage collectors *per se*.  This is a very
+complicated field.
+
+Hiding in the :lname:`Bash` codebase is :file:`lib/malloc/malloc.c`
+which is derived from some :lname:`Emacs` improvements to
+:ref-author:`Chris Kingsley`'s 1982 fast storage allocator.  In fact,
+an Internet search for "malloc.c Chris Kingsley" will show derivations
+appearing in many places.  Annoyingly, I can't find a definitive
+source for the original so something like the FreeBSD
+`libexec/rtld-elf/malloc.c
+<http://web.mit.edu/freebsd/head/libexec/rtld-elf/malloc.c>`_ might
+have to do.  That version is under 500 lines of code.
+
+Another scheme is :ref-author:`Doug Lea`'s 1987 `dlmalloc
+<http://gee.cs.oswego.edu/dl/html/malloc.html>`_ and the code at
+`http://gee.cs.oswego.edu/pub/misc/malloc.c
+<http://gee.cs.oswego.edu/pub/misc/malloc.c>`_ -- the site itself
+seems to use an old link.  :lname:`dlmalloc` is over 6000 lines of
+code.
+
+A "pthreads malloc" (ptmalloc) was derived from that and GNU_'s
+:lname:`libc` malloc `derived from that
+<https://www.gnu.org/software/libc/manual/html_node/The-GNU-Allocator.html>`_
+in turn.
+
+These can start getting a bit complicated with :ref-author:`Jason
+Evans`' `http://jemalloc.net <jemalloc>`_ powering FreeBSD and
+Facebook.  It is almost 100k lines of code across 400 files.
+
+I think we want something better than naïve, digestible and not
+doubling the size of the code base.
+
+There's a comment in a :file:`vxmalloc.c` online from :ref-author:`Hwa
+Jin Bae` which says:
+
+    ...contains two different algorithms. One is the BSD based
+    Kingsley "bucket" allocator which has some unique fragmentation
+    behavior.  The other is Doug Lea's well tested allocator that
+    tries to minimize fragmentation while keeping the speed/space
+    requirements.
+
+That sounds like a fair compromise (not that I've read the code -- it
+seemed too long!).
+
+There's another feature we need to be aware of which appears in that
+:lname:`Emacs`/:lname:`Bash` variant in that a POSIX requirement is
+that an allocator be re-entrant.  In the absence of threading we *are*
+still at risk of reentrancy as we support signal interrupts and we
+could trip over ourselves that way -- although we shouldn't as we only
+interrupt the :lname:`Idio` code (not the :lname:`C` code).  Besides
+it would be nice to be ready for threading should we ever get there.
 
 GC Code-base
 ------------

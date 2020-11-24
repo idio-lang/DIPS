@@ -19,6 +19,7 @@ Scheme Basics
 Obligatory, relevant XKCD:
 
 .. image:: https://imgs.xkcd.com/comics/lisp_cycles.png
+   :target: https://xkcd.com/297/
 
 Why :lname:`Scheme`?  :lname:`Scheme` is incredibly simple so should
 be easy to understand the implementation of (famous last words) but

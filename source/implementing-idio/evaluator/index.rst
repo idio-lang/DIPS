@@ -46,7 +46,7 @@ primarily in the form of optimisation.
 
    evaluating-basics
    evaluating-functions
-.. expanding
+   expansion
 .. code generation
 
 .. include:: ../../commit.rst

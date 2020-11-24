@@ -955,7 +955,7 @@ to rewrite our original snippet it might look like:
 
 This is now looking like a little chain of sub-expressions where each
 sub-expression generates a (single!) value ready for the next
-sub-expression to use in turn.  Form the perspective of the ``b * c``
+sub-expression to use in turn.  From the perspective of the ``b * c``
 sub-expression, it will calculate its value then *continue* (aha!)
 onto ``a + []``, therefore ``a + []`` is described as being the
 continuation of ``b * c``.
@@ -1095,7 +1095,7 @@ The greater use of continuations is not, however, repeatedly calling
 the same thing but rather for being able to jump to another point in
 the program -- usually a local point but not always.  Indeed,
 continuations have been called *programmatic gotos* with all the
-baggage that goto incurs.
+baggage that anything that is called "goto" incurs.
 
 Jumping to another point in the code sounds awful but talk to me again
 about:

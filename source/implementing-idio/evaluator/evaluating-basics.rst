@@ -14,14 +14,18 @@ There are plenty of complications, of course, for example there are
 several situations where the source code is normalised by re-writing
 it.
 
+This normalisation is a form of implicit syntax transformation (as in,
+the :lname:`Idio` language makes the transformation according to its
+built-in rules, which we're about to discuss).  The use of syntax
+expanders (via templates aka macros) allows users to make explicit
+syntax transformations.
+
 Context
 =======
 
 We're not deviating a great deal from the technique outlined in
 :ref-title:`LiSP` (:cite:`LiSP`) based on which our search for meaning
-is going to involve a few basic concepts all of which are :lname:`C`
-lexical variables (or :lname:`Idio` lexical variables, one day when I
-write the :term:`metacircular evaluator`):
+is going to involve a few basic repeating variables:
 
 * ``e`` -- the expression we're currently evaluating (not a huge
   surprise)
@@ -159,6 +163,11 @@ write the :term:`metacircular evaluator`):
   other guy's) and to effect that we need to track any changes to the
   sense of the current module by latching onto any module changing
   statements in the source code.
+
+All of which are :lname:`C` lexical variables used throughout
+:file:`evaluate.c` (and :lname:`Idio` lexical variables in the
+:lname:`Idio` variant :file:`evaluate.idio`, the :term:`metacircular
+evaluator`).
 
 In effect, all of the above become formal parameters to almost every
 function in the evaluator.
@@ -1018,9 +1027,9 @@ module
 ------
 
 As mentioned previously, the evaluator cares about the current module
-and the virtual machine, not so much.  The virtual machine does retain
-the value for the current module if only to have a value to return for
-``(current-module)``.
+and the virtual machine... not so much.  The virtual machine does
+retain the value for the current module if only to have a value to
+return for ``(current-module)``.
 
 The evaluator, of course, needs to keep track of the current module so
 it can figure out which ``v`` you are referring to.
@@ -1095,7 +1104,11 @@ function call to set the *mod* register in the VM) or we could have
 the evaluator spot ``module`` as a special form and then run the
 expander code for ``module`` anyway.
 
-For some reason I did the latter.
+For some reason I did the latter.  I think it's because
+``%set-current-module!`` can be given a parameter rather than a symbol
+and therefore the evaluator won't know the value of it until the code
+is run.  ``module``, on the other hand, is forced to be passed a
+symbol (because it's a template).
 
 Anyway, for the evaluator, when we see the ``module`` statement, we'll
 steal the argument (which must be a symbol because ``module`` is a
@@ -1111,7 +1124,7 @@ sense of the current module and subsequent variable lookups do the
 right thing.
 
 Also note that nothing has set the module back to its original value.
-We *rely* on the improved ``load`` to do that work for us.
+We *rely* on the improved concomitant ``load`` to do that work for us.
 
 There is a similar knock-on effect on module imports and, arguably,
 exports, as, in particular, module imports need updating immediately

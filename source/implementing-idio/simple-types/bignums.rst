@@ -21,6 +21,7 @@ real-world maths?  I have two sobering examples:
 
   .. image:: https://imgs.xkcd.com/comics/coordinate_precision.png
      :alt: XKCD: Coordinate Precision
+     :target: https://xkcd.com/2170/
 
   .. aside:: `Angels on the head of a pin?
              <https://en.wikipedia.org/wiki/How_many_angels_can_dance_on_the_head_of_a_pin%3F>`_
@@ -100,10 +101,10 @@ As mentioned previously there is a slight trick to the way numbers are
 handled in that we don't attempt to pack data into our segments with
 maximal efficiency.  Instead we take a step back and say, OK, we can
 fit 18 decimal digits into our 64-bit word.  In other words, the
-absolute value 1,000,000,000,000,000,000 (19 digits) marks overflow.
-If we have overflowed we can account for *carry* in our long-hand
-arithmetic and therefore avoid the undefined behaviour that plagues
-integer maths in :lname:`C`.
+absolute decimal value 1,000,000,000,000,000,000 (19 digits) marks
+overflow.  If we have overflowed we can account for *carry* in our
+long-hand arithmetic and therefore avoid the undefined behaviour that
+plagues integer maths in :lname:`C`.
 
 :lname:`Scheme`'s number tower supports slightly more interesting
 numbers than many programming languages in that it has the concept of

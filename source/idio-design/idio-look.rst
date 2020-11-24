@@ -6,8 +6,9 @@
 
 :lname:`Scheme` looks like it can be used to program computers,
 indeed, it looks like it can do far more in terms of programming
-computers that we are used to or, more likely, capable of!  It is very
-succinct with several key implementation details:
+computers that we, simple scripters, are used to or, more likely,
+capable of!  It is very succinct with several key implementation
+details:
 
 * closures, we can close over variables and use them in a function
   body
@@ -71,7 +72,8 @@ undefined.
 
 Similarly, for ``-l``.  Is that a funky function to subtract the value
 of ``l`` from its argument or just a string of characters to be passed
-as an argument to some command?  Tricky.
+as an argument to some command?  Typing ``make debug`` results in an
+error when ``debug`` is the name of a function.  Tricky.
 
 I like the idea that I can, at long last, have hyphens in my variable
 names saving us from the thrall of underscores or CamelCase or
@@ -260,8 +262,8 @@ continuation character:
 	(else e3)
 
 But, be honest, it looks a bit clumsy.  And I can say that with some
-confidence as I have, out of a duty to see it through, written *all*
-the complex multi-clause forms use this style.  (What an *idiot*!  I
+confidence as I had, out of a duty to see it through, written *all*
+the complex multi-clause forms using this style.  (What an *idiot*!  I
 sense growing sagacity of the language name...).
 
 This gives us the dreadful:
@@ -287,6 +289,17 @@ silently added -- but the result is like the `Curate's egg`_:
 
 and, to be honest, I find it less appealing than the clumsy variant.
 The line-continuation style has the decency to be consistent.
+
+.. rst-class:: center
+
+\*
+
+Actually, when I came to write the :term:`metacircular evaluator` in
+:file:`evaluate.idio` I gave up and used the "wrapped" form.  Mostly
+because it was easier to convince my editor to line the elements up to
+preserve my sanity.
+
+It's OK, in the end.
 
 Infix Operators
 ===============
@@ -325,13 +338,13 @@ this into:
 which is a simple list transformation requiring no knowledge of
 anything.
 
-After this transformation, ``|`` is in functional position
-and so the evaluator will expect it to be the name of a function.
+After this transformation we have a ``|`` in functional position and
+so the evaluator will expect it to be the name of a function.
 
 Had someone typed the second form in directly then the reader would
 have left it alone as the thing that *looks* like an infix operator
 can't be, because it's the first element in the list.  An infix
-operator (surely?) has to have something before it to be *in*\ fix.
+operator (surely?) has to have something *before it* to be *in*\ fix.
 
 Recall I suggested that this happens in the reader for parenthetical
 expressions so that if you'd typed:

@@ -85,7 +85,7 @@ function expression and argument expressions again.
 
 Careful, though, a regular function call could still have an actual
 function call in functional position.  This isn't the case of a closed
-function call -- where the expression is defining a function
+function call -- where the expression is *defining* a function
 abstraction -- but just a regular function call.  Imagine that you
 stashed away a bunch of functions in a lookup table and you're
 accessing them now with a function call, :samp:`((hash-ref {my-funcs}
@@ -113,13 +113,13 @@ meaning of each one in turn:
 
 .. code-block:: c
 
-       IDIO ams = idio_meanings (aes, aes, nametree, idio_list_length (aes), ams_flags, cs, cm);
+       IDIO ams = idio_meaning_arguments (aes, aes, nametree, idio_list_length (aes), ams_flags, cs, cm);
 
 (The ``ams_flags`` (argument-meaning flags) are "not in tailp.")
 
-``idio_meanings()`` is just going to recurse down the argument list in
-an obvious fashion.  However, it does do it in a very :lname:`Scheme`\
-ly way.
+``idio_meaning_arguments()`` is just going to recurse down the
+argument list in an obvious fashion.  However, it does do it in a very
+:lname:`Scheme`\ ly way.
 
 As it walks down the list it calculates the meaning for the current
 head of the list and figures out the current slot in the future
@@ -146,9 +146,9 @@ which the code generator will:
 
 * generate the code for this arg (leaving the result in the *val* register)
 
-* ``PUSH-VALUE`` the result onto the stack
+* ``PUSH-VALUE`` the *val* register onto the stack
 
-* recurse into the other args which will repeat until
+* recurse into the other args which will repeat the above until
 
 * we get the ``ALLOCATE-FRAME`` instruction, leaving the frame in the
   *val* register.
@@ -241,7 +241,7 @@ block as the body of the ``letrec``:
      (letrec ((odd? (function (n) ...))
 	      (even? (function (n) ...))) {
        ...rest of block...
-     }
+      })
    }
 
 Next we do a neat trick.  We *extend* the existing name tree with the
@@ -273,7 +273,7 @@ For a varargs closed function, say:
 
 .. code-block:: idio
 
-   (function (a & b) (+ a b)) 1 2 3
+   (function (a & b) (+ a (ph b))) 1 2 3
 
 where we would expect ``b`` to have the value ``(2 3)``, everything
 proceeds in much the same way as for the :ref:`fixed closed
@@ -286,9 +286,12 @@ of byte code:
 
 * evaluated the argument (leaving it in the *val* register) then
 
-* ``PUSH-VALUE`` the value onto the stack
+* ``PUSH-VALUE`` the *val* register onto the stack
 
 * recursed for the other arguments
+
+* when there are no arguments left we create a *frame* and put it in
+  *val*
 
 * ``POP-VALUE`` the value off into the n\ :sup:`th` slot
 

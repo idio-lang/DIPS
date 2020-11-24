@@ -256,13 +256,14 @@ itself, can become a "lexical object."
 
 In practice this lexical object is a regular :lname:`Idio` structure
 with fields: (the handle's) ``name``, ``line``, (handle) ``pos`` and
-``expr`` (again, just in case).  Given that we intend that the key to
-the "source properties" hash table be ``expr`` then it's not a good
-idea to have ``expr`` somewhere in the value meaning we will have 1) a
-circular data structure and 2) therefore some difficulty garbage
-collecting it.  To fix that the source properties hash table is
-flagged as having weak keys.  When ``expr`` goes out of scope then we
-can reap the value that was once associated with it.
+``expr`` (again, just in case -- we're bound to lose it!).  Given that
+we intend that the key to the "source properties" hash table be
+``expr`` then it's not a good idea to have ``expr`` somewhere in the
+value meaning we will have 1) a circular data structure and 2)
+therefore some difficulty garbage collecting it.  To fix that the
+source properties hash table is flagged as having weak keys.  When
+``expr`` goes out of scope then we can reap the value that was once
+associated with it.
 
 So far, so good.  We can look up an expression in the source
 properties hash and get back where we read it in from.  What we need

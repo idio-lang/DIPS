@@ -1369,7 +1369,7 @@ An obvious one is that ``ls *`` will not report any *dot files*
 
 Luckily for us, someone has written :manpage:`glob(3)` and we can
 claim uniformity with "everyone else" (noting that many others will be
-rolling their own variation, standards_, eh?).  We could go there but
+rolling their own variation, 1standards_, eh?).  We could go there but
 it's certainly not necessary right now.
 
 Quote Removal
