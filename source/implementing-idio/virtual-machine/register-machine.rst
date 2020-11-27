@@ -435,27 +435,6 @@ But wait, what if, like the sidebox, the arguments are function calls
 themselves?  For example, :samp:`+ 1 (2 * 3)`.  Why, we just get
 recursive!
 
-A Flat Frame
-^^^^^^^^^^^^
-
-For some reason this linked list of frames sits uneasily with me
-although I've not considered too deeply an alternative.
-
-I don't like the constant creation and (eventual) destruction of so
-many frames (knowing that every ``let`` has been reworked into a
-function call).  Starting up and shutting down immediately will
-generate tens of thousands of frames!
-
-I'm thinking that the frame should be a single (dynamic) array that is
-extended with each function call and left unused when a call returns.
-The ``SHALLOW-ARGUMENT-REF0`` opcodes could then be replaced with a
-:samp:`ARGUMENT-REF{i}` for the :samp:`{i}`\ :sup:`th` value from the
-end.  For some :samp:`{i}` there is a dedicated opcode otherwise a
-generic ``ARGUMENT-REF`` which requires a single integer index.
-
-Eventually, the function call hierarchy will unwind to the "top" (with
-a call to ``FINISH``) and the frame can be garbage collected.
-
 Dynamic Registers
 =================
 

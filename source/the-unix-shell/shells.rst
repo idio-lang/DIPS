@@ -5,6 +5,17 @@
 Unix Shells
 ***********
 
+The word *shell* itself was coined by `Louis Pouzin
+<https://en.wikipedia.org/wiki/Louis_Pouzin>`_ after implementing
+`RUNCOM <https://en.wikipedia.org/wiki/Run_commands>`_ (from which we
+get the fossil term/suffix *rc*) at MIT in the early-mid 1960s for its
+:abbr:`Compatible Time-Sharing System (CTSS)`.  He wrote a paper on
+how to implement it for `Multics
+<https://en.wikipedia.org/wiki/Multics>`_ before returning to his
+native France.  `Glenda Schroeder
+<https://en.wikipedia.org/wiki/Glenda_Schroeder>`_ subsequently
+implemented the Multics shell the predecessor of the Unix shell today.
+
 There are a few Unix shells out there.  I've used :lname:`Bash` since,
 it feels like, forever and so it'll be :lname:`Bash` that I'll be
 using for examples.
@@ -23,10 +34,10 @@ GNU_'s Bash_ (first released in 1989), the "Bourne Again shell" is, of
 course, a nod to :ref-author:`Stephen Bourne`'s `Bourne shell`_ (first
 released in 1979) created as a free software alternative and picking
 up a few features from elsewhere.  You used to get a Bourne shell when
-you logged in as ``root`` on a (proprietary!) Unix box.  The Bourne
-shell was a replacement for :ref-author:`Ken Thompson`'s `Thompson
-shell`_ (introduced in the first version of Unix in 1971) which gave
-us our basic command orchestration syntax:
+you logged in on a (proprietary!) Unix box.  The Bourne shell was a
+replacement for :ref-author:`Ken Thompson`'s `Thompson shell`_
+(introduced in the first version of Unix in 1971) which gave us our
+basic command orchestration syntax:
 
 .. code-block:: sh
 

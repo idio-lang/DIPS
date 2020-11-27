@@ -88,20 +88,23 @@ is going to involve a few basic repeating variables:
   * after the second variable assignment it then has a ``b`` in scope
     and then the ``a``, now a level out
 
-  .. sidebox::
-
-     I've noted elsewhere that I think this nested frame mechanism
-     should probably be flattened and lexical variable references can
-     simply be :samp:`ARGUMENT {n}`.
-
-     "Should probably be" does not translate into "has been."
-
   The reason this is important goes back to the :ref-title:`LiSP`
   mechanism for accessing lexical variables through a linked list of
   *frames*.  The opcodes go one level back,
   :samp:`SHALLOW-ARGUMENT-REF{n}`, or multiple levels back,
   :samp:`DEEP-ARGUMENT-REF {d} {n}` (for some depth :samp:`{d}` and
   index within the frame :samp:`{i}`).
+
+  The nested frame mechanism is required because when we call a
+  closure we'll create a frame here for the arguments to go into
+  *then* invoke the closure.  The first thing the closure mechanism
+  does is reset the frame hierarchy to that which the closure had when
+  it was created.  The frame we just created is linked into that
+  "historic" frame hierarchy and the closure runs.
+
+  From the closure's perspective, it sees the arguments to itself in
+  front of the original set of lexical variables when the closure was
+  created.
 
   ``let`` is still legal syntax so we can make it a bit more
   obvious:

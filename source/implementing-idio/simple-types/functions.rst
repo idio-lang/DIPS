@@ -510,6 +510,61 @@ Let's take a look:
 
 * ``env`` is a reference to the module the closure was created in
 
+The *frame* and *env* require a little more explanation.  When we
+*run* a closure, in our mind's eye we look at the source code and can
+see two things:
+
+#. the lexical environment -- which the closure body may or may not
+   use
+
+#. the arguments passed into the function by the calling code
+
+But wait!  These two sets of information are disjoint.  We have a set
+of lexical information which we can see by looking at the source that
+is defined in this source file and therefore the closure must have
+access to it and *at the same time* we have this set of parameters
+being passed in from who knows where.  How does that external
+information get linked in with our local lexical information?
+
+Well, that's the nature of a linked list of frames of parameters.  At
+the time of creation of the closure we stash the current linked list
+of frames -- which will be all the parameters leading up to the
+definition of the closure in the source code -- *in* the closure
+structure, the ``frame`` field.
+
+The protocol is that when someone is due to invoke a closure they will
+construct a frame and fill it with the evaluated (or unevaluated for
+templates!) values and leave it in the *val* register.
+
+The act of invocation does a sequence of *frame*\ y things:
+
+#. it stashes the current frame (of the caller) on the stack
+
+#. it replaces the current frame with the stored frame of the closure,
+   the original lexical environment of the closure
+
+#. it calls the closure:
+
+   #. the very first thing the closure does is verify the arity is
+      correct by checking the number of args in the frame in *val*
+
+   #. the next thing it does is link the frame in *val* into the
+      current frame which, we just swapped with the original lexical
+      environment frame
+
+      At this point, the frame tree looks like the values from the
+      caller in the top-most frame and then everything the closure saw
+      at the point of its definition.
+
+   #. at some point the closure has computed a value and left it in
+      *val* and ``RETURN``\ s
+
+#. the calling code restores its frame from the stack
+
+   At this point we are exactly as before the call to the closure
+   except we have had the frame of evaluated arguments in *val*
+   replaced with the computed result of the closure.
+
 Creation
 ^^^^^^^^
 
