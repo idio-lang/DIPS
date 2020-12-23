@@ -15,13 +15,41 @@ Template Definition
 ===================
 
 Defining a template is straightforward enough.  It's a function that
-takes some arguments (unevaluated from the application of the
-template), does whatever it wants then returns some "code."  Given
-that we're in that weird world of :term:`homoiconicity`, the "code"
-looks like a list of lists of lists etc..
+takes some arguments (**unevaluated** from the application of the
+template), does whatever it wants then returns some "code."  In
+particular we mean some "source code," something that looks as though
+we might have typed it ourselves.  Given that we're in that weird
+world of :term:`homoiconicity`, the "code" looks like a list of lists
+of lists etc..
 
-Within those lists we can ask for expressions to be evaluated and the
-results of that evaluation to be substituted in place.  That's
+We could return some literal source code like :samp:`'(+ 1 2)` --
+notice the leading ``quote`` to prevent the evaluator evaluating the
+source code into byte code thus preventing us returning the source
+code verbatim.
+
+Returning a literal like that doesn't look as though it's going to
+handle variables very well so we might want to *construct* our source
+code dynamically along the lines of :samp:`(list '+ 1 {var})` where
+we've some careful quoting of things we want to remain literals and
+not quoting of things we want the evaluator to expand on our behalf.
+
+That becomes really complicated really quickly and so, naturally, we
+should leave it to the computer to do it for us.  Hence,
+*quasiquotation* where we describe the *structure* of the source code
+in a quoted way and allow the variable bit to be expanded for us.
+
+In :lname:`Scheme` they use the *backtick* symbol :samp:`\`` to start
+quasiquotation and the *comma* symbol for *unquoting* (meaning
+expand!) as in :samp:`\`(+ 1 ,{var})` which I find hard to read when
+it gets much more complicated than that.  I guess you get used to it.
+
+We simple scripting folk are more familiar with using the *dollar*
+symbol to represent expanding things to we only need something to
+start quasiquotation.  ``#`` introduces weird stuff, we're calling
+this world templating so :samp:`#T\\{ + 1 ${var} }` it is.
+
+So, within those lists we can ask for expressions to be evaluated and
+the results of that evaluation to be substituted in place.  That's
 beginning to sound complicated, let's try an example.  I'll use the
 non-operator style inside the ``#T{...}`` construct to avoid the
 reader confusing matters by re-writing infix expressions:
@@ -415,9 +443,9 @@ nominal value for :samp:`{e}` is also ``initial-expander``.
 
 * or we call ``application-expander``
 
-application-expander descends into :samp:`{x}` and asks :samp:`{e}` to
-expand each element -- of course we pass :samp:`{e}` into the
-expansion otherwise it wouldn't be EPS!
+``application-expander`` descends into :samp:`{x}` and asks
+:samp:`{e}` to expand each element -- of course we pass :samp:`{e}`
+into the expansion otherwise it wouldn't be EPS!
 
 :samp:`{e}` doesn't have to be ``initial-expander``.  The EPS paper
 suggests an ``expand-once`` function with a do-nothing :samp:`{e}`:

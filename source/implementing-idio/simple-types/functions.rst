@@ -113,6 +113,11 @@ being the remaining arguments beyond the formal ones.
 varargs arguments.  The ``varargs`` field is used to syntactically
 verify the call point, *not* the invocation.
 
+*Bah!* Even that's not true.  Fixed argument primitives are encoded
+such that they can be called directly by the VM with just their fixed
+argument, er, arguments.  Varargs primitives go through the full
+function call interface (marshalled arguments and all).
+
 :lname:`C` Construction
 -----------------------
 
@@ -130,8 +135,8 @@ want to record meta-information like the primitive's *signature* and
     I like the idea of some sort of `Type Inference
     <https://en.wikipedia.org/wiki/Type_inference>`_ in which case it
     is a requirement that the primitive functions fully declare their
-    parameter and return types.  This is to bootstrap the whole
-    system.
+    parameter and return types.  This is to bootstrap the whole type
+    inference system.
 
     More *stuff* to record!
 
@@ -258,7 +263,7 @@ signature string can be just ``h t``.
 For varargs functions, the interpretation varies considerably.  For
 some functions the varargs might be "more of the same" but for others
 it might be optional parameters, like with ``display`` which takes a
-formal parameter, the value to be display, and an optional argument,
+formal parameter, the value to be displayed, and an optional argument,
 encoded as varargs, for the *handle* to display to.  If no handle is
 passed, it defaults to the *current output handle*.
 
@@ -443,8 +448,8 @@ function which should be the third argument of four: :samp:`function
 {docstr} {body}`.
 
 If there are only three arguments then the :samp:`{body}` takes
-precedence -- if all you want is your function to return a string then
-that seems legitimate.
+precedence -- if all you want is for your function to return a string
+then that seems legitimate.
 
 The use of :samp:`{docstr}` will need to adhere to our "single line"
 reader processing -- which is partly why strings are allowed to be
@@ -519,12 +524,53 @@ see two things:
 
 #. the arguments passed into the function by the calling code
 
+Let's try an about-as-complicated-as-it-gets example.  Here in module
+``foo`` we create a function ``f`` which uses both "top level"
+variables from module ``foo`` as well as lexical variables defined
+outside of the function as well as the parameters passed in:
+
+.. code-block:: idio
+   :caption: file :file:`foo.idio`
+
+   module foo
+   export (f)
+
+   ; top level variable in *foo*
+   this := 1
+
+   f = {
+
+     ; lexical variable only visible inside this block
+     that := 2
+
+     function (the-other) {
+       + this that the-other
+     }
+   }
+
+and
+
+.. code-block:: idio
+   :caption: file :file:`bar.idio`
+
+   module bar
+   import foo
+
+   n := 3
+
+   ; call the "remote" function
+   f n
+
+We have a reasonable feeling that the result of calling ``f 3`` in
+module ``bar`` should be 6.
+
 But wait!  These two sets of information are disjoint.  We have a set
 of lexical information which we can see by looking at the source that
-is defined in this source file and therefore the closure must have
+is defined in :file:`foo.idio` and therefore the closure must have
 access to it and *at the same time* we have this set of parameters
-being passed in from who knows where.  How does that external
-information get linked in with our local lexical information?
+being passed in from who knows where (:file:`bar.idio`).  How does
+that external information get linked in with our local lexical
+information?
 
 Well, that's the nature of a linked list of frames of parameters.  At
 the time of creation of the closure we stash the current linked list
@@ -549,21 +595,53 @@ The act of invocation does a sequence of *frame*\ y things:
       correct by checking the number of args in the frame in *val*
 
    #. the next thing it does is link the frame in *val* into the
-      current frame which, we just swapped with the original lexical
-      environment frame
+      current frame (for the function defined in :file:`foo.idio`)
+      which we just swapped with the original lexical environment
+      frame (from the call point in :file:`bar.idio`)
 
       At this point, the frame tree looks like the values from the
       caller in the top-most frame and then everything the closure saw
-      at the point of its definition.
+      at the point of its definition:
+
+      .. code-block:: idio
+
+	 frame 0: [ 3 ]		; from the call in bar
+	 frame 1: [ {that} ]	; from the block in foo
+	 frame 2: #n		; no other frames! {this} is in *env*
 
    #. at some point the closure has computed a value and left it in
       *val* and ``RETURN``\ s
 
-#. the calling code restores its frame from the stack
+#. the calling code's frame is restored from the stack
 
    At this point we are exactly as before the call to the closure
    except we have had the frame of evaluated arguments in *val*
    replaced with the computed result of the closure.
+
+Having said all that about the *frame*, we can repeat it in kind for
+*env* the "top-level" environment that the closure was defined in:
+
+#. stash the caller's top-level *env* on the stack
+
+#. it replaces the current env with the stored env of the closure, the
+   original lexical top-level of the closure
+
+#. it calls the closure
+
+   Now we can find :samp:`{this}` in the environment of the function
+   ``f`` defined in module ``foo``.
+
+   In fact the (stored) environment is just the name of the
+   environment at the time of definition, ie. ``foo`` in this case.
+   That variables defined in this environment are an attribute of the
+   module.
+
+   So, even though ``f`` was called in ``bar``, because ``f`` was
+   defined in ``foo`` the current environment is toggled to ``foo``
+   and we can (successfully) find :samp:`{this}` in the known
+   variables of ``foo`` -- even though the call is "live" in ``bar``.
+
+#. the calling code's *env* is restored from the stack
 
 Creation
 ^^^^^^^^
@@ -629,17 +707,18 @@ The process is:
 
    From that we'll have the ``code_len``.
 
-   Actually, the body is:
+   Actually, the body:
 
-   * prefaced with an arity check and something to set up the
-     arguments
+   * is prefaced with an arity check and something to link the
+     argument frames
 
    * has a ``RETURN`` instruction tacked on the end
 
    but that's by the by.
 
 #. in the normal byte code array we'll add the ``CREATE-CLOSURE``
-   instruction which requires an *offset* to the ``code_pc``
+   instruction which requires an *offset* to the ``code_pc`` (which
+   will be after the upcoming ``JUMP`` instruction)
 
    plus some standard fields:
 
@@ -654,16 +733,17 @@ The process is:
 
 #. since we are only *creating* the closure, we don't want to run it
    right now, we'll add a ``JUMP`` instruction followed by the code
-   length (again)
+   length (again) so that we (during creation) jump over the function
+   body.
 
    This means that when this creation code is *run*, we'll see:
 
-   * ``CREATE-CLOSURE`` (and its three arguments: code length,
-     signature string and documentation string) then a
+   a. ``CREATE-CLOSURE`` with a ``code_pc`` (and its three arguments:
+      code length, signature string and documentation string) then a
 
-   * ``JUMP`` to
+   #. ``JUMP`` to *beyond the end of the body*
 
-   * the definition of :samp:`{z}` in the example, above.
+   #. the definition of :samp:`{z}` in the example, above.
 
    The ``CREATE-CLOSURE`` has been given the *offset* to the
    ``code_pc`` and can create the closure value.  *Neat!*

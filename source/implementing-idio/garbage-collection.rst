@@ -62,11 +62,15 @@ firstly maintains a list of all known values that have been allocated.
 That's as simple as having a pointer in the allocated value which
 becomes the linked list of all known values.
 
-Secondly, and this is where the time honoured complaints about garbage
-collection come in, every now and again the garbage collector will
-decide it's time to tidy up -- during which time user-level processing
-effectively stops.  The garbage collector will look at the set of
-"root" values which are broadly:
+You create values and use them as you see fit.  Eventually you'll stop
+using them and ... well, nothing.  Nothing happens when you stop
+referencing a value, it just hangs about.
+
+So, secondly, and this is where the time honoured complaints about
+garbage collection come in, every now and again the garbage collector
+will decide it's time to tidy up -- during which time user-level
+processing effectively stops.  The garbage collector will look at the
+set of "root" values which are broadly:
 
 * the list of values declared at top level
 
