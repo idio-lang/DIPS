@@ -21,7 +21,6 @@ The Design and Implementation of a Programmable Shell
    implementing-idio/index
    glossary
    references
-   acknowledgments
    
 
 Indices and tables

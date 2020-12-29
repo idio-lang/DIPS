@@ -58,14 +58,14 @@ same way we call all 128 ASCII characters, er, characters even though
 most of the characters below 0x20 make no sense whatsoever as
 characters that you or I might draw with a pen.
 
-    0x03 is ``ETX``, *end of text.  *Eh?* ``ETX`` is, of course, one
+    0x03 is ``ETX``, *end of text*.  *Eh?* ``ETX`` is, of course, one
     of the `C0 control codes
     <https://en.wikipedia.org/wiki/C0_and_C1_control_codes>`_ used for
     message transmission.  Few of these retain any meaning or function
     and certainly never corresponded with a "character" as, in this
     case, by definition, it marked the end of characters.
 
-    I nearly used 0x04, ``EOT``, *end of transmission* as my example
+    I nearly used 0x04, ``EOT``, *end of transmission*, as my example
     before realising that the *caret notation* for it is ``^D`` which
     might be confused with the usual keyboard generated ``EOF`` with
     :kbd:`Ctrl-D`, *end of file* which is clearly a very similar
@@ -93,7 +93,7 @@ different glyphs for U+0061 (LATIN SMALL LETTER A) -- even within the
 constraints of ReStructuredText:
 
 .. csv-table:: The same code point in different fonts
-   :widths: auto
+   :widths: 25, 25
    :align: left
 
    a, regular
@@ -108,8 +108,8 @@ you are using might only cover a small fraction of those.  If a glyph
 for a code point is missing the result isn't clearly defined.  The
 rendering system may substitute a glyph indicating the code point in a
 box or you may get a blank box.  The following is U+01FBF7 (SEGMENTED
-DIGIT 7), 🯷.  (I see a little box with ``01F`` on one row and ``BF7``
-on another.)
+DIGIT 7), 🯷.  (I see a little box with a barely readable ``01F`` on
+one row and ``BF7`` on another.)
 
 There's a much better description of some of the differences between
 characters and glyphs -- and, indeed, characters and code points -- in
@@ -221,7 +221,7 @@ first 256 block would be a straight copy of ISO-8859-1 (Latin-1) which
 is handy for users of such but it doesn't really follow that it was
 the best choice in the round.  There's all sorts of compromises
 floating about such as the continued use of `Japanese fullwidth
-forms`_ -- effectively duplicating ASCII.
+forms`_ -- effectively ｄｕｐｌｉｃａｔｉｎｇ ＡＳＣＩＩ．
 
 .. rst-class:: center
 
@@ -381,7 +381,7 @@ If displayed, the Unicode code point is encoded in UTF-8.
 :lname:`Idio` Strings
 =====================
 
-By which we mean arrays of code points.  *-ish*
+By which we mean arrays of code points... *-ish*.
 
 History
 -------

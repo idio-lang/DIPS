@@ -240,7 +240,7 @@ which is word-aligned (for large words).  The interesting bit is the
 
   Of interest, here, is that
 
-  #. the whole union is 64-bit aligned 
+  #. the whole union is 64-bit aligned
 
   #. but only allows for 32-bit allocations
 
@@ -344,8 +344,8 @@ available to us.
 
 .. sidebox::
 
-   Remembering, of course, that no current CPU architecture lets you
-   address more than 48 bits of physical address space anyway:
+   Remembering, of course, that no current x86 CPU architecture lets
+   you address more than 48 bits of physical address space anyway:
    `Virtual Address space
    <https://en.wikipedia.org/wiki/X86-64#Virtual_address_space_details>`_.
 
@@ -392,7 +392,7 @@ We've a couple of options here.
    away) a 12GB array.
 
    It looks plausible.
-   
+
 On a 32-bit machine, targeting the maximum 2\ :sup:`32` byte
 allocation with four byte pointers we need to play the same games with
 an exception for the very trick we're trying to pull.
@@ -510,7 +510,7 @@ Pulling some numbers out:
    peak:, 0, 876K, 1680K, 1686K, 192K, 2668, 1614, 192, 42, 6, ...
    mmap:, 0, 6846, 26K, 52K, 12K, 334, 404, 96, 99, 22, ...
    munmap:, 0, 0, 0, 0, 0, 0, 0, 0, 58, 22, ...
-   
+
 you can see from the *peak* numbers that a lot of 32, 64 and 128 byte
 buckets were allocated.  The actual number of those won't change -- we
 can't change the user-code -- but what we might tweak is the number of

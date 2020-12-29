@@ -344,7 +344,7 @@ the other at run time (*probably* good).
 You don't normally get to see these quasiquotation expansions as they
 are immediately thrown at ``idio_meaning()`` however a judicious call
 to:
-   
+
 .. code-block:: idio
 
    idio_debug ("dq=%s\n", dq);
@@ -451,7 +451,7 @@ into the expansion otherwise it wouldn't be EPS!
 suggests an ``expand-once`` function with a do-nothing :samp:`{e}`:
 
 .. code-block:: idio
-		
+
    define (expand-once x) {
      initial-expander x (function (x e) x)
    }

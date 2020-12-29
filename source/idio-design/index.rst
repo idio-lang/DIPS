@@ -9,7 +9,6 @@
 
    idio-look
    idio-feel
-   idio-extra
 
 .. include:: ../commit.rst
 

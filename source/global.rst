@@ -55,6 +55,7 @@
 .. _Scsh: https://scsh.net
 .. _Smalltalk: https://en.wikipedia.org/wiki/Smalltalk
 .. _Solid: https://github.com/chameco/Solid.git
+.. _SQLite: https://www.sqlite.org/index.html
 .. _`Stack Overflow`: https://stackoverflow.com
 .. _STklos: https://stklos.net
 .. _TOML: https://toml.io/en/

@@ -22,7 +22,6 @@ simple types.
    bignums
    handles
    bitsets
-   c-types
    functions
 
 .. include:: ../../commit.rst
