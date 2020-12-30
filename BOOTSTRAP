@@ -4,3 +4,6 @@
 (venv) % pip install --upgrade pip
 (venv) % pip install sphinx
 (venv) % pip install sphinxcontrib-bibtex
+(venv) % pip install sphinx_git
+
+(venv) % make clean html

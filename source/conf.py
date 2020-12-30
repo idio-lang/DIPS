@@ -50,6 +50,8 @@ exclude_patterns = []
 
 todo_include_todos = True
 
+bibtex_bibfiles = ['refs.bib']
+
 import idio_lexer
 
 # -- Options for HTML output -------------------------------------------------
