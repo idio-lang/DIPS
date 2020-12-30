@@ -16,11 +16,12 @@
 .. _FSF: https://www.fsf.org
 .. _GMP: https://gmplib.org
 .. _GNU: https://www.gnu.org/
+.. _GPL: https://www.gnu.org/licenses/licenses.html
 .. _Globbing: https://en.wikipedia.org/wiki/Glob_(programming)
 .. _Guile: https://www.gnu.org/software/guile/
 .. _ISO10646: https://en.wikipedia.org/wiki/Universal_Coded_Character_Set
-.. _ISO8859: https://en.wikipedia.org/wiki/ISO/IEC_8859
 .. _ISO8859-1: https://en.wikipedia.org/wiki/ISO/IEC_8859-1
+.. _ISO8859: https://en.wikipedia.org/wiki/ISO/IEC_8859
 .. _JSON5: https://json5.org
 .. _JSON: https://www.json.org/json-en.html
 .. _JVM: https://en.wikipedia.org/wiki/Java_virtual_machine
@@ -43,28 +44,27 @@
 .. _Qish: http://www.starynkevitch.net/Basile/qishintro.html
 .. _RFC1918: https://tools.ietf.org/html/rfc1918
 .. _Readline: https://tiswww.case.edu/php/chet/readline/rltop.html
-.. _Samba: https://www.samba.org/
 .. _SBCL: http://www.sbcl.org/
+.. _SQLite: https://www.sqlite.org/index.html
 .. _SRFI-0: https://srfi.schemers.org/srfi-0/srfi-0.html
-.. _SRFI-9: https://srfi.schemers.org/srfi-9/srfi-9.html
 .. _SRFI-14: https://srfi.schemers.org/srfi-14/srfi-14.html
 .. _SRFI-17: https://srfi.schemers.org/srfi-17/srfi-17.html
 .. _SRFI-69: https://srfi.schemers.org/srfi-69/srfi-69.html
 .. _SRFI-95: https://srfi.schemers.org/srfi-95/srfi-95.html
+.. _SRFI-9: https://srfi.schemers.org/srfi-9/srfi-9.html
 .. _SRFI: http://srfi.schemers.org
+.. _STklos: https://stklos.net
+.. _Samba: https://www.samba.org/
 .. _Scsh: https://scsh.net
 .. _Smalltalk: https://en.wikipedia.org/wiki/Smalltalk
 .. _Solid: https://github.com/chameco/Solid.git
-.. _SQLite: https://www.sqlite.org/index.html
-.. _`Stack Overflow`: https://stackoverflow.com
-.. _STklos: https://stklos.net
 .. _TOML: https://toml.io/en/
 .. _Tcl: https://www.tcl-lang.org/
 .. _ULA: https://en.wikipedia.org/wiki/Unique_local_address
-.. _Ubuntu: https://ubuntu.com
-.. _Unicode: https://home.unicode.org/
 .. _UTF-16: https://www.unicode.org/notes/tn12/
 .. _UTF-8: https://en.wikipedia.org/wiki/UTF-8
+.. _Ubuntu: https://ubuntu.com
+.. _Unicode: https://home.unicode.org/
 .. _YAML: https://yaml.org/
 .. _Zerologon: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-1472
 .. _Zsh: https://www.zsh.org
@@ -76,8 +76,8 @@
 .. _`Csh Programming Considered Harmful`: http://www.faqs.org/faqs/unix-faq/shell/csh-whynot/
 .. _`Curate's egg`: https://en.wikipedia.org/wiki/Curate%27s_egg
 .. _`Fledgling Languages List`: https://fll.presidentbeef.com
-.. _`Garbage Collection`: https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)
 .. _`GTK\+`: https://www.gtk.org
+.. _`Garbage Collection`: https://en.wikipedia.org/wiki/Garbage_collection_(computer_science)
 .. _`Hacker News`: https://news.ycombinator.com/
 .. _`IEEE 754`: https://en.wikipedia.org/wiki/IEEE_754
 .. _`Japanese fullwidth forms`: https://en.wikipedia.org/wiki/Halfwidth_and_fullwidth_forms
@@ -87,12 +87,13 @@
 .. _`Option type`: https://en.wikipedia.org/wiki/Option_type
 .. _`Oracle bone script`: https://en.wikipedia.org/wiki/Oracle_bone_script
 .. _`Shenandoah GC`: https://wiki.openjdk.java.net/display/shenandoah/Main
+.. _`Stack Overflow`: https://stackoverflow.com
 .. _`The Groveller`: https://common-lisp.net/project/cffi/manual/html_node/The-Groveller.html
 .. _`The Secret History of Writing`: https://www.bbc.co.uk/programmes/m000mtml
 .. _`Thompson shell`: https://en.wikipedia.org/wiki/Thompson_shell
 .. _`Turing machine`: https://en.wikipedia.org/wiki/Turing_machine
-.. _`Unicode reports`: http://www.unicode.org/reports/
 .. _`Unicode Character Database`: https://www.unicode.org/reports/tr44/
+.. _`Unicode reports`: http://www.unicode.org/reports/
 .. _`Zsh and Fish’s simple but clever trick for highlighting missing linefeeds`: https://www.vidarholen.net/contents/blog/?p=878
 .. _`colours are accurate for green screen VDUs`: https://superuser.com/questions/361297/what-colour-is-the-dark-green-on-old-fashioned-green-screen-computer-displays
 .. _`continuation-passing style`: https://en.wikipedia.org/wiki/Continuation-passing_style

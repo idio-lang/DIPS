@@ -230,7 +230,7 @@ implement :lname:`Idio` but there's a sense of "having made it" when
 you reach the stage of being able to implement other languages in
 yours.  After all, you basically need to be able to read characters,
 one at a time, and decide whether to bundle them up into names or
-numbers or strings etc. then have a mechanism to evaluating them
+numbers or strings etc. then have a mechanism to evaluate them whilst
 maintaining some sense of "memory" where values can be set and
 retrieved from.
 
@@ -267,7 +267,7 @@ comfortable following the working here than I did with
 an object system and continuations.  In fact, his Figure 13.6, of all
 things, is the one that finally made continuations click for me.
 
-So thoroughly influenced, not only did I go through building all his
+So *thoroughly* influenced, not only did I go through building all his
 increasing-levels-of-complexity interpreters in :lname:`Perl` I
 actually went back and did them all again in :lname:`C`!  *Madness!*
 

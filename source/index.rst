@@ -15,6 +15,7 @@ The Design and Implementation of a Programmable Shell
    :caption: Contents:
 
    introduction
+   licensing
    the-unix-shell/index
    scheme/index
    idio-design/index

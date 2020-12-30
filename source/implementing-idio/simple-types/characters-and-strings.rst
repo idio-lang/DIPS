@@ -40,6 +40,13 @@ points to create the rest.  From a Western Europe viewpoint, we might
 have an "e acute" character, é, but also an "acute accent", ´, which
 can be combined with a regular "e".
 
+.. aside::
+
+   Alarmingly, I see there *is* U+1E2F (LATIN SMALL LETTER I WITH
+   DIAERESIS AND ACUTE), ḯ.  Looks like I guessed lucky as there's a
+   whole range of (predefined) mark combinations in the Latin Extended
+   Addition section.
+
 Clearly, we don't need to combine the "acute accent" with a regular
 "e" as we already have a specific "e acute" but it does allow us to
 combine it with any other character in some rare combination not
