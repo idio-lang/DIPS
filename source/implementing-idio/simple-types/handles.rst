@@ -33,9 +33,9 @@ The high-level interface maintains:
   Essentially, as bytes are consumed from the stream, any U+000A (LINE
   FEED) character causes a line number increment.
 
-  The line number cannot be maintained if you ``seek`` somewhere in
-  the stream other than position 0 (zero) which resets the line number
-  to 1.
+  The line number cannot be maintained and will be set to 0 (zero) if
+  you ``seek`` somewhere in the stream other than position 0 (zero)
+  which resets the line number to 1.
 
 * a position (offset) within the stream -- always maintained though
   less human-friendly
@@ -56,7 +56,10 @@ The methods are:
 
 - ``free`` - used when garbage collecting the handle
 
-- ``readyp`` - broadly a check we haven't hit the end of the stream
+- ``readyp`` - a check that a character is available to be read
+  without blocking
+
+  Note it will return ``#t`` for interactive handles at end-of-file.
 
 - ``getc`` - analogous to :manpage:`fgetc(3)`
 
@@ -85,6 +88,23 @@ The methods are:
 We can now define a *handle* abstraction that almost everything else
 will use and two specific implementations.
 
+That's the basic :lname:`Scheme` model but we can (and must!) extend
+it for our own nefarious shell-like purposes.  Our obvious first need
+is to be able to write into or read from commands and the obvious
+implementation is a :manpage:`pipe(2)`.
+
+Hence we get *pipe handles* which are a variation on a *file handle*
+re-using most methods as, ultimately, they are simple wrappers around
+standard operating system file descriptors.  The only useful
+difference is that you cannot *seek* on a pipe handle.
+
+As a handy generic form, there are *fd handle* primitives, ie. file
+descriptor handle primitives, which are useful generic tests for
+either a file or a pipe handle.
+
+You can imagine other file descriptor types will be available in due
+course.
+
 Implementation
 ==============
 
@@ -112,7 +132,8 @@ accessors are reasonably straightforward:
    #define IDIO_HANDLE_FLAG_WRITE		(1<<1)
    #define IDIO_HANDLE_FLAG_CLOSED		(1<<2)
    #define IDIO_HANDLE_FLAG_FILE		(1<<3)
-   #define IDIO_HANDLE_FLAG_STRING		(1<<4)
+   #define IDIO_HANDLE_FLAG_PIPE		(1<<4)
+   #define IDIO_HANDLE_FLAG_STRING		(1<<5)
 
    typedef struct idio_handle_s {
        struct idio_s *grey;
@@ -139,6 +160,7 @@ accessors are reasonably straightforward:
    #define IDIO_OUTPUTP_HANDLE(H)	(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_WRITE)
    #define IDIO_CLOSEDP_HANDLE(H)	(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_CLOSED)
    #define IDIO_FILEP_HANDLE(H)		(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_FILE)
+   #define IDIO_PIPEP_HANDLE(H)		(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_PIPE)
    #define IDIO_STRINGP_HANDLE(H)	(IDIO_HANDLE_FLAGS(H) & IDIO_HANDLE_FLAG_STRING)
 
    #define IDIO_HANDLE_M_FREE(H)	(IDIO_HANDLE_METHODS (H)->free)
@@ -168,7 +190,7 @@ However, UTF-8 laughs at our simple plan.  Or my :lname:`C` laughs at
 me.  Either way, 0xff -- which will be recast to -1, aka, ``EOF`` --
 is invalid UTF-8 but it is explicitly used *because* it is invalid in
 UTF-8 test cases.  So we have to be able to handle -1/``EOF`` as a
-"valid" char.
+viable, if invalid, char.
 
 The upshot of which is, we can't have a sentinel value in the
 lookahead char but have to explicitly call the ``eofp`` method
@@ -177,8 +199,9 @@ instead.  Hardly the end of the world!  (But *close*, right?)
 Handles
 -------
 
-Nothing creates a *handle* directly.  Instead *file-handles* or
-*string-handles* are created which, in turn, create a *handle*.
+Nothing creates a *handle* directly.  Instead *file-handles*, *pipe
+handles* or *string-handles* are created which, in turn, create a
+*handle*.
 
 So you :samp:`open-input-file {name}` (where :samp:`{name}` is a
 string) and get in return a *handle* of the *file handle* variety.
@@ -205,13 +228,28 @@ For a handle we can print out some useful info like:
 
 * open or closed: ``o``/``c``
 
-* file or string: ``f``/``s``
+* file, pipe or string: ``f``/``p``/``S``
+
+  ``S`` is used for string as in readiness for a :manpage:`socket(2)`
+  based handle then ``f``, ``p`` and ``s`` match up nicely with the
+  ``f?``, ``p?`` and ``s?`` predicates.
 
 * open for reading and/or writing: ``r`` and/or ``w``
 
-* some *file handle* flags:
+* some *fd handle* flags:
 
-  * ``O_CLOEXEC`` or not:  ``E``/``!``
+  * ``O_CLOEXEC`` or not:  ``e``/``!``
+
+    ``e`` here matching the ``e`` mode flag passed to the ``open-*``
+    commands
+
+  * ``i`` if the handle is interactive
+
+  * ``F`` if the handle is an original *stdio* handle (``stdin``,
+    ``stdout`` or ``stderr``) with the ``F`` a mnemonic for the
+    :lname:`C` ``FILE*`` object
+
+  * ``E`` if the handle is registered as EOF
 
   * the file descriptor
 
@@ -228,12 +266,12 @@ Which might give us:
 .. code-block:: console
 
    Idio> (current-input-handle)
-   #<H ofr!   0:"*stdin*":2:23>
+   #<H ofr!iF   0:"*stdin*":2:23>
 
    Idio> osh := (open-output-string)
-   #<H osw:"output string-handle #1889":1:0>
+   #<H oSw:"output string-handle #1889":1:0>
 
-In the first instance, ``#<H ofr!  0:"*stdin*":2:23>`` we can see the
+In the first instance, ``#<H ofr!iF   0:"*stdin*":2:23>`` we can see the
 value is:
 
 * a handle
@@ -246,6 +284,10 @@ value is:
 
 * does not have ``O_CLOEXEC`` set (by us, anyway)
 
+* is interactive
+
+* is constructed from the original STDIO set
+
 * the file descriptor is 0
 
 * the handle's name is ``*stdin*``
@@ -254,7 +296,7 @@ value is:
 
 * position 23
 
-In the second case, ``#<H osw:"output string-handle #1889":1:0>`` we can infer:
+In the second case, ``#<H oSw:"output string-handle #1889":1:0>`` we can infer:
 
 * it's a handle
 
@@ -273,9 +315,14 @@ In the second case, ``#<H osw:"output string-handle #1889":1:0>`` we can infer:
 File Handles
 ------------
 
-File handles are implemented using :lname:`libc`'s ``FILE`` type. and
-you can imagine that all the implementation methods essentially the
-:lname:`libc` equivalents.
+File handles were implemented using :lname:`libc`'s ``FILE`` type and
+you could imagine that all the implementation methods were essentially
+the :lname:`libc` equivalents.
+
+However, the introduction of pipe handles (and some recurring "issues"
+with what was, in effect, double buffered input and output) has had
+them rewritten as native :manpage:`read(2)`, :manpage:`write(2)` and
+friends.
 
 The file handle stream data is:
 
@@ -288,7 +335,6 @@ The file handle stream data is:
    #define IDIO_FILE_HANDLE_FLAG_CLOEXEC	(1<<3)
 
    typedef struct idio_file_handle_stream_s {
-       FILE *filep;			/* or NULL! */
        int fd;
        IDIO_FLAGS_T flags;		/* IDIO_FILE_HANDLE_FLAG_* */
        char *buf;			/* buffer */
@@ -299,14 +345,8 @@ The file handle stream data is:
 
 Of note here is:
 
-* we maintain a copy of the ``fd`` associated with ``filep`` as we use
-  it with :manpage:`read(2)` to get more data from the stream
-
-* we buffer data to and from the stream -- STDIO is buffered and we
-  need to maintain a corresponding buffer
-
-  This *can* lead to some problems with flushing recalcitrant data.  A
-  problem we've all seen before, I'm sure.
+* we buffer data to and from the stream -- essentially we've
+  re-implemented STDIO!
 
 There is a generic file opening method:
 
@@ -314,7 +354,8 @@ There is a generic file opening method:
 
    static IDIO idio_open_file_handle (IDIO filename,
 				      char *pathname,
-				      FILE *filep,
+				      int fd,
+				      int h_type,
 				      int h_flags,
 				      int s_flags);
 
@@ -325,18 +366,21 @@ with:
 * ``pathname`` the "real" name of the opened file -- this might be
   ``*stdin*``, for example
 
-* ``filep`` is the ``FILE *`` pointer
+* ``fd`` is the file descriptor
+
+* ``h_type`` is ``IDIO_HANDLE_FLAG_FILE``, ``IDIO_HANDLE_FLAG_PIPE``
+  etc..
 
 * ``h_flags`` are *handle* flags as per the ``struct idio_handle_s``
   structure definition
 
 * ``s_flags`` are the (*file handle*) stream-specific flags as seen
-  above, such as a flag if the ``FILE`` is interactive.
+  above, such as a flag if the file handle is interactive.
 
 Of interest, :samp:`static IDIO idio_open_std_file_handle (FILE
-*filep)` is used to wrapper the usual three STDIO variables,
-``stdin``, ``stdout`` and ``stderr``, with a :lname:`Idio` *handle*.
-The handle's name is set to be ``*stdin*``, ``*stdout*`` or
+*filep)` is used to alternately wrapper the usual three STDIO
+variables, ``stdin``, ``stdout`` and ``stderr``, with a :lname:`Idio`
+*handle*.  The handle's name is set to be ``*stdin*``, ``*stdout*`` or
 ``*stderr*``.
 
 *File handles* need a *finalizer* which will :manpage:`close(2)` the
@@ -391,6 +435,14 @@ or
    evaluate all expressions
    run all expressions
 
+I liked the latter as it solved a recurring problem I have when
+developing scripts, the sort of scripts that take a minute or two to
+chunter through yet you've spotted a :strike:`bug`\ feature just after
+it's started and edit the script.  Of course you save the script with
+a satisfying *kerthunk!*...while the script is still running.  Oops.
+The next read from the file by :lname:`Bash` will get a garbled
+string.  It's all gone pear-shaped.
+
 I ran, for a long time, with the latter, "all in one," then changed my
 mind (and deleted it).  :socrates:`Why?  What's the difference?`
 
@@ -405,12 +457,12 @@ The problem is that we say "evaluate" but what we really mean is:
 
 * prep the code for the VM
 
-But *running* the code may or may not happen *now*.
+But *running* the code in the VM may or may not happen *now*.
 
 If I *define* a template then I cannot *use* it until the code for the
 definition is *run* -- which will add to the list of "expander" terms
 that the evaluator will recognise.  That means I cannot *use* the
-template until it is run.
+template until the byte code is run by the VM.
 
 That might not sound like a big problem but it does prevent you
 defining and using a macro within a module: for the latter variant,
@@ -441,6 +493,62 @@ So, the normal :lname:`C` file loading function is:
 
 and its :lname:`Idio` equivalent :samp:`load {filename}` will load
 "expression by expression."
+
+Pipe Handles
+------------
+
+We would like to read and write to commands for which we need to pipe
+our input and output to and from.  Maintaining the *handle*-style is
+important, hence pipe handles.
+
+The implementation of pipe handles will hold no surprises,
+``open-input-pipe`` is essentially the ``open-input-file-from-fd``
+style of construction.
+
+.. note::
+
+   There is obvious naming confusion with pipes in that the output
+   from a command will be an input handle as we are reading from that
+   input stream.  Similarly the input to a pipe will be an output
+   handle.
+
+   So ``pipe-into`` returns an output handle and ``pipe-from`` returns
+   an input handle.
+
+A more intriguing question is how do we do this for the user?
+
+We're a shell and, despite our use of reader operators, have a leaning
+towards the :samp:`{cmd} {args}` style.  Hence, if we want to filter
+the output of a command then it makes sense for us to declare that
+intention as a :samp:`{cmd}`, hence:
+
+.. sidebox::
+
+.. code-block:: idio
+
+   pipe-from zcat file.tgz | tar tf -
+
+or, maybe:
+
+.. code-block:: idio
+
+   pipe-from tar tzf file.tgz
+
+ie. note that this works for simple commands or pipelines.
+
+Although what we clearly want ``pipe-from`` to do is return us a pipe
+handle hence what we should have written is:
+
+.. code-block:: idio
+
+   ih := pipe-from zcat file.tgz | tar tf -
+
+``ih`` is now a regular (input) *handle* that we can manipulate is
+regular handle-like ways, ``read-line`` springs to mind.
+
+``close-handle`` should also spring to mind otherwise, depending on
+the scope of ``ih`` you'll be accumulating both unclosed
+:manpage:`pipe(2)`\ s and a number of zombie processes.
 
 String Handles
 --------------
@@ -517,24 +625,38 @@ with ``errno`` added as an argument and we get:
 	   idio_display_C (": ", msh);
 	   idio_display (args, msh);
        }
+       idio_display_C (": ", msh);
+       idio_display_C (strerror (err), msh);
+
+       IDIO location = idio_vm_source_location ();
 
        IDIO dsh = idio_open_output_string_handle_C ();
-       idio_display_C (strerror (err), dsh);
+   #ifdef IDIO_DEBUG
+       idio_display (c_location, dsh);
+   #endif
 
        IDIO c = idio_struct_instance (idio_condition_system_error_type,
 				      IDIO_LIST4 (idio_get_output_string (msh),
-						  c_location,
+						  location,
 						  idio_get_output_string (dsh),
 						  idio_C_int (err)));
+
        idio_raise_condition (idio_S_true, c);
    }
 
-Here we can first create a "message string handle" into which we print
-the :lname:`C` string ``msg`` (``fdopen`` in this case) then, if some
-``args`` were passed, add a :literal:`: \ ` then whatever the printed
-representation of the args are.  Secondly, we can create a "detail
-string handle" and add the operating system's description of the
-system call error for a bit of extra guidance.
+All conditions derived from ``^idio-error`` take three standard
+parameters: message, location and detail.
+
+Here we can first create a "message" string handle into which we print
+(display!)  the :lname:`C` string ``msg`` (``fdopen`` in this case)
+then, if some ``args`` were passed, add a :literal:`: \ ` then
+whatever the printed representation of the args are.  Add on the
+operating system's description of the system call error for a bit of
+normalised guidance.  Secondly, recover the user-land source code
+location (from the *EXPR* register in the *thread*).  Finally, we can
+create a "detail" string handle and add the :lname:`C` source location
+if we're running under debug for extra clarification.  The fourth
+parameter for a ``^system-error`` is, in effect, ``errno``.
 
 Finally, we can construct a condition, of the "system error" type
 which is expecting a further four arguments including the
@@ -561,12 +683,12 @@ read
 While we're here we can muse on an example of naming hell.
 
 ``read`` is a heavily overloaded name.  At our lowest level, in
-:lname:`libc` ``read`` is :manpage:`read(2)`.
+:lname:`libc`, the primitive ``read`` is :manpage:`read(2)`.
 
-However, in :lname:`Idio`, ``read`` is an invocation of the reader, an
-instruction to return a complete :lname:`Idio` "line" of input (which
-might be multiple lines if we have some unmatched parentheses or
-braces or line continuations or ...).
+However, in :lname:`Idio`, the primitive ``read`` is an invocation of
+the reader, an instruction to return a complete :lname:`Idio` "line"
+of input (which might be multiple lines if we have some unmatched
+parentheses or braces or line continuations or ...).
 
 We can complicate the issue with ``read-expr`` which will have the
 reader consume a single expression (and not consume expressions to the
@@ -577,7 +699,7 @@ more likely interested in reading a line of text from a file, hence,
 ``read-line`` and its greedier sibling, ``read-lines``.
 
 As a user I might also want to ``read-char`` to get back the next
-(UTF-8) character.
+(UTF-8) character.  There is no (exposed) ``read-byte`` function.
 
 ``read`` (and ``read-expr``) isn't really used other than for testing
 so I suspect they could be re-worked into a more reader-oriented name
@@ -633,6 +755,14 @@ File Handles
 
 See :file:`file-handle.c`.
 
+Note that when manipulating a file descriptor (rather than a file
+handle) you are manipulating a ``C-int``, not a fixnum (and certainly
+not a bignum).  Whilst you can construct an arbitrary ``C-int`` and
+therefore "file descriptor", like regular systems programming, it
+behooves the user to choose values wisely.  Normally, you would
+receive such a value from a call known to provide one and pass it
+around opaquely.
+
 :samp:`open-file-from-fd {fd} [{name} [{mode}]]`
 
       construct a file handle from :samp:`{fd}` using the optional
@@ -648,6 +778,18 @@ See :file:`file-handle.c`.
 :samp:`open-output-file-from-fd {fd} [{name}]`
 
       construct a file handle from :samp:`{fd}` using the optional
+      :samp:`{name}` instead of the default :samp:`/dev/fd/{fd}` and
+      the optional mode :samp:`{mode}` instead of ``we``
+
+:samp:`open-input-pipe {fd} [{name}]`
+
+      construct a pipe handle from :samp:`{fd}` using the optional
+      :samp:`{name}` instead of the default :samp:`/dev/fd/{fd}` and
+      the optional mode :samp:`{mode}` instead of ``re``
+
+:samp:`open-output-pipe {fd} [{name}]`
+
+      construct a pipe handle from :samp:`{fd}` using the optional
       :samp:`{name}` instead of the default :samp:`/dev/fd/{fd}` and
       the optional mode :samp:`{mode}` instead of ``we``
 
@@ -682,26 +824,71 @@ See :file:`file-handle.c`.
 
 :samp:`input-file-handle? {value}`
 
-      is :samp:`{value}` an input file handle
+      is :samp:`{value}` a file handle capable of being read from
+
+      Obviously this is input file handles but also files opened for
+      writing with the "+" mode flag: "w+", "a+".
 
 :samp:`output-file-handle? {value}`
 
-      is :samp:`{value}` an output file handle
+      is :samp:`{value}` a file handle capable of being written to
+
+      Obviously this is output file handles but also files opened for
+      reading with the "+" mode flag: "r+".
 
 :samp:`file-handle-fd {fh}`
 
       return the file descriptor associated with file handle
       :samp:`{fh}`
 
-:samp:`file-handle-fflush {fh}`
+:samp:`fd-handle? {value}`
 
-      call :manpage:`fflush(3)` on the underlying :lname:`C` ``FILE*``
-      object in file handle :samp:`{fh}`
+      is :samp:`{value}` a fd handle
 
-:samp:`close-file-handle-on-exec {fh}`
+:samp:`input-fd-handle? {value}`
+
+      is :samp:`{value}` a fd handle capable of being read from
+
+      Obviously this is input fd handles but also fds opened for
+      writing with the "+" mode flag: "w+", "a+".
+
+:samp:`output-fd-handle? {value}`
+
+      is :samp:`{value}` a fd handle capable of being written to
+
+      Obviously this is output fd handles but also fds opened for
+      reading with the "+" mode flag: "r+".
+
+:samp:`fd-handle-fd {fh}`
+
+      return the file descriptor associated with fd handle
+      :samp:`{fh}`
+
+:samp:`pipe-handle? {value}`
+
+      is :samp:`{value}` a pipe handle
+
+:samp:`input-pipe-handle? {value}`
+
+      is :samp:`{value}` a pipe handle capable of being read from
+
+      The "+" mode flag is ignored for a pipe.
+
+:samp:`output-pipe-handle? {value}`
+
+      is :samp:`{value}` a pipe handle capable of being written to
+
+      The "+" mode flag is ignored for a pipe.
+
+:samp:`pipe-handle-fd {ph}`
+
+      return the file descriptor associated with pipe handle
+      :samp:`{ph}`
+
+:samp:`close-fd-handle-on-exec {fh}`
 
       call :manpage:`fcntl(3)` on the underlying :lname:`C` file
-      descriptor in file handle :samp:`{fh}` with ``F_SETFD`` and
+      descriptor in fd handle :samp:`{fh}` with ``F_SETFD`` and
       ``FD_CLOEXEC`` arguments.
 
 .. rst-class:: center
@@ -826,6 +1013,9 @@ See :file:`handle.c`.
 
       See :ref:`handle-pos <handle-pos>` for the equivalent of a
       ``tell-handle``.
+
+      Invoking ``seek-handle`` on a pipe handle will generate a
+      ^rt-parameter-value-error.
 
 :samp:`rewind-handle {handle}`
 
@@ -986,7 +1176,7 @@ See :file:`handle.c`.
       error handle).  These are largely deprecated in favour of
       :ref:`printf <printf>` (and :ref:`eprintf <eprintf>`)
 
-:samp:`%printf {handle} {format} {args}`
+:samp:`%printf {handle} {format} [{args}]`
 
       [deprecated in favour of :ref:`printf <printf>`]
 
@@ -1000,7 +1190,7 @@ See :file:`handle.c`.
 
 In :file:`common.idio` there are some extra utility functions.
 
-:samp:`%format {type} {format} {args}`
+:samp:`%format {type} {format} [{args}]`
 
       This ``%format`` function (in :file:`common.idio`) makes a much
       better attempt at the vagaries of :manpage:`printf(3)` by
@@ -1015,13 +1205,15 @@ In :file:`common.idio` there are some extra utility functions.
 
       * ``args`` in which case a ``%`` character in the format string
         starts an escape sequence which has the general form
-        :samp:`%[{flags}][{prec}][.{width}]{K}` where :samp:`{K}` is
-        a :manpage:`printf(3)`-ish format character with arguments in
-        ``args``
+        :samp:`%[{flags}][{prec}][.{width}]{K}` where :samp:`{K}` is a
+        :manpage:`printf(3)`-ish format character with arguments in
+        the parameter list ``args``
 
 	So, like a normal *printf*.  The idea being that we can print,
-	say, :lname:`Idio` integers (fixnums or bignums) as decimal,
-	hexadecimal, octal and binary.
+	say, :lname:`Idio` integers as decimal (fixnums or bignums) or
+	hexadecimal, octal and binary (fixnums).
+
+	``%s`` should work for any :lname:`Idio` type.
 
       * ``keyed`` in which case a ``%`` character in the format string
         starts an escape sequence which has the general form
@@ -1054,6 +1246,78 @@ In :file:`common.idio` there are some extra utility functions.
 	 ``0``, U+0030 (DIGIT ZERO), use ``#\0`` as the left padding character
 
       The default padding character is ``#\{space}``.
+
+      .. rst-class:: center
+
+      \*
+
+      As the start of some work to make the printer more dynamic, you
+      can redefine how a struct instance is printed.  By default, the
+      format is :samp:`#<SI {typename} {fields}>` where
+      :samp:`{fields}` is a space-separated list of
+      :samp:`{fieldname}:{value}`.
+
+      As an alternative, you can register a "printer" against a struct
+      type and it will be called when an instance of that type is
+      printed.  The printer should return a string.
+
+      By way of a simple example:
+
+      .. code-block:: idio
+
+	 define-struct point x y
+
+	 P := make-point 1 2
+
+	 printf "%s\n" P	; #<SI point x:1 y:2>
+
+	 define (point-as-string p seen) {
+	   if (point? p) {
+	     r := (open-output-string)
+	     hprintf r "#<SI point"
+	     hprintf r " x is %d" p.x
+	     hprintf r " and y is %d" p.y
+	     hprintf r ">"
+	     get-output-string r
+	   } #n
+	 }
+
+	 %%add-as-string point point-as-string
+
+	 printf "%s\n" P	; #<SI point x is 1 and y is 2>
+
+      The :samp:`{seen}` parameter to the printer function can be used
+      for any purpose.  The obvious use is to record values as they
+      are seen and pass :samp:`{seen}` onto similar printer thus
+      preventing circular loops.
+
+      In this case, suppose :samp:`{x}` should be another ``point`` or
+      ``#n`` (rather than an integer as we seem to be using it as).
+      Instead of calling :samp:`p.x` we might call
+      :samp:`(point-as-string x {updated-seen})`.  To avoid loops we
+      can add some checks and updates:
+
+      .. code-block:: idio
+
+	 define (point-as-string p seen) {
+	   if (point? p) {
+	     if (assq p seen) {
+	       "@"
+	     } {
+	       r := (open-output-string)
+	       hprintf r "#<SI point"
+	       hprintf r " x is %s" (point-as-string x (pair (list p) seen))
+	       hprintf r " and y is %d" p.y
+	       hprintf r ">"
+	       get-output-string r
+	     }
+	   } #n
+	 }
+
+      An example is in ``state-as-string`` in
+      :file:`lib/SRFI-115.idio` where the struct has an ID which can
+      be used to identify where the circular loop starts (or ends?)
+      rather than just returning ``"@"`` as we do.
 
 .. _format:
 

@@ -853,6 +853,26 @@ Strings
       perform :manpage:`strncmp(3)` comparisons of the UTF-8
       representations of the string arguments
 
+:samp:`string-ci<=? {s1} {s2} [...]`
+
+:samp:`string-ci<? {s1} {s2} [...]`
+
+:samp:`string-ci=? {s1} {s2} [...]`
+
+:samp:`string-ci>=? {s1} {s2} [...]`
+
+:samp:`string-ci>? {s1} {s2} [...]`
+
+      .. warning::
+
+	 Historic code for ASCII/Latin-1 :lname:`Scheme` strings
+	 badgered into working at short notice.
+
+	 These need to be replaced with something more Unicode-aware.
+
+      perform :manpage:`strncasecmp(3)` comparisons of the UTF-8
+      representations of the string arguments
+
 :samp:`split-string {string} {delim}`
 
       split string :samp:`{string}` into a list of string delimited by
@@ -878,10 +898,17 @@ Strings
       ``;``-separated fields, often with no value in a field -- to
       help generate the code base for regular expression handling.
 
-:samp:`join-string {delim} {args}`
+:samp:`join-string {delim} {list}`
 
-      construct a string from the strings in :samp:`{args}` with the
+      construct a string from the strings in :samp:`{list}` with the
       string :samp:`{delim}` placed in between each pair of strings
+
+      :samp:`{list}` is a, uh, list, here, unlike, say,
+      :ref:`append-string` as it follows the :lname:`Scheme` form
+      (albeit with arguments shifted about) which takes another
+      parameter indicating the style in which the delimiter should be
+      applied, such as: before or after every argument, infix (the
+      default) and a strict infix for complaining about no arguments.
 
 
 .. include:: ../../commit.rst

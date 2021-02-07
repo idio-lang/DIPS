@@ -528,6 +528,7 @@ A broad range without being too specific:
    "x86-64", "Mac OS 10.15.5", 64, 10.15.6 breaks virtualisation software
    "i386", "Mac OS 10.5.8", 32
    "ARMv7", "Raspbian 9", 32
+   "aarch64", "Raspbian (Debian 10)", 64
    "x86-64", "Windows 10 via WSL", 64
 
    "x86-64", "Solaris 10", 32, WIP

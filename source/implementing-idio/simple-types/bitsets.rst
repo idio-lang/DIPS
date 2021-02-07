@@ -41,19 +41,25 @@ tables than fix them into :lname:`C`.
 Implementation
 --------------
 
-As noted above, the implementation is an array of ``unsigned long
-int``\ s:
+.. sidebox::
+
+   It was an array of ``unsigned long`` but I got annoyed in writing
+   tests so normalised it to 32 bit width words.
+
+As noted above, the implementation is an array of ``uint32_t``\ s:
 
 .. code-block:: c
    :caption: gc.h
 
+   typedef uint32_t idio_bitset_word_t;
+
    typedef struct idio_bitset_s {
        size_t size;
-       unsigned long *bits;
+       idio_bitset_word_t *words;
    } idio_bitset_t;
 
    #define IDIO_BITSET_SIZE(BS)		((BS)->u.bitset.size)
-   #define IDIO_BITSET_BITS(BS,i)	((BS)->u.bitset.bits[i])
+   #define IDIO_BITSET_WORDS(BS,i)	((BS)->u.bitset.words[i])
 
 where bit indexes start at zero in the usual way.
 
@@ -62,11 +68,11 @@ We want a handy macro:
 .. code-block:: c
    :caption: bitset.h
 
-    #define IDIO_BITS_PER_LONG (CHAR_BIT * sizeof (unsigned long))
+    #define IDIO_BITSET_BITS_PER_WORD (CHAR_BIT * sizeof (idio_bitset_word_t))
 
 and then we're off.  The constructor has the basic trick of
-determining the number of ``unsigned long``\ s in the array by using
-our handy ``IDIO_BITS_PER_LONG`` and adding one:
+determining the number of ``idio_bitset_word_t``\ s in the array by
+using our handy ``IDIO_BITSET_BITS_PER_WORD`` and adding one:
 
 .. code-block:: c
    :caption: bitset.c
@@ -76,12 +82,12 @@ our handy ``IDIO_BITS_PER_LONG`` and adding one:
        IDIO bs = idio_gc_get (IDIO_TYPE_BITSET);
 
        IDIO_BITSET_SIZE (bs) = size;
-       bs->u.bitset.bits = NULL;
+       bs->u.bitset.words = NULL;
 
        if (size) {
-	   size_t n = size / IDIO_BITS_PER_LONG + 1;
-	   IDIO_GC_ALLOC (bs->u.bitset.bits, n * sizeof (unsigned long));
-	   memset (bs->u.bitset.bits, 0UL, n * sizeof (unsigned long));
+	   size_t n = size / IDIO_BITSET_BITS_PER_WORD + 1;
+	   IDIO_GC_ALLOC (bs->u.bitset.words, n * sizeof (idio_bitset_word_t));
+	   memset (bs->u.bitset.words, 0UL, n * sizeof (idio_bitset_word_t));
        }
 
        return bs;
@@ -97,9 +103,10 @@ of which use a simple index, :samp:`{bit}`:
    IDIO idio_bitset_clear (IDIO bs, size_t bit)
    IDIO idio_bitset_ref (IDIO bs, size_t bit)
 
-These will all use the same trick to get the correct ``unsigned long``
-in the array and then the bit within that ``unsigned long`` is simply
-:samp:`{bit} % IDIO_BITS_PER_LONG`.
+These will all use the same trick to get the correct
+``idio_bitset_word_t`` in the array and then the bit within that
+``idio_bitset_word_t`` is simply :samp:`{bit} %
+IDIO_BITSET_BITS_PER_WORD`.
 
 Of course they have their :lname:`Idio` equivalents:
 :samp:`bitset-set! {bs} {bit}` etc..
@@ -107,15 +114,15 @@ Of course they have their :lname:`Idio` equivalents:
 The regular expression code wants to perform some operations on
 bitsets as a whole and so there's various: ``merge-bitset``,
 ``and-bitset``, ``ior-bitset``, ``xor-bitset`` and ``not-bitset`` (to
-toggle the entire bitset) all of which iterate over the ``unsigned
-long``\ s performing the operation as required.
+toggle the entire bitset) all of which iterate over the
+``idio_bitset_word_t``\ s performing the operation as required.
 
 There's another interesting operation, ``subtract-bitset``.  Here, in
 Unicode terms, you might imagine having some derived charset and then
 removing all the letters from it.
 
 Equality for bitsets (beyond ``eq?``) is just as involved as you have
-to iterate through comparing each ``unsigned long``.
+to iterate through comparing each ``idio_bitset_word_t``.
 
 A final, much more *functional* operation is
 :samp:`bitset-for-each-set {bs} {func}` which, reflecting on the name,
@@ -314,10 +321,10 @@ As noted, the sparse char sets are an array of 17 Unicode planes where
 each plane is represented by a bitset or ``#f``.
 
 A bitset for a plane is 2\ :sup:`16` (65,536) entries -- meaning an
-underlying array of 2\ :sup:`11` or 2\ :sup:`10` ``unsigned long``\ s!
-That's partly why we're keen to make the array sparse.  Why would we
-have planes 4 through 13 waste 8kB *each* when we know there's nothing
-in them.
+underlying array of 2\ :sup:`11` or 2\ :sup:`10`
+``idio_bitset_word_t``\ s!  That's partly why we're keen to make the
+array sparse.  Why would we have planes 4 through 13 waste 8kB *each*
+when we know there's nothing in them.
 
 ASCII, BMP0, full
 """""""""""""""""

@@ -28,43 +28,9 @@ seemed quite neat, which it is.  What I didn't do is read or
 internalise the simple sentence under Performance: deletion may be
 hard.
 
-I have had no end of trouble with my implementation.  I need to scrap
-it and start again with something "better."
-
-In the meanwhile we have a working (-ish) implementation of coalesced
-hashing.
-
-Coalesced Hashing
-=================
-
-Broadly, instead of having all the values be in a linked list hanging
-off the bucket that is your hashed value, the "linked list" is
-embedded into the hash buckets in the form of a chain.
-
-Assuming no other entries: the first value to be hashed to bucket H
-goes in that bucket.  The second value to be hashed to bucket H can't
-go in that bucket (it is occupied) so it goes into the next unused
-bucket, say, J, and a "chain link" is put between the first value and
-the second, H links to J.  On lookup, once the hash bucket, H, for
-either is determined the code needs to walk along the chain links, H
-then J, to find which one is "equal to" the value.
-
-Suppose a third value hashes directly to J.  The second value requires
-shifting to another free bucket, K, say and the chain link from H now
-needs updating to K and then the third value can be placed in J.
-
-Similarly for deletion.  If we delete the first value then we need to
-bring the second value in that chain forward from K to H.  If it has
-been pointing to another value in the chain, L, say, in turn then that
-doesn't need to change as H links to L is fine.
-
-A further refinement is the addition of a cellar (although I decided
-to call it an attic) which is a splodge of free buckets, outside of
-the normal hashing space dedicated to cross-fire.  If hash values
-clash then use the cellar first.
-
-All of it doesn't sound too horrible but it's pretty mucky.  And I've
-had a lot of bugs.  It's been a... *learning* experience.
+I have had no end of trouble with my implementation.  Eventually I
+gave up and scrapped it in favour of the traditional bucket and chain
+mechanism.
 
 Features
 ========
@@ -83,9 +49,6 @@ We need some sentinel values:
 * ``#n`` is the not-a-key sentinel value
 
   In other words you can't use ``#n`` as a key in a hash.
-
-* For a hash table of a given *allocation* :samp:`{size}` then the
-  end-of-chain marker is :samp:`{size} + 1`
 
 Hashing and Equivalence
 -----------------------
@@ -125,7 +88,7 @@ However, for both the hashing and equivalence functions you can pass
 your own noting that:
 
 * the hashing function takes a single argument and should return a
-  number
+  positive integer
 
 * the equivalence function should take two arguments and return ``#f``
   or some other value
@@ -170,10 +133,10 @@ longer referred to from a root value then we don't keep it around
 artificially.
 
 This leaves a problem, however, in that the (now garbage collected)
-key is still in the properties hash.  We need a special hook in the GC
-to remove it from the properties hash at the time of collection (and,
-in a later cycle, collect the values previously associated with the
-key).
+key is still in the properties hash.  We need some special trickery in
+the GC to remove it from the properties hash at the time of collection
+(and, in a later cycle, collect the values previously associated with
+the key).
 
 Implementation
 --------------
@@ -190,10 +153,14 @@ going to be a ``size_t``.  We'll call it an "idio hash index type" or
    typedef size_t idio_hi_t;
 
    typedef struct idio_hash_entry_s {
-       struct idio_s *k;
-       struct idio_s *v;
-       idio_hi_t n;		/* next in chain */
+       struct idio_hash_entry_s *next;
+       struct idio_s *key;
+       struct idio_s *value;
    } idio_hash_entry_t;
+
+   #define IDIO_HASH_HE_NEXT(HE)	((HE)->next)
+   #define IDIO_HASH_HE_KEY(HE)		((HE)->key)
+   #define IDIO_HASH_HE_VALUE(HE)	((HE)->value)
 
    #define IDIO_HASH_FLAG_NONE		0
    #define IDIO_HASH_FLAG_STRING_KEYS	(1<<0)
@@ -204,36 +171,27 @@ going to be a ``size_t``.  We'll call it an "idio hash index type" or
        idio_hi_t size;
        idio_hi_t mask;			/* bitmask for easy modulo arithmetic */
        idio_hi_t count;			/* (key) count */
-       idio_hi_t start;			/* start free search */
        int (*comp_C) (void *k1, void *k2);	/* C equivalence function */
        idio_hi_t (*hash_C) (struct idio_s *h, void *k); /* C hashing function */
        struct idio_s *comp;		/* user-supplied comparator */
        struct idio_s *hash;		/* user-supplied hashing function */
-       idio_hash_entry_t *he;		/* a C array */
+       idio_hash_entry_t* *ha;		/* a C array */
    } idio_hash_t;
 
    #define IDIO_HASH_GREY(H)		((H)->u.hash->grey)
    #define IDIO_HASH_SIZE(H)		((H)->u.hash->size)
    #define IDIO_HASH_MASK(H)		((H)->u.hash->mask)
    #define IDIO_HASH_COUNT(H)		((H)->u.hash->count)
-   #define IDIO_HASH_START(H)		((H)->u.hash->start)
    #define IDIO_HASH_COMP_C(H)		((H)->u.hash->comp_C)
    #define IDIO_HASH_HASH_C(H)		((H)->u.hash->hash_C)
    #define IDIO_HASH_COMP(H)		((H)->u.hash->comp)
    #define IDIO_HASH_HASH(H)		((H)->u.hash->hash)
-   #define IDIO_HASH_HE_KEY(H,i)	((H)->u.hash->he[i].k)
-   #define IDIO_HASH_HE_VALUE(H,i)	((H)->u.hash->he[i].v)
-   #define IDIO_HASH_HE_NEXT(H,i)	((H)->u.hash->he[i].n)
+   #define IDIO_HASH_HA(H,i)		((H)->u.hash->ha[i])
    #define IDIO_HASH_FLAGS(H)		((H)->tflags)
 
 Here we have:
 
-* ``size`` is the nominal hash size, 2\ :sup:`n`-1, plus the size of
-  the attic (since I was added it "on top") which I have made to be an
-  eighth of the nominal size
-
-  Given that the nominal size is a power of two then one eighth of
-  that is similarly easy to calculate.
+* ``size`` is the nominal hash size, 2\ :sup:`n`
 
 * ``mask``
 
@@ -244,14 +202,6 @@ Here we have:
   by a series of low-order ones: 0xf, 0x1f, 0x3f, 0x7f, 0xff, ...
 
 * ``count`` is the number of keys in the hash table
-
-* ``start`` is a pointer into the attic as to where to start looking
-  for a free index
-
-  This is obviously a time/space trade-off which is only effective
-  when you start to get quite big hash tables with a large attic.
-  You're now saving the time spent starting at the top of the attic
-  looping over all the used slots you checked last time through.
 
 * ``comp_C`` is the :lname:`C` equivalence function pointer
 
@@ -340,6 +290,18 @@ Above and beyond the normal hash table accessors there is a
       allocated internal array.  The actual size is likely to be some
       function of the smallest :samp:`2**n - 1` that is greater than
       or equal to :samp:`{size}`.
+
+      The ``eqv?`` equivalence function is nearly useless, on
+      reflection.  The problem is not that ``eqv?`` doesn't work but
+      rather that whilst ``1`` and ``1.0`` are equivalent according to
+      ``eqv?`` they will be hashed differently because they are
+      different types, meaning they will most likely land in different
+      buckets and therefore there is unlikely to be anything to be
+      ``eqv?`` against in the found chain.
+
+      I'm leaving it in because 1) I can and b) someone might derive a
+      hashing function where two numbers that would be ``eqv?``
+      generate the same hash value.
 
 :samp:`hash-equivalence-function {hash}`
 

@@ -236,9 +236,9 @@ The essence is simple, the reader reads from a handle and the handle
 is aware of its own name and the current line number in the handle so,
 at the start of reading an expression, why don't we stash that away?
 
-*That* bit is easy -- noting that we get results for over a hundred
-thousand expressions in the simplest startup and shutdown.  But how do
-we get it back again?
+*That* bit is easy -- noting that we get results for tens of thousands
+of expressions in the simplest startup and shutdown.  But how do we
+get it back again?
 
 Hmm.  One thing that is useful to remember is that every *pair* in the
 system is unique -- the head and tail might refer to the same things
@@ -258,16 +258,18 @@ In practice this lexical object is a regular :lname:`Idio` structure
 with fields: (the handle's) ``name``, ``line``, (handle) ``pos`` and
 ``expr`` (again, just in case -- we're bound to lose it!).  Given that
 we intend that the key to the "source properties" hash table be
-``expr`` then it's not a good idea to have ``expr`` somewhere in the
-value meaning we will have 1) a circular data structure and 2)
-therefore some difficulty garbage collecting it.  To fix that the
-source properties hash table is flagged as having weak keys.  When
-``expr`` goes out of scope then we can reap the value that was once
-associated with it.
+``expr`` (at least the pair at the root of ``expr``) then it's not a
+good idea to have ``expr`` somewhere in the value, meaning we will
+have 1) a circular data structure and 2) therefore some difficulty
+garbage collecting it.  To fix that the source properties hash table
+is flagged as having weak keys.  When ``expr`` goes out of scope then
+we can reap the value that was once associated with it.
 
 So far, so good.  We can look up an expression in the source
 properties hash and get back where we read it in from.  What we need
-to do next with the expression is *remember it*.  Easier said than
+to do next with the expression is *remember it*.  Bah!  "Remember"
+isn't quite the right word.  We want to ensure that, at any time, we
+have access to the currently executing expression.  Easier said than
 done.
 
 The reader only needs to return the expression to the evaluator (not
@@ -279,6 +281,17 @@ The first part of that means that all the evaluator function calls
 need to carry a ``src`` expression object and switch to a more
 appropriate src expression when, say, processing the argument
 expressions of a function call.
+
+In other words, the original source code might say:
+
+.. code-block:: idio
+
+   (1 / a) + (1 / b)
+
+but we want the VM to be aware that it is in either ``(1 / a)`` or
+``(1 / b)`` when we inevitably discover that one of ``a`` or ``b`` is
+zero.  Of course, in this instance, all (seven!) "evaluable
+expressions" are on the same line but you get the idea.
 
 The second part means that it has to pass the source expression onto
 the code generator.  The code generator needs to install the
@@ -305,7 +318,8 @@ You may have noticed that this works for expressions that are pairs
 things here:
 
 #. only working for lists means that we're only tagging function
-   calls, ie. statements, rather than the elements of statements
+   calls, ie. statements, rather than the (atomic) elements of
+   statements
 
    At the end of the day, the code is simply one long list [sic] of
    function calls so we've got the basics.

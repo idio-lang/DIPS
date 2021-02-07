@@ -126,6 +126,8 @@ That's fairly easy.  Although we've already taken two ideas on board:
 It's more complicated with some operators like arithmetic ones which
 are *binary*, ie. take two arguments -- at least in their infix
 operator form.  ``+``, the function, takes any number of arguments.
+In an effort to speed things up a tiny amount, the infix arithmetic
+operators call :samp:`binary-{op}` rather than :samp:`{op}`.
 
 :samp:`{x} + {y}` is easily transformed into :samp:`(+ {x} {y})` and
 leading to the semantically questionable :samp:`{f} {x} + {y}`
@@ -151,7 +153,17 @@ looks up the implementation of the operator ``+`` and uses that.
 Pretty straightforward except that a ``+`` anywhere in the line
 (except in functional position) is the operator ``+`` and the reader
 will head of to do its thing.  *\*Bah!\** The trick is, of course, to
-escape the symbol, as in ``\+`` to avert the reader's gaze.
+escape the symbol, as in ``\+`` or ``'+`` to avert the reader's gaze.
+
+This doesn't always scan well as running a command with no
+environment:
+
+.. code-block:: idio
+
+   env '- ...
+
+shows.  Without the quote you'll probably get a complaint that the
+symbol ``env`` is not a number.
 
 Operator Definition
 -------------------
