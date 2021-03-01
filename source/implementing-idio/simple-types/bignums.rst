@@ -131,17 +131,17 @@ Summing that up:
      #define IDIO_BIGNUM_FLAG_REAL_INEXACT  (1<<3)
      #define IDIO_BIGNUM_FLAG_NAN           (1<<4)
 
-* we need an exponent and mantissa.  We'll use an ``intptr_t``
+* we need an exponent and mantissa.  We'll use an ``int32_t``
   exponent because... because *we can*.  So what if there are only 10\
   :sup:`80` atoms in the universe?  We want *more*.
 
   .. code-block:: c
      :caption: gc.h
 
-     typedef intptr_t IDIO_BS_T;
+     typedef int32_t IDIO_BE_T;
 
      typedef struct idio_bignum_s {
-         IDIO_BS_T exp;
+         IDIO_BE_T exp;
 	 IDIO_BSA sig;
      } idio_bignum_t;
 

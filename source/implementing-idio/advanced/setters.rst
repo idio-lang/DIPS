@@ -190,7 +190,7 @@ like:
      p-kwt := %properties p
      if (null? p-kwt) {
        p-kwt = make-keyword-table 4
-       %set-properties! proc p-kwt
+       %set-properties! p p-kwt
      }
 
      keyword-set! p-kwt :setter s

@@ -493,7 +493,7 @@ internally very consistent and be:
 
 * mostly BMP (2 byte) and some 1 byte code points
 
-* using 4 byte code points throughout
+* using 4 byte code points regularly
 
 If we join two strings together we can upgrade/widen the one or the
 other as required.  The only real problem is that anyone wanting to
@@ -672,6 +672,59 @@ There are a couple of notes:
 
    The string constructors for ``str1`` and ``str2`` are equivalent.
 
+Interpolated Strings
+^^^^^^^^^^^^^^^^^^^^
+
+Sometimes we want to embed references to variables, usually, or
+expressions in a string and have something figure out the current
+value of the variable or result of the expression and replace the
+reference with that result, something along the lines of:
+
+.. code-block:: idio
+
+   name := "Bob"
+
+   "Hi, ${name}!"
+
+I want double-quoted strings, the usual ``"..."``, to remain as fixed
+entities, much like single-quoted strings in, say, :lname:`Bash` are.
+That means we need another format, another ``#`` format!  Let's go for
+``#S{ ... }`` and everything between the matching braces is our
+putative string.
+
+The ``${name}``\ -style format seems good to me, the only issue being
+whether we want to change ``$`` for another sigil.  In the usual way,
+we'd pass that in between the ``S`` and ``{``:
+
+.. code-block:: idio
+
+   #S{Hi, ${name}!}
+
+   #S^{Hi, ^{name}!}
+
+The second interpolation character is the escape character, defaulting
+to ``\``, as usual.
+
+You can use the usual matching bracketing characters, ``{}``, ``[]``
+and ``()`` to delimit the main block:
+
+.. code-block:: idio
+
+   #S[${name} is ${string-length name} letters long.]
+
+but only braces, ``{}`` for the references.
+
+There is a subtlety here as the results of the expressions are not
+necessarily themselves strings so, in practice, all of the elements of
+the putative string, the non-expression strings and the results of the
+expressions are ``map``\ ed against ``->string`` which leaves strings
+alone and runs the "display" variant of the printer for the results of
+the expressions.
+
+``->string`` does not perform any splicing so if your expression
+returns a list then you'll get a list in your string.  It might be
+what you want!
+
 Writing
 -------
 
@@ -772,6 +825,8 @@ Strings
 
       See also :ref:`symbol->string <symbol->string>`.
    
+.. _`append-string`:
+
 :samp:`append-string [{string} ...]`
 
       return a string constructed by appending the string arguments
@@ -904,12 +959,20 @@ Strings
       string :samp:`{delim}` placed in between each pair of strings
 
       :samp:`{list}` is a, uh, list, here, unlike, say,
-      :ref:`append-string` as it follows the :lname:`Scheme` form
-      (albeit with arguments shifted about) which takes another
-      parameter indicating the style in which the delimiter should be
-      applied, such as: before or after every argument, infix (the
-      default) and a strict infix for complaining about no arguments.
+      :ref:`append-string <append-string>` as it follows the
+      :lname:`Scheme` form (albeit with arguments shifted about)
+      which takes another parameter indicating the style in
+      which the delimiter should be applied, such as: before or
+      after every argument, infix (the default) and a strict
+      infix for complaining about no arguments.
 
+:samp:`strip-string {str} {discard} {ends}`
+
+      return a string where the characters in :samp:`{discard}` have
+      been removed from the :samp:`{ends}` of :samp:`{str}`
+
+      :samp:`{ends}` can be one of ``'left``, ``'right``, ``'both`` or
+      ``'none``.
 
 .. include:: ../../commit.rst
 

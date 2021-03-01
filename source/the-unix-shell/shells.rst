@@ -9,7 +9,7 @@ The word *shell* itself was coined by `Louis Pouzin
 <https://en.wikipedia.org/wiki/Louis_Pouzin>`_ after implementing
 `RUNCOM <https://en.wikipedia.org/wiki/Run_commands>`_ (from which we
 get the fossil term/suffix *rc*) at MIT in the early-mid 1960s for its
-:abbr:`Compatible Time-Sharing System (CTSS)`.  He wrote a paper on
+:abbr:`CTSS (Compatible Time-Sharing System)`.  He wrote a paper on
 how to implement it for `Multics
 <https://en.wikipedia.org/wiki/Multics>`_ before returning to his
 native France.  `Glenda Schroeder

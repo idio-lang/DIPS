@@ -14,6 +14,7 @@ More "advanced" stuff.
    :maxdepth: 2
 
    setters
+   c-api
 .. conditions
 
 .. include:: ../../commit.rst

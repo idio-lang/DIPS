@@ -23,6 +23,7 @@ simple types.
    handles
    bitsets
    functions
+   c-types
 
 .. include:: ../../commit.rst
 

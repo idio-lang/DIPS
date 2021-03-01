@@ -1205,7 +1205,7 @@ In :file:`common.idio` there are some extra utility functions.
 
       * ``args`` in which case a ``%`` character in the format string
         starts an escape sequence which has the general form
-        :samp:`%[{flags}][{prec}][.{width}]{K}` where :samp:`{K}` is a
+        :samp:`%[{flags}][{width}][.{prec}]{K}` where :samp:`{K}` is a
         :manpage:`printf(3)`-ish format character with arguments in
         the parameter list ``args``
 
@@ -1217,7 +1217,7 @@ In :file:`common.idio` there are some extra utility functions.
 
       * ``keyed`` in which case a ``%`` character in the format string
         starts an escape sequence which has the general form
-        :samp:`%[{flags}][{prec}][.{width}]{K}` where :samp:`{K}` is a
+        :samp:`%[{flags}][{width}][.{prec}]{K}` where :samp:`{K}` is a
         single Unicode code point (satisfying ``unicode-alphabetic?``)
         which is expected to be a key in the optional hash table --
         unless it is another ``%`` character.  The value associated
@@ -1252,9 +1252,9 @@ In :file:`common.idio` there are some extra utility functions.
       \*
 
       As the start of some work to make the printer more dynamic, you
-      can redefine how a struct instance is printed.  By default, the
-      format is :samp:`#<SI {typename} {fields}>` where
-      :samp:`{fields}` is a space-separated list of
+      can redefine how a struct instance or a :lname:`C` pointer is
+      printed.  By default, the format is :samp:`#<SI {typename}
+      {fields}>` where :samp:`{fields}` is a space-separated list of
       :samp:`{fieldname}:{value}`.
 
       As an alternative, you can register a "printer" against a struct
