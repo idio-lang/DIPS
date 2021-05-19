@@ -48,6 +48,10 @@ and ``|`` symbols creating the visually pleasing ``< | >`` structure
 is a work of genius.  Or a stroke of luck.  Hard to say.  Still, well
 done, Ken.  His name rings ma bell, mind, has he done anything else?
 
+You can read his 1976 paper on `The Unix Command Language
+<https://susam.github.io/tucl/the-unix-command-language.pdf>`_ and its
+key notion of "I/O streaming and interconnection of utility program.".
+
 The Bourne shell subsequently added features like:
 
 - command substitution using backquotes
@@ -136,6 +140,9 @@ Stepping away from regular shells, :ref-author:`Olin Shivers`' Scsh_
 is a shell embedded in :lname:`Scheme` together with a syscall library
 for systems programming.
 
+There are even papers being written about `The Once and Future Shell
+<https://angelhof.github.io/files/papers/shell-2021-hotos.pdf>`_.
+
 The Interactive Shell
 =====================
 
@@ -157,6 +164,11 @@ scripting and if we can make better shell *programs*.  :lname:`Bash`,
 :lname:`Zsh` and :lname:`fish` and any number of others have more than
 we need for "|uarr| :kbd:`RETURN`" or whatever fancy interaction with
 the shell you care to name.
+
+.. aside::
+
+   On a related note, read a little about the `tty
+   <http://www.linusakesson.net/programming/tty/index.php>`_.
 
 This is partly because we're unlikely to do a better job but mostly
 because it's *hard*.  It's *really hard*.  I can't find a reference

@@ -2,9 +2,9 @@
 
 .. _`advanced`:
 
-********
+########
 Advanced
-********
+########
 
 More "advanced" stuff.
 
@@ -15,6 +15,7 @@ More "advanced" stuff.
 
    setters
    c-api
+   continuations-and-escapes/index
 .. conditions
 
 .. include:: ../../commit.rst

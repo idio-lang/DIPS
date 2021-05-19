@@ -1434,7 +1434,7 @@ Shell Variables
 
    One shot or you've missed it.  I envisage the ability to go back
    and query interesting things about your child processes at any time
-   although it is possible, like the backgrounded `sleep``\ s above,
+   although it is possible, like the backgrounded ``sleep``\ s above,
    there's no easy way to distinguish between them.
 
 ``$?``
@@ -1462,7 +1462,7 @@ Shell Variables
    ``PWD`` is the current working directory as set by ``cd`` --
    **not** the result of :manpage:`getcwd(3)`.
 
-   Here, you maintaining the logical path in your rat's nest of
+   Here, you are maintaining the logical path in your rat's nest of
    symlinks in the underlying filesystem.
 
 ``SECONDS`` (and ``RANDOM``)

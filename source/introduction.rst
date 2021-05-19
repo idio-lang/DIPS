@@ -103,7 +103,7 @@ day but in trying to implement :lname:`Idio` I hit a problem.  I
 couldn't for the life of me, find out *how* (to a large part) but more
 importantly *why* some languages were written the way they were.  They
 simply exist, *de facto*, without explanation and have done so for
-decades -- :lname:`Python` is a relative stripling at 25 years old.
+decades -- :lname:`Python` is a relative stripling at 30 years old.
 You need to reverse engineer thousands upon thousands of lines of code
 without explanation which still won't tell you why someone chose a
 particular implementation.
@@ -517,7 +517,7 @@ A broad range without being too specific:
    :header: "ISA", "OS", "bits", "notes"
    :align: left
 
-   "x86-64", "Fedora 33", 64
+   "x86-64", "Fedora 34", 64
    "x86-64", "Ubuntu 18", 64
    "x86-64", "Debian 10", 64 / 32
    "x86-64", "CentOS 7", 64
@@ -529,6 +529,8 @@ A broad range without being too specific:
    "i386", "Mac OS 10.5.8", 32
    "ARMv7", "Raspbian 9", 32
    "aarch64", "Raspbian (Debian 10)", 64
+   "aarch64", "Fedora 34", 64
+   "aarch64", "Ubuntu 20", 64
    "x86-64", "Windows 10 via WSL", 64
 
    "x86-64", "Solaris 10", 32, WIP

@@ -12,6 +12,7 @@
 #
 import os
 import sys
+import datetime
 # sys.path.insert(0, os.path.abspath('.'))
 sys.path.append(os.path.abspath('./_ext'))
 
@@ -19,7 +20,8 @@ sys.path.append(os.path.abspath('./_ext'))
 # -- Project information -----------------------------------------------------
 
 project = 'DIPS'
-copyright = '2020, Ian Fitchet'
+now = datetime.datetime.now()
+copyright = '2020-{0}, Ian Fitchet'.format (now.year)
 author = 'Ian Fitchet'
 
 # The full version, including alpha/beta/rc tags

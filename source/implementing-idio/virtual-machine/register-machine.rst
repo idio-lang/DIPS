@@ -410,7 +410,11 @@ Most unexpected values for ``RETURN`` will result in a VM panic.
 
 I suppose it's not impossible to get a wrong but valid value for
 ``RETURN`` off the stack and things will stagger along unexpectedly.
-I'm not sure it's possible to identify such a situation.
+I'm not sure it's possible to identify such a situation and it sounds
+like we're into the same sorts of scenarios that real-world programs
+face with stack overflows, buffer overruns etc..
+
+.. _prologue:
 
 Prologue
 ^^^^^^^^
@@ -527,11 +531,13 @@ stack.
 ``PUSH-VALUE`` and ``POP-VALUE`` transfer values between the stack and
 *val*.  For example, the byte code for ``(+ a 1)`` will:
 
-* evaluate ``+`` (here a symbolic reference leaving the value in *val*)
+* evaluate ``+`` (here a symbolic reference to a function leaving the
+  value in *val*)
 
 * ``PUSH-VALUE`` *val* onto the stack
 
-* evaluate ``a`` (here a symbolic reference leaving the value in *val*)
+* evaluate ``a`` (here a symbolic reference to a value leaving the
+  value in *val*)
 
 * ``PUSH-VALUE`` *val* onto the stack
 
@@ -549,15 +555,15 @@ In this case, the code will continue to:
 * ``ALLOCATE-FRAME 3`` (two fixed arguments plus a varargs
   placeholder) leaving a frame in *val*
 
-* ``POP-FRAME 1`` popping the top of the stack (the value 1) into slot #1 of the
-  frame in *val*
+* ``POP-FRAME 1`` popping the top of the stack (the value 1) into slot
+  #1 of the frame in *val*
 
 * ``POP-FRAME 0`` popping the top of the stack (the value of ``a``)
   into slot #0 of the frame in *val*
 
-The stack represents the current state of the computation -- a sort of
-"how far we've got" -- which is what we need to know when we look to
-implement continuations.
+So the stack represents the current state of the computation -- a sort
+of "how far we've got" -- which is what we need to know when we look
+to implement continuations.
 
 The stack also becomes a handy place to stash things as computation
 progresses.  Transient values such as traps, dynamic and environment
@@ -577,8 +583,8 @@ transiently as part of its evaluation, see the example above -- but
 then we'd need somewhere else to store arguments and it becomes a bit
 hard to follow when your function is in *val*.
 
-Obviously there is an opcode to pop a value off the stack and into
-*func*.
+Therefore there is an opcode to pop a value off the stack and into the
+register *func*.
 
 The example above would have continued:
 
@@ -807,11 +813,14 @@ that is the one with the highest "next" pointer and now pushing *it*
 
 Fortunately, it does all get unwound correctly!
 
-Cached Values
-=============
+Dynamic Environment
+===================
 
 As noted previously, there are some values that we keep handy in case
-someone asks for them.
+someone asks for them.  They form a *dynamic environment* which, in
+some senses, holds state, much like the stack does.  It's more
+convenient to hold them separately rather than search for them on the
+stack (where they could have lived).
 
 Handles
 -------
@@ -823,8 +832,8 @@ descriptors) 0, 1 and 2.
 So long as all the :lname:`Idio` code remembers to ask for the current
 input/output/error handle then everything just works.
 
-That's not quite true, today.  Large parts of the error handling and
-debug code assume ``stderr`` is good to go.
+That's not quite true, today, mind.  Large parts of the error handling
+and debug code assume ``stderr`` is good to go.
 
 Module
 ------
@@ -832,9 +841,16 @@ Module
 We retain the idea of the current module.  This is the result of the
 last instruction to change module.
 
+.. sidebox::
+
+   Which people do ask so it's, uh, useful, then.
+
+It's not really useful other than for someone asking, *what's the
+current module?*
+
 There is some standard(-ish) but suitably head-scratchingly
 complicated :lname:`Idio` code mixed across :file:`module.idio` and
-:lname:`call-cc.idio` which handles the automatic reversion of the
+:file:`call-cc.idio` which handles the automatic reversion of the
 sense of the "current module" when the reader hits end of file
 (technically, when the ``load`` function completes).
 
@@ -856,6 +872,28 @@ forward lookup in a function then we'll be dealing with a symbol index
 and we need to ask questions of the current environment -- or, rather,
 the environment the function was defined in.
 
+By way of example, you can imagine defining a library function in some
+utility module.  That function is defined in the context of whatever
+local (to the utility module) variables and helper functions exist.
+
+In your action module you want to call that library function.
+Clearly, when the library function needs to make use of its local
+variables it doesn't want to confuse them with your local variables.
+Everyone has a variable, ``i``, right?  We don't want mistakes to be
+made!
+
+So, part of the "calling a function" protocol is to seamlessly save
+the current module and switch in the module of the function being
+called.  Obviously(?) the calling protocol will restore the original.
+
+In fact, although it's not immediately obvious, both the environment
+module and the extant *frame* are saved and restored and the called
+function's environment module and frame are substituted.
+
+Those two elements constitute the *context* in which the library
+function was defined and therefore what needs to be manipulated as
+part of the function call protocol.
+
 Expression
 ----------
 
@@ -869,13 +907,89 @@ A single small expression in the source can balloon out to hundreds of
 lines of code if it was a template which does leave some mysterious
 debug.
 
-Continuation
+Thread Value
 ============
 
-To help with the implementation of continuations we use :lname:`C`'s
-:manpage:`sigsetjmp(3)` and friends.  For that we need somewhere to
-store the ``sigjmp_buf``.
+I'll be honest, I accidentally created a *thread* value because I was
+fed up of passing an increasing number of parameters around:
 
+* the *PC*
+
+* the *stack*
+
+* the various registers: *val*, *frame*, *env*, *func*, *reg1*, *reg2*
+
+* the current :manpage:`sigsetjmp(3)` ``sigjmp_buf``
+
+* the current input, output and error handles
+
+* (at the time) the trap, dynamic and environ stack pointers
+
+* the current module
+
+It took me a long time to realise that, actually, such an value
+neatly encapsulates all of the dynamic environment of any thread of
+control running through the byte code.
+
+Clearly, if/when I could be bothered it becomes trivial to instantiate
+another such instance and :manpage:`fork(2)`/:manpage:`clone(2)` it
+off or even, *\*shudders\**, rustle up some
+native/POSIX/green/kernel/whatever thread, uh, threads.
+
+In a previous version I implemented :ref-author:`Bill Hails`' example
+of using continuations and a "trampoline" to provide green threads
+which was very cool.
+
+.. rst-class:: center
+
+\*
+
+In fact we do have (at least) two threads running although they never
+run at the same time.  As well as *the* nominal thread we have the
+*expansion* thread which is used to maintain some sense of distance
+between the main working thread and the activities of expansion.
+
+So, as well as having a different module to run in, ``expander``, the
+*PC*, *stack* etc. are all in a separate *thread* value.  As they run
+in the same operating system process, there's nothing to stop them
+modifying each other's namespace and we rely on common programming
+decency here.
+
+In that sense, these *thread* values are not offering us any useful
+state or time domain distinctions but rather, very simply, offer to
+maintain distinct impressions of progress through the byte code.
+
+You also have to be in :lname:`C`-land to jump between them.  It's not
+a user-facing thing.
+
+Continuation Values
+===================
+
+Ahead of a fuller (by which I mean, thoroughly brain frazzling)
+discussion on :ref:`idio continuations` we should note that the idea
+of a continuation requires the ability to restore the program state as
+was and continue at some point with a (the) given value.
+
+Originally, that took the form of remembering the *stack*, the *frame*
+and *env*, the :manpage:`sigsetjmp(3)` ``sigjmp_buf`` and the
+to-be-resumed-at *PC*.
+
+However, ruminations are leading me towards a more or less complete
+copy of the *thread* value as described above.  The only elements that
+don't need copying are the simpler registers (*val*, *func*, *reg1*
+and *reg2* -- the former as we intend to replace it and the latter as
+they are only used to make function calls).
+
+Particularly when recovering from errors, restoring the state of the
+current input, output and error handles seems as important as the
+*frame* and *env*.  However, we trip over an issue with continuations
+and ``unwind-protect``.
+
+Here, the continuations would be at risk of saving, ready to restore,
+file descriptors that were transiently opened which will get closed in
+the cleanup thunk.  That does happen in ``with-handle-redir`` in
+:file:`job-control.idio` although the problem isn't restricted to
+there, anyone could make the same mistake.
 
 .. include:: ../../commit.rst
 

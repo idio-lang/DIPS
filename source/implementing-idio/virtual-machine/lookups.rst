@@ -99,7 +99,8 @@ Therefore, this won't work:
 
 because the evaluator isn't really evaluating, it's inferring meaning
 from the forms and can only see the symbol ``mod``, so it thinks
-you're changing to module ``mod``.
+you're changing to module ``mod`` and has no notion that ``m1`` is
+involved in any way.
 
 In the meanwhile, the evaluator can build up a symbol table for the
 module containing some useful information associated with each
@@ -109,9 +110,12 @@ The information is for internal use but currently consists of:
 
 * the variable type -- probably *toplevel* in this instance
 
-* the VM constants index of :samp:`{name}`
+* the VM constants index of :samp:`{name}` -- so we don't need to
+  store the variable *name* ``supercalifragilisticexpialidocious`` in
+  lots of places but just a small-ish number instead.
 
-* the VM value index
+* the VM value index -- so we have somewhere to store the variable's
+  *value*
 
 * the module the symbol was originally bound in -- this is clearly
   useless in the face of re-use but is handy for debugging
@@ -197,7 +201,8 @@ There's a couple of boundary cases here:
    Although how *should* we deal with this (other than demeaning
    elderberries with your familial history)?
 
-#. repeated declarations of ``n`` do not give rise to new indices
+#. repeated declarations of ``n`` (at the top level) do not give rise
+   to new indices
 
    .. code-block:: idio
 
@@ -305,28 +310,37 @@ iterations by initialising the index here to :samp:`{-x}`.
 At every access of the local value index table we can then perform a
 test: is the value negative?
 
-* if negative then access the symbol stored in the local symbol table
-  at :samp:`{x}` and use the :lname:`Idio` engine's lookup mechanisms
-  to figure out if the symbol exists in the current module or an
-  export of its imported modules or whether we need to create a new
-  value index.
+* if negative then access the symbol stored in the *local symbol
+  table* at (positive) :samp:`{x}` and use the :lname:`Idio` engine's
+  lookup mechanisms to figure out if the symbol exists in the current
+  module or an export of its imported modules or whether we need to
+  create a new value index.
 
-  Either way, we store the resultant (always positive) VM value index
-  over the top of the initial :samp:`{-x}` value.
+  Either way, we store the resultant (always positive) VM *value*
+  index over the top of the initial :samp:`{-x}` local symbol table
+  index value.
 
   Continue on to access the variable with the value index
 
-* if positive then use the value index to access the variable
+* if positive, ie. we've just done the above, then use the value index
+  to access the variable
 
 We have one observation, here, in that the per-module value index
-table is initialised to :samp:`{-x}` (a small-ish integer) but will be
-replaced by a potentially large VM value index (eleventy billion).
-The table needs to handle that.  The chances are that it is a regular
-:lname:`Idio` array (indexed by a small-ish integer) and so the
-replacement value (an Idio fixnum, probably, so maybe eleventy billion
-is out of the question on a 32-bit system, just roll with it) will fit
-happily but the observation is that it can't be a clever run-length
-encoded value -- the sort of thing we use *in* the byte code.
+table is initialised to :samp:`{-x}` (a small-ish, perhaps
+single-digit, integer) but will be replaced by a potentially large VM
+value index (say, eleventy billion).  The table needs to handle that.
+
+The chances are that this per-module value index table is a
+fixed-width number and so the replacement value (an Idio fixnum,
+probably, so maybe eleventy billion is out of the question on a 32-bit
+system, just roll with it) will fit happily but the observation is
+that it can't be a clever run-length encoded value -- the sort of
+thing we use *in* the byte code.
+
+That does suggest a limit on the number of possible variables.  The
+chances are it'll be a 32 bit entity (as 16 bits and therefore 65,536
+variables seems too small and three bytes is too awkward) giving ample
+room for most programs' variables.  Obviously, this may need review.
 
 .. rst-class:: center
 
@@ -414,8 +428,9 @@ pre-resolved to :samp:`{i}` as well.
 
 All this double-dereferencing and extra per-module symbol and value
 index tables seems a bit over the top.  It does allow us to not have
-to re-write the byte code.  That is a good thing because it allows us
-to maintain some integrity over it which has to be a good thing.
+to re-write the byte code of pre-compiled modules (a suggestion in
+:ref-title:`LiSP` amongst others) which in turn allows us to maintain
+some integrity over it which has to be a good thing.
 
 The only part that is modified is the value index table -- which
 needn't be part of the distributed code, anyway.
@@ -455,8 +470,8 @@ existing body of code under the guise of module ``m``.
 be disallowed?`
 
 Skipping those vital questions, let's suppose we're augmenting module
-``m`` with the vital function ``foo``.  Our pre-compiled code block
-has referenced "top level" variables ``a``, ``b``, ``n`` and ``foo``.
+``m`` with the function ``foo``.  Our pre-compiled code block has
+referenced "top level" variables ``a``, ``b``, ``n`` and ``foo``.
 That's great for the snippet but how does anyone else find out about
 these names?
 

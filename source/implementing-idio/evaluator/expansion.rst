@@ -44,8 +44,8 @@ expand!) as in :samp:`\`(+ 1 ,{var})` which I find hard to read when
 it gets much more complicated than that.  I guess you get used to it.
 
 We simple scripting folk are more familiar with using the *dollar*
-symbol to represent expanding things to we only need something to
-start quasiquotation.  ``#`` introduces weird stuff, we're calling
+symbol to represent expanding things and then we only need something
+to start quasiquotation.  ``#`` introduces weird stuff, we're calling
 this world templating so :samp:`#T\\{ + 1 ${var} }` it is.
 
 So, within those lists we can ask for expressions to be evaluated and
@@ -183,7 +183,7 @@ bit should have been a clue.
       is a parameter to the template
 
       Templates really only differ in that they are flagged as
-      "expanders" internally so the evaluator can identify them, and
+      *expanders* internally so the evaluator can identify them, and
       that the value they return is itself evaluated in turn (we'll
       get to this!).
 
@@ -426,10 +426,29 @@ appears to be following in the style of :ref-author:`Dybvig, Friedman
 and Haynes`' :ref-title:`Expansion-Passing Style: A General Macro
 Mechanism` (:cite:`eps`).
 
-In essence, we pass the expression to be expanded, :samp:`{x}`, and an
-"expansion" function, :samp:`{e}`, around to everything -- by passing
-:samp:`{e}` it is the "expansion" passing style.  :samp:`{e}` only
-really gets used in ``application-expander``.
+To perform template expansion we need to go a bit meta.  We want to
+loop recursively expanding templates until we run out of templates to
+expand.  To manage that we have embedded the actual template function
+inside an *expander* which takes a uniform pair of arguments: the
+expression to be expanded, :samp:`{x}`, and an "expansion" function,
+:samp:`{e}`.  By passing :samp:`{e}` it is the "expansion" passing
+style.  :samp:`{e}` only really gets used in ``application-expander``.
+
+The original template definition, :samp:`define-template ({name}
+{formal*}) {body}`, is reworked into :samp:`define-template {name}
+(function ({formal*}) {body})` or :samp:`define-template {name}
+{proc}`.
+
+We can use :samp:`{proc}` in the expander by defining it as:
+
+.. parsed-literal::
+
+   *expander* = function (x e) {
+      apply *proc* (pt x)
+   }
+
+remembering that :samp:`{x}` is the whole expression :samp:`{name}
+{args}` and therefore :samp:`pt {x}` is equivalent to :samp:`{args}`.
 
 The entry point for expansion is always ``initial-expander`` and the
 nominal value for :samp:`{e}` is also ``initial-expander``.

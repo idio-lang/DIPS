@@ -163,9 +163,22 @@ No one expects to be able to write the following in :lname:`C`:
 
    int main (char **argv, int argc = length(argv))
 
-where one formal parameter is derived from an earlier one.  The formal
-parameters are independent and, so far as you can tell (from inside
-the function), created in parallel.
+.. sidebox::
+
+   Actually, I read when researching the :ref:`C-api` work, that the
+   original definition should have been something like:
+
+   .. code-block:: c
+
+      int main (int argc, char *argv[argc])
+
+   as the size of the ``argv`` array *is* known.  However, in
+   :lname:`C`, arrays decompose into pointers with attendant loss of
+   information.
+
+where one formal parameter is *derived* from an earlier one.  The
+formal parameters are independent and, so far as you can tell (from
+inside the function), created in parallel.
 
 Why are we doing this anyway?  What was wrong with plain old ``let``?
 In principle, nothing, in practice it means we have to support two
@@ -911,6 +924,8 @@ neither case is that code re-active.
 Whether that's the right way to approach problem solving is another
 question.
 
+.. _continuations:
+
 Continuations
 =============
 
@@ -1014,12 +1029,14 @@ to you and you have to tell your continuation whom to call in turn.
 That's looks "difficult" to create but it turns out to be easier than
 you think.
 
-.. sidebox:: At one point I went through the process of transforming
-             my :lname:`C` implementation of :ref-author:`Bill Hails`'
-             :lname:`Perl` interpreter and transformed it into a CPS
-             version.  *Phew!*
+.. sidebox::
 
-	     You don't want to do that *too* often.
+   At one point I went through the process of transforming my
+   :lname:`C` implementation of :ref-author:`Bill Hails`'
+   :lname:`Perl` interpreter and transformed it into a CPS version.
+   *Phew!*
+
+   You don't want to do that *too* often.
 
 You can even go through a process of transforming your, say,
 :lname:`C` code into a CPS program which, with your :lname:`C` hat on,
@@ -1134,16 +1151,16 @@ call/cc
 
 You can't get any old continuation -- that would be madness (though
 there's probably some programming languages where you can).  In
-:lname:`Scheme` you have to have passed *through* the continuation you
-want to capture -- that clearly places a severe limitation on being
-able to jump about.  On top of that it is caught with a slightly
-confusing function, ``call-with-current-continuation`` or ``call/cc``
-(a relief to everyone's keyboard, if nothing else).
+:lname:`Scheme` you have to have reached the statement before the
+continuation you want to capture -- that clearly places a severe
+limitation on being able to jump about.  On top of that it is caught
+with a slightly confusing function, ``call-with-current-continuation``
+or ``call/cc`` (a relief to everyone's keyboard, if nothing else).
 
 ``call/cc`` does exactly what it says on the tin.  It figures out *its
 own* continuation and passes that to the function you supplied.  It
-has called your function with the current continuation.  Can't fault
-the name!
+has called your function with the current continuation of the call to
+``call/cc``.  Can't fault the name!
 
 ``call/cc`` calls the function with the continuation and, sort of like
 a single form'ed body of a function, will return the value that the

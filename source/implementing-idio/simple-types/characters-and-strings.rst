@@ -134,6 +134,13 @@ sorts of other things you didn't realise were an issue.
 Don't let the simplistic nature of the Unicode_ home page concern you,
 go straight to the `Unicode reports`_ and get stuck in.
 
+.. sidebox::
+
+   For those who haven't read the `history of UTF-8
+   <http://doc.cat-v.org/bell_labs/utf-8_history>`_ with
+   :ref-author:`Rob Pike`, :ref-author:`Ken Thompson` and a New Jersey
+   diner placemat.
+
 Actually, don't.  Here, in :lname:`Idio`-land, we **do not** "support"
 Unicode.  We use the `Unicode Character Database`_ (UCD) and some
 categories and properties related to that and UTF-8 encoding.  We will

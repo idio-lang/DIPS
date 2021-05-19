@@ -163,25 +163,45 @@ Where ``hhhh`` is the commonly used Unicode code point hexadecimal
 number.
 
 The traditional :lname:`Scheme` reader input form for characters is:
-``#\X`` for some ``X`` so, with our ASCII hats on:
+``#\X`` for some ``X`` so, with our near-ASCII hats on:
 
 .. code-block:: idio
 
    #\A
    #\b
    #\1
+   #\ħ
 
-will create instances of the (now Unicode) characters, ``A``, ``b``
-and ``1``.
+will create instances of the (now Unicode) characters, ``A``, ``b``,
+``1`` and ``ħ`` U+0127 (LATIN SMALL LETTER H WITH STROKE).
 
-It won't work for Unicode characters in general (other than those less
-than U+100) as the reader is a bit naive as it reads things in.  A
-work in progress, as noted, and you can always use ``#U+hhhh``.
+For Unicode code points in general we get into a bit of a mess.  The
+:samp:`#\\{something}` format will always work (assuming that
+:samp:`{something}` is valid UTF-8) but the person viewing the source
+code might not see anything useful.  In fact, I'm assuming you can see
+the correct glyph for ``ħ`` and not some substitute "box character."
+
+.. aside::
+
+   There's a decent chance I wouldn't spot anything wrong in the ASCII
+   range!
+
+The problem lies in your viewer's (text editor, web viewer) ability to
+draw the corresponding code point's glyph.  I don't know if you have
+appropriate support for displaying glyphs outside of the "usual" ASCII
+ranges.  My editors and fonts (I'm largely using *DejaVu Sans*) don't
+do a very good job outside of the Unicode BMP plane (the first 65,536
+codepoints) and I wouldn't know if they did a decent job *within* that
+code plane.
+
+So, by and large, we're probably better off using the #U+127 format
+for "exotic" characters in order that we give other users an outside
+chance of figuring out what we're up to.
 
 Exotic Base Types
 ^^^^^^^^^^^^^^^^^
 
-I haven't needed, yet, any more exotic fundamental types.  A
+I haven't needed, yet, any further exotic fundamental types.  A
 fundamental type is one where there is some performance or efficiency
 gain to be had for the construction (and deconstruction for printing)
 of what is, fundamentally, a string in the source code.
@@ -189,9 +209,8 @@ of what is, fundamentally, a string in the source code.
 GUID
 """"
 
-Post-creation, are these used in any way other than to print them out?
-I guess there's a comparison of GUIDs that can be made which could be
-equally done as a string (albeit slower).
+Post-creation, are these used in any way other than to compare them or
+print them out?
 
 Commonly manipulated forms include (for the same GUID):
 
@@ -681,12 +700,9 @@ That, in turn, requires not just the ability to call
 :manpage:`stat(2)` but also access to something that can compare two
 :lname:`C` ``size_t``\ s (or ``time_t``\ s or ...).
 
-.. sidebox:: It's poor because we need some a) better and b) generic
-             mechanisms to handle :lname:`C` types.
-
-I've created a (rather poor) ``libc/stat`` function which returns an
-:lname:`Idio` structure where the fields are named after their
-``struct stat`` equivalents and a ``C/<`` function for those two.
+There is a ``libc/stat`` function which returns an ``C/pointer``
+structure where the fields are named after their ``struct stat``
+equivalents and a ``C/<`` function for those two.
 
 Here's a snippet showing the code for sorting by ``sb_size``.
 
@@ -849,7 +865,16 @@ happy to do the right thing when given a string (for a filename) or a
 handle (file or string).
 
 I guess we could do with another bit of syntax sugar to eliminate the
-temporary variable, ``out``.
+temporary variable, ``out``, how about:
+
+.. code-block:: idio
+
+   collect-output date +%Y%m%d-%H%M%S
+
+with the value returned by ``collect-output`` being the string of the
+output from the command.
+
+This should work for pipelines too!
 
 The IO redirection infix operator ``>`` does something sensible with:
 

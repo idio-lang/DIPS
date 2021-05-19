@@ -104,6 +104,7 @@
 .. _`starter for ten`: https://en.wikipedia.org/wiki/University_Challenge
 .. _`template::Toolkit`: http://www.template-toolkit.org/
 .. _closure: https://en.wikipedia.org/wiki/Closure_(computer_programming)
+.. _`delim-control-n.scm`: http://okmij.org/ftp/Scheme/delim-control-n.scm
 .. _elvish: https://elv.sh
 .. _fish: http://fishshell.com
 .. _generators: https://en.wikipedia.org/wiki/Generator_(computer_programming)

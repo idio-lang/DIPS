@@ -11,7 +11,7 @@ The Design and Implementation of a Programmable Shell
 .. todolist::
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    introduction

@@ -158,6 +158,10 @@ pre {
     font-size: smaller;
 }
 
+table.highlighttable td.linenos {
+    padding-top: 7px;
+}
+
 .rev {
     background: #282828;
     color: #fff;

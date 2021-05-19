@@ -1,6 +1,6 @@
 .. include:: ../../global.rst
 
-.. _c_api:
+.. _`C-api`:
 
 *******
 C API

@@ -59,7 +59,8 @@ To figure out what I'm doing wrong.  Yes, it is crying out for a
 varargs implementation.
 
 ``idio_debug()`` is so useful I created an :lname:`Idio` variant:
-:samp:`idio-debug {fmt} {value}`.
+:samp:`idio-debug {fmt} {value}` -- although it has been superceded by
+:ref:`printf <printf>` and friends.
 
 There are some slight limits as the depth to which the code will
 recurse through objects is restricted to minimise issues with circular

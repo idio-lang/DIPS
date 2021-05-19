@@ -26,7 +26,7 @@ Initially, I wrote all of those system interfaces by hand although I
 became increasingly annoyed (with myself) for not handling types
 correctly.  Particularly for structures.
 
-Eventually I started the :ref:`c_api` work which required a overhaul
+Eventually I started the :ref:`C-api` work which required a overhaul
 of the handling of :lname:`C` types.
 
 Of course, once that's done it is available for use elsewhere.
@@ -284,7 +284,7 @@ C Pointers
 instance we need to store a "free me" flag as a few :lname:`C`
 pointers we pass around are not ours to :manpage:`free(3)`.
 
-In writing the :ref:`c_api` I needed a mechanism to associate some
+In writing the :ref:`C-api` I needed a mechanism to associate some
 arbitrary blob of memory allocated for some ``struct`` with a
 primitive that knew how to access the members of the struct.
 

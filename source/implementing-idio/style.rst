@@ -65,6 +65,13 @@ than an element is semi-nonsensical as you would simply pass the array
 itself.  Similarly ``array-set!`` with a whole array?  What is the
 intention, what are you trying to do?
 
+By way of some possibly confusing examples, on the one hand, if we
+want to set a fixed attribute of a compound element then we use the
+former variant, eg. ``set-ph!``.  On the other hand, from the
+:ref:`C-api`, the likes of ``struct-rlimit-set!`` go the other way
+because the function needs to be told which (of several) elements to
+set (like setting an array element).
+
 There are, of course, anomalies which could be fixed.  Pairs/lists are
 a case in point.  The constructors are ``pair`` & ``list`` (rather
 than ``make-pair`` & ``make-list``) and the accessors, nominally,
@@ -236,6 +243,22 @@ There are a few other classes of :lname:`Idio` values that are used in
 
 You get the idea!
    
+:lname:`Idio` Naming Convention
+-------------------------------
+
+It would be nice to have some consistency in :lname:`Idio` names.
+We've seen hints of a triplet of names associated with a *type*:
+:samp:`{type-name}?`, :samp:`{type-name}-ref` and
+:samp:`{type-name}-set!`.  That *isn't* consistently applied as we saw
+above with pair/list handling functions.
+
+In the :ref:`C-api` and for names in the ``libc`` module I've tried to
+use the :lname:`C` names where possible.  This is partly from the
+familiarity aspect in that the user doesn't have to second guess how,
+say, ``RLIMIT_NPROC`` has been renamed and partly because, in many
+cases, you can just cut'n'paste from the man page for the :lname:`C`
+function.
+
 Style
 =====
 
@@ -300,7 +323,17 @@ switch
 ^^^^^^
 
 A ``switch`` statement should *always* have a ``default`` clause with
-some suitable admonition.
+some suitable admonition.  This catches developer coding errors which
+will get fixed and the ``default`` clause can go back to wasting space
+until the next developer comes along.
+
+A rare exception is something like the printing of :lname:`C` types in
+:file:`util.c` where there the outer switch allows :lname:`C` types
+into the clause but non inside as the clause is already guarded.
+
+That said, I've managed to fall foul in forgetting to include one of
+the :lname:`C` types further in...  So, maybe a ``default`` clause
+everywhere?
 
 case
 """"
@@ -363,7 +396,8 @@ names resulting in:
    } idio_foo_t;
 
 (The place it is required is defining compound types which need to
-refer to the "Idio" type before it has been typedef'd.)
+refer to the "Idio" type, ``struct idio_s *``, before it has been
+typedef'd.)
 
 Accessors
 """""""""
@@ -503,6 +537,10 @@ of "tests".
 #. we want to provoke complete code coverage
 
    These are generally the ``test-X-coverage`` tests.
+
+   "Complete" is impossible as :program:`gcov` always marks the
+   closing ``}`` of a function as "not run" because of the ``return``
+   statement on the previous line.
 
 These test should be identified in the :lname:`C` code base together
 with any explanatory text.
