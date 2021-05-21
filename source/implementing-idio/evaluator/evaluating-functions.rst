@@ -12,12 +12,12 @@ Function definitions are called function *abstractions* (in the
 *applications* -- we're applying the function to some arguments.
 
 Function calls are the far most interesting because there's a
-combinatorial explosion of possibilities.  (There's not *that* many!)
-The main culprits are:
+combinatorial explosion of possibilities.  (Just kidding.  There's not
+*that* many!)  The main culprits are:
 
 * "closed" or regular applications
 
-  A closed application is one where the expression is function
+  A closed application is one where the expression in function
   position is not a symbol (variable name) but an expression where
   we're creating the function "on the fly":
 
@@ -32,6 +32,13 @@ The main culprits are:
   statement into an "on the fly" function call.  The very sort of
   thing we're now calling a closed application of a function.
 
+  .. sidebox::
+
+     This was true.  Now, thanks to local assignments which can append
+     themselves to a function's formal parameters, the ``:=``/``let``
+     transformation only occurs for the first assignment in a
+     non-function-definition block.
+
   In other words, every time you use ``:=`` in a block you
   automatically transform the rest of the block into the body of a
   closed function.
@@ -40,8 +47,9 @@ The main culprits are:
 
 A function abstraction (definition) cares about whether the formal
 parameter list of the function is a proper list, :samp:`({a} {b})`, or
-an improper list, :samp:`({a} & {b})`, implying varargs.  In the case
-of a closed application we have to worry about that here too.
+an improper list, :samp:`({a} & {b})`, implying varargs.  We have to
+worry about improper lists for a closed application too (as it
+contains an anonymous function definition).
 
 In general we're calling the main function application with the
 function expression and the argument expressions:
@@ -129,8 +137,8 @@ Before it issues it's "store" instruction it recurses on the rest of
 the arguments.
 
 That's fine until it reaches zero arguments left at which point it
-generates a frame allocation instruction with the original length of
-the argument list.
+generates a frame allocation instruction, ``ALLOCATE-FRAME``, with the
+original length of the argument list.
 
 Now, as the argument list recursion unwinds, we'll have seen the frame
 allocation, then a (reversed) sequence of expression meanings and then
@@ -140,9 +148,17 @@ The argument meanings is now a nested list of instructions which the
 code generator knows to walk into in order that it emit the final
 opcodes from the inside out.
 
-Each "meaning" argument-instruction list is "``STORE-ARGUMENT``, the
-meaning of this arg, slot #, the meaning of the remaining args" from
-which the code generator will:
+Each "meaning" argument-instruction list is the tuple:
+
+* ``STORE-ARGUMENT``
+
+* the meaning of this arg
+
+* slot #
+
+* the meaning of the remaining args
+
+from which the code generator will:
 
 * generate the code for this arg (leaving the result in the *val* register)
 
@@ -201,7 +217,8 @@ If you recall our example:
    (function (a b) (+ a b)) 1 2
 
 The function expression, ``fe``, is ``(function (a b) (+ a b))`` and
-the list of argument expressions, ``aes``, is ``(1 2)``.  From that:
+the list of argument expressions, ``aes``, is ``(1 2)``.  From that we
+can trivially extract:
 
 .. csv-table::
    :widths: auto
@@ -210,7 +227,7 @@ the list of argument expressions, ``aes``, is ``(1 2)``.  From that:
    ``ph fe``, ``function``, a symbol
    ``pt fe``, ``((a b) (+ a b))``
    ``pht fe``, ``(a b)``, formal parameters
-   ``ptt fe``, ``(+ a b)``, body
+   ``ptt fe``, ``((+ a b))``, the body -- a list of one expression
 
 ``idio_meaning_fix_closed_application()`` is passed: ``fe``, the
 formal parameters, the body and the arguments.

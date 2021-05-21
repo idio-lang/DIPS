@@ -122,7 +122,7 @@ That second variation has another, more pernicious possibility.
 
 :lname:`Bash` is happy, obviously, with that but it nominally requires
 that *we* create a 10\ :sup:`10` element array because our arrays are,
-naïvely, actual contiguous blocks.
+naïvely, actual contiguous blocks of memory.
 
 Does that lead us back towards the :lname:`Lua` (and, evidently,
 :lname:`Bash`) sense of sparse arrays?  I don't want to go there.  It
@@ -158,7 +158,7 @@ either :samp:`2**32 * 4` bytes or :samp:`2**64 * 8` bytes just for the
 array as those are 4 and 8 times larger than addressable memory.  So,
 in practice, we're limited to arrays of length :samp:`2**30` or
 :samp:`2**61` -- with no room for any other data (including the code
-doing the allocating)!
+doing the allocating!).
 
 As a real-world example, on an OpenSolaris 4GB/32bit machine:
 
@@ -166,13 +166,13 @@ As a real-world example, on an OpenSolaris 4GB/32bit machine:
 		
    make-array ((expt 2 29) - 1)
 
-was successful.  :samp:`2**30 - 1` was not.
+was successful whereas :samp:`2**30 - 1` was not.
 
-However, we accomodate negative array indices, eg. the nominal,
-:samp:`array[-{i}]`, which we take to mean the :samp:`{i}`\ :sup:`th`
-last index.  The means using a *signed type* for array indexing even
-if we won't ever actually use :samp:`a[-{i}]` -- as we'll convert it
-into :samp:`a[{size} - {i}]`.
+However, we intend to accommodate negative array indices, eg. the
+nominal, :samp:`array[-{i}]`, which we take to mean the :samp:`{i}`\
+:sup:`th` last index.  The means using a *signed type* for array
+indexing even if we won't ever actually use :samp:`a[-{i}]` -- as
+we'll convert it into :samp:`a[{size} - {i}]`.
 
 So, the type we use must be ``ptrdiff_t`` and therefore the largest
 positive index is ``PTRDIFF_MAX``.  We'll call it a "idio array index
@@ -207,7 +207,7 @@ where we have:
 * ``asize`` being the allocated size
 
 * ``usize`` being the used size, or user-visible size -- technically
-  the index of the last in-use index plus one
+  the index of the last "in-use" index plus one
 
 * ``dv`` is the default value
 

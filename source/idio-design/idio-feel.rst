@@ -214,7 +214,7 @@ print them out?
 
 Commonly manipulated forms include (for the same GUID):
 
-::
+.. code-block:: text
    
    {123e4567-e89b-12d3-a456-426652340000}
    (123e4567-e89b-12d3-a456-426652340000)
@@ -236,7 +236,7 @@ address might be more fun.
 
 IPv6 addresses have many forms too:
 
-::
+.. code-block:: text
    
    fe80:0000:0000:0000:01ff:fe23:4567:890a
    fe80:0000:0000:0000:1ff:fe23:4567:890a
@@ -584,7 +584,9 @@ escape sigil.
 
 The upshot of that is that we can let loose and say:
 
-.. code-block:: idio
+.. this code block is text as the lexer won't handle the change in sigils
+
+.. code-block:: text
 
    #T!%:;{ ... !%(a.3) $foo ... }
 
@@ -611,7 +613,7 @@ Pathname Templates
 
 Pathname templates have been suggested as a means to isolate
 shell-globbing meta-characters from :lname:`Idio`'s hungry hungry
-:ref:`dot operator`.
+:strike:`hippo` :ref:`dot operator`.
 
 .. code-block:: idio
 
@@ -629,13 +631,13 @@ You should you should be able to say:
 
 .. code-block:: idio
 
-   txt-files := #P{ *.txt }
+   the-txt-files := #P{ *.txt }
 
- ...add/delete .txt files...
+   ...add/delete .txt files...
 
- ls -l txt-files
+   ls -l the-txt-files
 
-and only get the files extant at the time of ``ls``.
+and only get the files extant at the time of invoking :program:`ls`.
 
 Work in progress.
 
@@ -700,13 +702,20 @@ That, in turn, requires not just the ability to call
 :manpage:`stat(2)` but also access to something that can compare two
 :lname:`C` ``size_t``\ s (or ``time_t``\ s or ...).
 
-There is a ``libc/stat`` function which returns an ``C/pointer``
+.. sidebox::
+
+   Whilst ``libc`` (named after the standard :lname:`C` library) is a
+   true :lname:`Idio` module, the ``C`` in ``C/<`` is more of an
+   indication that you're using something in the :lname:`C` domain.
+
+There is a ``libc/stat`` function which returns a ``C/pointer``
 structure where the fields are named after their ``struct stat``
 equivalents and a ``C/<`` function for those two.
 
 Here's a snippet showing the code for sorting by ``sb_size``.
 
 .. code-block:: idio
+   :caption: :file:`lib/path.idio`
 
    sort-size := #n		; global scope
 
@@ -773,7 +782,8 @@ variable, say, ``~glob-sort~``, to be pointed at ``sort-size`` (or
 
    rm -f files.0
 
-(maybe apply a bit more rigour to your algorithm...)
+(maybe apply a bit more rigour to your algorithm for choosing which
+file to :program:`rm`...)
 
 .. _`string templates`:
 
@@ -885,7 +895,7 @@ The IO redirection infix operator ``>`` does something sensible with:
 I suggested before using ``>>`` to capture "output" in a string,
 something like:
 
-.. code-block:: idio
+.. code-block:: text
 
    date +%Y%m%d-%H%M%S >> now
 
@@ -922,7 +932,7 @@ and then ``<`` can (re-)open the file as input for ``...``.
 
 I was wondering if
 
-.. code-block:: idio
+.. code-block:: text
 
    ... <| cmd args
 
@@ -988,14 +998,14 @@ string rather than a list:
 That isn't *quite* everything as the provocation to read a script from
 a file is different for every command.  Here we might have said:
 
-.. code-block:: idio
+.. code-block:: text
 
    awk -f <( #S%{ ... } ) file+
 
 which, because of the way the reader will consume multiple lines when
 reading a block might look like:
 
-.. code-block:: idio
+.. code-block:: text
 
    awk -f <( #S%{
      awk-ish %this with $that
@@ -1059,8 +1069,8 @@ and then I can:
    printf "shine a %s on %s\n" light darkness
 
 and get an error about ``darkness`` being *unbound*.  I haven't
-defined ``darkness`` and nothing I have imported has exported it.
-``light`` on the other hand is just fine.
+defined ``darkness`` in my code and nothing I have imported has
+exported it.  ``light`` on the other hand is just fine.
 
 Of course we will still get name clashes.  We are (read: I am) keen to
 poke about and get up to no good so I quite like the idea of getting

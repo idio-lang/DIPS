@@ -862,7 +862,7 @@ you do know is that, however deep into its evaluation stack it has
 gone (think: how deeply nested the function calls in the ``risky``
 library got), the evaluation stack is truncated back to here -- all
 those function calls from ``risky_command`` through to the failure are
-discarded, we call ``print`` and more on with our lives.
+discarded, we call ``print`` and move on with our lives.
 
 :lname:`Lisp`\ s don't go in for that, rather, the condition handler
 is run *instead of* the failed function (that raised the condition).
@@ -1452,7 +1452,7 @@ created and passed around.
 
 Accessor functions for the fields are created when the record type is
 created giving you same style of names as above: commonly
-``name-field1`` (omitting the ``-ref``) and ``name-field1-set!`` and
+``name-field1`` (omitting the ``-ref``) and ``set-name-field1!`` and
 the like.
 
 Object Orientation

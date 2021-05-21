@@ -359,7 +359,7 @@ We've a couple of options here.
 #. We can reduce the number of elements in the array by a bit, keeping
    us below any next-bucket triggering:
 
-   .. code-block:: console
+   .. code-block:: idio-console
 
       Idio> make-array ((expt 2 31) - 1000000)
       Killed
@@ -371,7 +371,7 @@ We've a couple of options here.
 #. We can go down a power of two and look to get bumped up into the
    next bucket...
 
-   .. code-block:: console
+   .. code-block:: idio-console
 
       Idio> make-array (expt 2 30)
       #[ #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f ..[1073741804] #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f ]
@@ -383,7 +383,7 @@ We've a couple of options here.
 
    We should be able to get another 50% in there:
 
-   .. code-block:: console
+   .. code-block:: idio-console
 
       Idio> make-array ((expt 2 30) + (expt 2 29))
       #[ #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f ..[1610612716] #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f ]
@@ -410,7 +410,7 @@ much.  A 2\ :sup:`29` element array is "only" half of RAM although I
 hit the :manpage:`mmap(2)` limit so we should aim for a 2\ :sup:`29` -
 10 element array for just under half of RAM:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Idio> make-array ((expt 2 29) - 10)
    #[ #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f ..[536870882] #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f #f ]

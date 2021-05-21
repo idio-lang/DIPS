@@ -33,8 +33,8 @@ impending `Epochalypse
 <https://www.linaro.org/blog/the-end-of-an-era/>`_ in January 2038.
 Except every modern Linux operating system doesn't have that problem
 as Arnd Bergmann and John Stultz plodded though and changed the
-interfaces to 64-bit (pushing the Epochalyse down the road for a few
-hundred billion years...).
+interfaces to 64-bit (kicking the Epochalyse can down the road for a
+few hundred billion years...).
 
 Underlying this is that the :lname:`C` API uses an opaque *typedef*
 for some base :lname:`C` type.  For us to be able to store and
@@ -43,7 +43,7 @@ transport it we could do with knowing what that type is.
 In the first instance, we might just use ``intmax_t`` and
 ``uintmax_t`` (whatever *they* are) to store all :lname:`C` integral
 types and let the :lname:`C` compiler figure out the casting.  But
-that doesn't seem like Art.  Not least because we *still* don't know
+that doesn't seem like *Art*.  Not least because we *still* don't know
 if a ``pid_t`` or a ``time_t`` is signed or unsigned -- OK, we can
 take a look/reasonable guess and hope that everyone else uses the
 same.
@@ -63,8 +63,8 @@ or ``long`` as appropriate.
 Now that the value is an ``IDIO`` value we can pass it merrily around
 to anyone else.  The only people who will actually care whether it is
 an ``int`` or a ``long`` are those manipulating it and they would want
-a deconstructor, ``IDIO_C_TYPE_pid_t``, that is equally aware leaving
-us to write:
+a deconstructor, ``IDIO_C_TYPE_pid_t``, that is equally aware of the
+stash leaving us to write:
 
 .. code-block:: c
 
@@ -95,41 +95,88 @@ which :lname:`C` type to create.
 
 So, we need to pass it some clue as to which of the fourteen
 :lname:`C` base types we want.  Obviously, we're going to pass it
-``pid_t`` -- because that's all we want to know about this value --
+``pid_t`` -- because that's *all* we want to know about this value --
 which needs to map to some symbol (the usual :lname:`Scheme`\ -ish
 way) which eventually resolves to either ``'int`` or ``'long``
 dependent on system.
 
+.. code-block:: idio-console
+
+   Idio> C/integer-> 23 libc/pid_t
+   23
+
+.. aside::
+
+   I don't think the :lname:`C` compiler would cope with two typedefs
+   of ``pid_t`` so maybe we should have a flat namespace (here, just
+   ``pid_t``) as well.
+
+   However, see the commentary in :ref:`namespaces`, below.
+
+In practice, ``pid_t`` is really ``libc/pid_t``, ie. to accommodate
+different libraries' potential name clashes we'll prefix the typedef
+name with the module the name comes from.
+
+Those names are exported from ``libc`` but so are many many other
+names with a huge potential for clashes:
+
+.. code-block:: idio
+
+   import libc
+
+can be interesting.
+
+Also notice that the printed representation of a :lname:`C` ``pid_t``
+is, perhaps unsurprisingly, indistinguishable from the fixnum we
+constructed it from!  I'm not sure there's a useful solution to this.
+
 There is the similar ``C/->integer`` which will return an
 :lname:`Idio` fixnum or bignum (depending on the size of the
-:lname:`C` value).
+:lname:`C` value).  On a 64-bit machine:
+
+.. code-block:: idio-console
+
+   Idio> fixnum? (C/->integer libc/INT_MAX)
+   #t
+   Idio> fixnum? (C/->integer libc/INTMAX_MAX)
+   #f
+
+On a 32-bit system, ``libc/INT_MAX`` is also a bignum.
 
 Predicates
 ----------
 
-In the same manner we will want to be able to test that some
-:lname:`Idio` value is a ``pid_t``.  That predicate should, by rights,
-be ``pid_t?``.
+In the same manner any ``libc``-oriented code will want to be able to
+test that some :lname:`Idio` value is a ``libc/pid_t``.  That
+predicate should, by rights, be ``libc/pid_t?``.
 
-So we're going to need a mapping from ``pid_t?`` through to ``C/int?``
-or ``C/long?`` as appropriate.
+Given that ``pid_t`` is a typedef to ``int`` (or ``long`` or whatever)
+then we're going to need a mapping from ``libc/pid_t?`` through to the
+:lname:`C` domain's ``C/int?`` or ``C/long?`` as appropriate.
+
+Note that the change, arguably, *chain*, from a :lname:`C` library
+(ie. :lname:`Idio` module) into the :lname:`C` domain's (fourteen)
+base types might well involve some multi-library hops depending on how
+the typedefs roll.
 
 Caveats
 =======
 
-If your interface uses ``#define`` then this mechanism won't help you.
-``#define``\ s are part of the :lname:`C` pre-processor and so those
-definitions will have disappeared by the time the :lname:`C` compiler
-has its way.
+The main caveat is that if your interface uses ``#define`` then this
+mechanism won't help you.  ``#define``\ s are part of the :lname:`C`
+pre-processor and so those definitions will have disappeared by the
+time the :lname:`C` compiler has its way and we get to look at the
+generated code.
 
-The set of values that some parameters take might be system-dependent.
-Think of the ``resource`` parameter to :manpage:`getrlimit(2)`, the
-likes of ``RLIMIT_NOFILE``, ``RLIMIT_NPROC`` etc..  On the one hand
-that ought not be an issue except that it presumes we do, somehow,
-know what values have been defined on this system.  Some Linux systems
-have migrated these values into an enumerated type, which we can see,
-and maintained the :lname:`C` macros for backwards compatibility.
-Other systems are ``#define`` only.
+Another issue is that the set of values that some parameters take
+might be system-dependent.  Think of the ``resource`` parameter to
+:manpage:`getrlimit(2)`, the likes of ``RLIMIT_NOFILE``,
+``RLIMIT_NPROC`` etc..  On the one hand that ought not be an issue
+except that it presumes we do, somehow, know what values have been
+defined on this system.  Some Linux systems have migrated these values
+into an enumerated type, which we can see, and maintained the
+:lname:`C` macros for backwards compatibility.  Other systems are
+``#define`` only.
 
 For these to be portable you will have to resort to using something
 along the lines of the error, signal and rlimit value tests:
@@ -141,7 +188,9 @@ along the lines of the error, signal and rlimit value tests:
        IDIO_LIBC_ERRNO (EBADF);
    #endif
 
-and knowledge of the ported systems.
+and empirical knowledge of the ported systems.
+
+.. _namespaces: 
 
 Namespaces
 ==========
@@ -160,7 +209,7 @@ and some :samp:`idio_{libfoo}_pid_t` constructor from some
 interface.
 
 So, to correct the earlier names, the proper convention is that for
-:lname:`C` types
+true :lname:`C` domain types (``int``, ``long`` etc.) we'll use:
 
 .. code-block:: c
 
@@ -170,7 +219,7 @@ So, to correct the earlier names, the proper convention is that for
 
    IDIO r = idio_C_{base-type} (C_v);
 
-and for some :samp:`{libfoo}` API we'll have:
+and for some :samp:`{libfoo}` API using a typedef'd symbol we'll have:
 
 .. code-block:: c
 
@@ -196,6 +245,11 @@ Build Bootstrap I
 We'll come back to this but :lname:`Idio` uses the :lname:`C` API for
 :file:`libc` to run and yet we're somehow using :lname:`Idio` to
 *build* that :file:`libc` interface.  How does *that* work?
+
+.. aside::
+
+   "Cheat" is a very loaded term.  Of course we mean that we use our
+   experience, wisdom and guile buried under a weight of fortune...
 
 Well, we cheat, of course.  In the first instance there are some
 :file:`libc` API files that are at least consistent, if not
@@ -239,7 +293,7 @@ DIEs
 The output is in the form of cascades of :abbr:`DIE (Debugging
 Information Entry)`\ s.  These look something like:
 
-.. code-block:: console
+.. code-block:: idio-console
 
     <1><50>: Abbrev Number: 2 (DW_TAG_base_type)
        <51>   DW_AT_byte_size   : 2
@@ -296,7 +350,7 @@ Let's try a ``pid_t``:
 which compiling, ``gcc -g -c -o libc-api.o libc-api.c`` gives us
 (amongst other things):
 
-.. code-block:: console
+.. code-block:: idio-console
 
     <1><57>: Abbrev Number: 3 (DW_TAG_base_type)
        <58>   DW_AT_byte_size   : 4
@@ -408,8 +462,8 @@ which has a ``type`` in turn.
 Hmm, now we know about the fields in a structure, we ought to be able
 to generate some code to be able to access the fields.
 
-From :lname:`Idio` you can imagine accessing a :manpage:`stat(2)`
-``struct stat`` along the lines of:
+From :lname:`Idio` you can imagine wanting to access a
+:manpage:`stat(2)` ``struct stat`` along the lines of:
 
 .. code-block:: idio
 
@@ -489,7 +543,7 @@ Pointers
 Pointers are flagged en route to the real type underneath.  Here's the
 case for the ``formal_parameter`` :samp:`{argv}`:
 
-.. code-block:: console
+.. code-block:: idio-console
 
     <1><178>: Abbrev Number: 9 (DW_TAG_pointer_type)
        <179>   DW_AT_byte_size   : 8
@@ -522,7 +576,7 @@ indiscriminately from pointers.
 In this example, all of the member of the ``struct utsname`` are
 ``char []`` rather than ``char *``:
 
-.. code-block:: console
+.. code-block:: idio-console
 
     <1><c80>: Abbrev Number: 28 (DW_TAG_structure_type)
        <c81>   DW_AT_name        : (indirect string, offset: 0x1e8): utsname
@@ -574,7 +628,7 @@ each of which has a ``const_value``.
 
 .. sidebox::
 
-   Unusually for :lname:`C`...*not!*
+   "A bit loose"?  How Unusual for :lname:`C`... *not!*
 
 The wording around the type for an enumerated type is a bit loose and
 merely suggests something big enough to hold the entire set of
@@ -602,11 +656,12 @@ they exist in).
 However, rather usefully, on some systems it will also have a
 ``subprogram`` entry for each function it calls.
 
-This is strikingly useful as it only requires one system to produce
-this information from which we can sketch out the framework for a
-series of ``IDIO_DEFINE_PRIMITIVE`` functions describing those calls.
-Once defined they are, by definition(?), using the portable :lname:`C`
-API and are therefore applicable to all systems.
+This is strikingly useful as it only requires one system, using
+portable definitions, to produce this information from which we can
+sketch out the framework for a series of ``IDIO_DEFINE_PRIMITIVE``
+functions describing those calls.  Once defined they are, by
+definition(?), using the portable :lname:`C` API and are therefore
+applicable to all systems.
 
 Due to the absence of debugging information in, in my case, libc,
 there's no formal parameter names for the system and library calls I'm
@@ -671,7 +726,7 @@ this becomes:
 
    }
 
-Now, that's not too shabby.
+Now, that's not too shabby for something automatically generated.
 
 We have a portability issue as Fedora has defined the API with
 ``__pid_t`` but if we *query-replaced* the double-underscore we're in
@@ -733,26 +788,40 @@ We can obviously query-replace ``arg1`` for ``pid`` and ``arg2`` for
 and we may just have a working, portable, interface to the ``libc``
 API!
 
-Now, this won't work for you as I've clearly directed the code
-generation to handle the most common form of error that system and
-library calls produce.
+Re-imagining APIs
+-----------------
+
+.. sidebox::
+
+   It does cover a lot of cases, though!
+
+Now, this almost certainly won't work for you `off the bat
+<https://en.wiktionary.org/wiki/off_the_bat>`_ as I've clearly
+directed the automatic code generation to handle the most common form
+of error that system and library calls produce and assumed you can
+directly return the value from the API call.
 
 For calls like :manpage:`getcwd(3)` the value returned is a ``char *``
-and we should be comparing to ``NULL``.
+and for error checking we should be comparing to ``NULL``.
 
-For something like :manpage:`times(3)` which not only requires a
-``struct tms`` but the returned value is a ``clock_t`` we end up
-returning a list of the ``clock_t`` and the ``struct tms``.
+For something like :manpage:`times(3)` which is expecting a ``struct
+tms`` to be supplied (unlikely from :lname:`Idio`-land!) but also the
+returned value is a ``clock_t``.  Here, whilst the "check for errors"
+is nominally correct we should be retaining the value and we will end
+up returning a list of the ``clock_t`` and the ``struct tms`` back to
+the user.
 
-.. rst-class:: center
+Similarly, a direct copy of the :lname:`C` API is not usefully correct
+for something like :manpage:`stat(2)` where the user is in no position
+to create a ``struct stat`` to pass as an argument.  In this case we
+would only accept a ``pathname`` argument and allocate a ``struct
+stat`` to be freed later.
 
-\*
+This leads to the idea that the automatic code generation will give us
+a starter for ten which we can edit into permanence.
 
-Similarly, the style interface is not usefully correct for something
-like :manpage:`stat(2)` where the user is in no position to create a
-``struct stat`` to pass as an argument.  In this case we would only
-accept a ``pathname`` argument and allocate a ``struct stat`` to be
-freed later.
+Auto-Application of Methods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Now, about that ``struct stat`` we've just allocated.  We've gone to
 the trouble of creating ``struct-stat-ref`` (and the moot
@@ -895,12 +964,12 @@ pointers as well:
 	    ...
 
 Printing
-""""""""
+^^^^^^^^
 
 Of course, with your bespoke structure, you might want a bespoke
 printer.  There's a mechanism there too.
 
-The ``add-as-atring`` system for adding bespoke printing for
+The ``add-as-string`` system for adding bespoke printing for
 :lname:`Idio` structures has been extended to support :lname:`C`
 structures with ``idio_CSI_`` support.  The printer is associated with
 the ``idio_CSI_`` value such that all :lname:`C` pointers to the same
@@ -1132,7 +1201,7 @@ In the first instance, `muggins
 <https://www.lexico.com/definition/muggins>`_, here, wrote the
 ``libc`` interfaces by hand in :file:`libc-wrap.c` -- the initial
 prompt to look to automate the process as I was getting fed up trying
-to figure out that a ``pid_t`` was on my collection of systems.
+to figure out that a ``pid_t`` was on my collection of test systems.
 
 I can then run :program:`idio-c-api-gen` for ``libc`` and take a copy
 of the resultant :file:`libc-api.c` and refashion it to replace the
@@ -1170,8 +1239,8 @@ Build Bootstrap II
 
 Well, they're wrong but not *too* wrong which let's us play a trick.
 Let's put a copy of whatever I've generated here, on my dev system, in
-a :file:`build-bootstrap` directory which everyone will use to get
-going.
+a :file:`build-bootstrap` directory which *all other systems* will use
+to get going.
 
 We can say that :program:`idio` depends on a locally created
 :file:`libc-api.h` and :file:`libc-api.idio` and have a specific rule

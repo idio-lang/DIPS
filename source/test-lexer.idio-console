@@ -1,0 +1,5 @@
+Idio> n := 17
+Idio> format "%b\n" n
+"10001\n"
+Idio> 3pi/4
+#i2.35619449019234491e+0

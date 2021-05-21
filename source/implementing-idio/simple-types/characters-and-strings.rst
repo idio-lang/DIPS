@@ -47,7 +47,7 @@ can be combined with a regular "e".
    whole range of (predefined) mark combinations in the Latin Extended
    Addition section.
 
-Clearly, we don't need to combine the "acute accent" with a regular
+Clearly, *we* don't need to combine the "acute accent" with a regular
 "e" as we already have a specific "e acute" but it does allow us to
 combine it with any other character in some rare combination not
 specifically covered elsewhere.  There must be rules about how
@@ -136,7 +136,7 @@ go straight to the `Unicode reports`_ and get stuck in.
 
 .. sidebox::
 
-   For those who haven't read the `history of UTF-8
+   Do read the `history of UTF-8
    <http://doc.cat-v.org/bell_labs/utf-8_history>`_ with
    :ref-author:`Rob Pike`, :ref-author:`Ken Thompson` and a New Jersey
    diner placemat.
@@ -333,7 +333,7 @@ can perform pointer comparison.  But not much else.
 
 One thing to be aware is that there are no computational operations
 you can perform on a code point.  You can't "add one" and hope/expect
-to get a viable code point.  Well, you can hope/expect but good luck
+to get a viable code point.  Well, you *can* hope/expect but good luck
 with that.
 
 We have the "simple" upper/lower-case mappings from the :term:`UCD`
@@ -503,10 +503,15 @@ internally very consistent and be:
 * using 4 byte code points regularly
 
 If we join two strings together we can upgrade/widen the one or the
-other as required.  The only real problem is that anyone wanting to
-*modify* an element in a string array might get caught out by trying
-to stuff a 4 byte code point into a one byte string.  You *monster*!
-Why are you trying to modify a string *at all*?
+other as required.
+
+.. aside::
+
+   You *monster*!  Why are you trying to modify a string *at all*?
+
+The only real problem is that anyone wanting to *modify* an element in
+a string array might get caught out by trying to stuff a 4 byte code
+point into a one byte string.
 
 Feeling rather pleased with my thinking I then discovered that
 :lname:`Python` had already encapsulated this idea in PEP393_ and I
@@ -580,8 +585,8 @@ substring of the original parent.
 \*
 
 Amongst other possible reworks, I notice many other implementations
-allocate the ``IDIO`` object and the memory required for the string
-storage in one block.
+allocate the equivalent of the ``IDIO`` object and the memory required
+for the string storage in one block.
 
 It would save the two pointers used by :manpage:`malloc(3)` for its
 accounting and the extra calls to
@@ -722,11 +727,15 @@ and ``()`` to delimit the main block:
 but only braces, ``{}`` for the references.
 
 There is a subtlety here as the results of the expressions are not
-necessarily themselves strings so, in practice, all of the elements of
-the putative string, the non-expression strings and the results of the
-expressions are ``map``\ ed against ``->string`` which leaves strings
-alone and runs the "display" variant of the printer for the results of
-the expressions.
+necessarily themselves strings.  The ``${string-length name}``
+expression, for example, will result in an integer and the implied
+``append-string`` constructing the result of the interpolated string
+will get upset.
+
+So, in practice, all of the elements of the putative string, the
+non-expression strings and the results of the expressions are ``map``\
+ed against ``->string`` which leaves strings alone and runs the
+"display" variant of the printer for the results of the expressions.
 
 ``->string`` does not perform any splicing so if your expression
 returns a list then you'll get a list in your string.  It might be
@@ -749,7 +758,7 @@ There's a couple of qualification to that:
    entities.  The REPL will *print* values in a reader-ready format,
    so including leading and trailing ``"``\ s.
 
-   .. code-block:: console
+   .. code-block:: idio-console
 
       Idio> str := "Hello\nWorld"
       "Hello\nWorld"
@@ -761,7 +770,7 @@ There's a couple of qualification to that:
    By and large, though, most things will *display* a string value as
    part of a larger output:
 
-   .. code-block:: console
+   .. code-block:: idio-console
 
       Idio> printf "'%s'\n" str
       'Hello

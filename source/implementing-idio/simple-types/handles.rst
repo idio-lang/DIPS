@@ -263,7 +263,7 @@ For a handle we can print out some useful info like:
 
 Which might give us:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Idio> (current-input-handle)
    #<H ofr!iF   0:"*stdin*":2:23>
@@ -315,9 +315,9 @@ In the second case, ``#<H oSw:"output string-handle #1889":1:0>`` we can infer:
 File Handles
 ------------
 
-File handles were implemented using :lname:`libc`'s ``FILE`` type and
-you could imagine that all the implementation methods were essentially
-the :lname:`libc` equivalents.
+File handles *were* implemented using :lname:`libc`'s ``FILE`` type
+and you could imagine that all the implementation methods were
+essentially the :lname:`libc` equivalents.
 
 However, the introduction of pipe handles (and some recurring "issues"
 with what was, in effect, double buffered input and output) has had
@@ -343,10 +343,8 @@ The file handle stream data is:
        int count;			/* bytes in buffer */
    } idio_file_handle_stream_t;
 
-Of note here is:
-
-* we buffer data to and from the stream -- essentially we've
-  re-implemented STDIO!
+Of note here is that we buffer data to and from the stream --
+essentially we've re-implemented STDIO!
 
 There is a generic file opening method:
 
@@ -421,7 +419,7 @@ my mind.
 Consider *how* we read and evaluate files (technically, *handles* but
 we're all used to thinking about files).  We could:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    while read expression
        evaluate expression
@@ -429,18 +427,18 @@ we're all used to thinking about files).  We could:
 
 or
 
-.. code-block:: console
+.. code-block:: idio-console
 
    read all expressions
    evaluate all expressions
    run all expressions
 
 I liked the latter as it solved a recurring problem I have when
-developing scripts, the sort of scripts that take a minute or two to
-chunter through yet you've spotted a :strike:`bug`\ feature just after
-it's started and edit the script.  Of course you save the script with
-a satisfying *kerthunk!*...while the script is still running.  Oops.
-The next read from the file by :lname:`Bash` will get a garbled
+developing scripts, the sort of scripts that take a minute or twenty
+to chunter through yet you've spotted a :strike:`bug`\ feature just
+after it's started and edit the script.  Of course you save the script
+with a satisfying *kerthunk!*...while the script is still running.
+Oops.  The next read from the file by :lname:`Bash` will get a garbled
 string.  It's all gone pear-shaped.
 
 I ran, for a long time, with the latter, "all in one," then changed my
@@ -647,16 +645,25 @@ with ``errno`` added as an argument and we get:
 All conditions derived from ``^idio-error`` take three standard
 parameters: message, location and detail.
 
-Here we can first create a "message" string handle into which we print
-(display!)  the :lname:`C` string ``msg`` (``fdopen`` in this case)
-then, if some ``args`` were passed, add a :literal:`: \ ` then
-whatever the printed representation of the args are.  Add on the
-operating system's description of the system call error for a bit of
-normalised guidance.  Secondly, recover the user-land source code
-location (from the *EXPR* register in the *thread*).  Finally, we can
-create a "detail" string handle and add the :lname:`C` source location
-if we're running under debug for extra clarification.  The fourth
-parameter for a ``^system-error`` is, in effect, ``errno``.
+We can use two helper functions, ``idio_display()`` for displaying
+:lname:`Idio` values and ``idio_display_C()`` for displaying
+:lname:`C` strings.  Of course, at the end of some tumultuous
+computation and constructing a (huge?) string in :lname:`C`,
+``idio_display()`` will also be calling ``idio_display_C()``.
+
+Here we can first create a "message" string handle, ``msh``, into
+which we print (display!)  the :lname:`C` string ``msg`` (``fdopen``
+in this case) then, if some ``args`` were passed, add a :lname:`C`
+:literal:`: \ ` string then whatever the printed representation of the
+args are.
+
+Add on another :literal:`: \ ` then the operating system's description
+of the system call error for a bit of normalised guidance.  Secondly,
+recover the user-land source code location (from the *EXPR* register
+in the *thread*).  Finally, we can create a "detail" string handle and
+add the :lname:`C` source location if we're running under debug for
+extra clarification.  The fourth parameter for a ``^system-error`` is,
+in effect, ``errno``.
 
 Finally, we can construct a condition, of the "system error" type
 which is expecting a further four arguments including the
@@ -699,7 +706,8 @@ more likely interested in reading a line of text from a file, hence,
 ``read-line`` and its greedier sibling, ``read-lines``.
 
 As a user I might also want to ``read-char`` to get back the next
-(UTF-8) character.  There is no (exposed) ``read-byte`` function.
+(UTF-8 encoded) Unicode code point.  There is no (exposed)
+``read-byte`` function.
 
 ``read`` (and ``read-expr``) isn't really used other than for testing
 so I suspect they could be re-worked into a more reader-oriented name

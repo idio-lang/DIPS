@@ -230,7 +230,8 @@ Source Code Expressions
 
 I confess I have found no insight into how other systems handle this
 so I've cobbled together something of my own which has, um, slowed
-things down a bit.
+things down a bit as the system generates an enormous table of source
+code snippets.
 
 The essence is simple, the reader reads from a handle and the handle
 is aware of its own name and the current line number in the handle so,
@@ -300,14 +301,14 @@ expression as a constant in order that it can subsequently embed a
 VM can process by assigning the integer into the *expr* register.
 
 Should the code generate a failure when running then it is possible to
-use the expression register to look up the expression in the constants
+use the *expr* register to look up the expression in the constants
 tables and then use the expression to look up the "lexical object" in
 the source properties hash table.  Which sounds a bit of a run-around
 but you only do it when your code crashes.  Which is never, right?
 
 In the meanwhile, my ``(ls) (echo 3)`` code generated a message:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    '((ls) (echo 3))' at *stdin*:line 5: ^rt-function-error: cannot invoke constant type: '(#t)'
 

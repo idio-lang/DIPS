@@ -495,7 +495,7 @@ and now we can write:
 
 which gets us:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    trapping ^rt-divide-by-zero-error
    done
@@ -535,7 +535,7 @@ a few more helpful prints.
 
 from which we get:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    trapping ^rt-divide-by-zero-error
    cleaning up!

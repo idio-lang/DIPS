@@ -66,11 +66,14 @@ reader confusing matters by re-writing infix expressions:
 
    my-plus-two bob 3
 
+.. sidebox::
+
+   Yes, yes, we haven't done any type checking!
+
 The template, ``my-plus-two``, takes two arguments, a symbol and a
-value (yes, we haven't done any checking).  We create a local
-variable, :samp:`{var}`, which is the "symbolification" of the string
-concatenation of ``"my-"`` and the "stringification" of the symbol
-passed in.
+value.  We create a local variable, :samp:`{var}`, which is the
+"symbolification" of the string concatenation of ``"my-"`` and the
+"stringification" of the symbol passed in.
 
 The "code" we return inside the ``#T{...}`` construct wants to be an
 assignment operator, the value of the :samp:`{var}` variable and then

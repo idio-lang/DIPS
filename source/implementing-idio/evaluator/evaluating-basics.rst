@@ -147,7 +147,8 @@ is going to involve a few basic repeating variables:
 
     * lexically, because we found it in the name tree
 
-    * at top-level, because we couldn't find it in the name tree
+    * at top-level, because we couldn't find it in the lexical name
+      tree
 
     * in a dynamic or environmental or computed context -- which is
       effectively top-level but managed in a different way
@@ -162,10 +163,10 @@ is going to involve a few basic repeating variables:
 * ``cm`` -- an :lname:`Idio` addition is the current module
 
   As the source code switches between modules the expectation is that
-  the evaluator can find the correct variable (*my* ``v`` not the
-  other guy's) and to effect that we need to track any changes to the
-  sense of the current module by latching onto any module changing
-  statements in the source code.
+  the evaluator can find the correct variable (ie. *my* ``v`` not the
+  other guy's ``v``) and to effect that we need to track any changes
+  to the sense of the current module by latching onto any module
+  changing statements in the source code.
 
 All of which are :lname:`C` lexical variables used throughout
 :file:`evaluate.c` (and :lname:`Idio` lexical variables in the
@@ -333,21 +334,21 @@ is it meant to *do*?
 
 Our goal, from inferring some meaning from the lists of lists the
 reader gave us, will be to head off to the code generator so we
-probably want something amenable to it.
+probably want something amenable to that.
 
-Here, we're going to generate some "intermediate code."  By this we
-mean to have reduced the source code expressions down to some high
-level statements of intent with a vague eye on how the virtual machine
-works.  I confess, that's not a terribly clear description as, for me,
-it's a bit hard to describe without showing examples (coming in the
-next section).
+In our case, we're going to have the evaluator generate some
+"intermediate code."  By this we mean to have reduced the source code
+expressions down to some high level statements of intent with a vague
+eye on how the virtual machine works.  I confess, that's not a
+terribly clear description as, for me, it's a bit hard to describe
+without showing examples (coming in the next section).
 
 You can imagine, though, in our `highfalutin
 <https://en.wiktionary.org/wiki/highfalutin>`_ source language we
 *bind* variables to values whereas in the grubby world of machine code
 we're going to "set" something.
 
-The intermediate language is a group of constants,
+The intermediate language has a group of constants,
 :samp:`IDIO_I_{some_thing}` -- with the ``_I_`` for intermediate,
 which, when we're finished doing whatever we intend to do with
 intermediate code, will be translated reasonably straightforwardly
@@ -360,7 +361,7 @@ corresponding assembly code written in a more
 
 The structure of the intermediate code is... you guessed it, a list of
 lists of lists.  The code generator is expecting that, of course, but
-as is descends the tree of intermediate code statements it will
+as it descends the tree of intermediate code statements it will
 eventually reach the point where it has to emit a stream of byte code,
 one intermediate instruction at a time.
 
@@ -385,7 +386,7 @@ quote
 				  nametree,
 				  flags);
 
-which, on reflection could be even shorter still as
+which, on reflection, could be even shorter still as
 ``idio_meaning_quotation()`` is the straightforward:
 
 .. code-block:: c
@@ -622,18 +623,18 @@ define
 ``define`` introduces a variable at "top level" and then assigns a
 value to it, or, more properly, *binds* it to a value.
 
-The two English language expressions suggest that the one might be a
-holder for the other.  In practice, most :lname:`Idio` values are
-allocated on the :lname:`C` heap and :lname:`C` ``IDIO`` values refer
-to the allocated heap memory -- unless it's a constant or fixnum in
-which case we squeeze it into the upper bits of the ``IDIO``
-"pointer".
+The English language expression, "assign to", suggests that the
+variable might be a container for the value.  In practice, most
+:lname:`Idio` values are allocated on the :lname:`C` heap and the
+underlying :lname:`C` ``IDIO`` values refer/point to the allocated
+heap memory -- unless it's a constant or fixnum in which case we
+squeeze it into the upper bits of the ``IDIO`` "pointer".
 
-So, correctly (most of the time), the :lname:`C` ``IDIO``
+So, correctly (most of the time), the :lname:`C` ``IDIO`` variable
 refers/points to some splodge of memory and, by extension, the
 :lname:`Idio` variable is *bound* to that splodge of memory (value).
 
-If we subsequently "assign a different value to a variable" then in
+If we subsequently "assign" a different value to the variable then in
 practice we are simply changing the reference in the ``IDIO`` entity
 to point at a different splodge of memory and the :lname:`Idio`
 variable is now bound to a different value.
@@ -647,7 +648,8 @@ case for :lname:`Idio`, a module-specific table of known names.
 This "top level" is usually described as the *environment* during
 :lname:`Lisp` language processing.  Of course "environment" has an
 alternative meaning to us shell-people so I'm slightly loathe to use
-it.  The virtual machine's register is still *env*, though.
+it.  The virtual machine's register is still *env*, though, as a
+throwback to our :lname:`Scheme`-ly origins.
 
 You might ask why we want to *define* things rather than simply assign
 to them, auto-creating the name in the top level as we go?  Well, I
@@ -681,13 +683,25 @@ we've not just been left hanging in the wind, here.
 
    .. parsed-literal::
 
-      define *name* (function (*formals\**) *expression}*
+      define *name* (function (*formals\**) {
+        ...
+      })
 
    and this rewrite is exactly what the evaluator does.
 
+   You'll note the extra parentheses around the function definition
+   which, in the first instance, mean that ``define`` isn't given an
+   arbitrary number of arguments but just two, the *name* and
+   *expression*, and secondly give the impression (realised in
+   practice) that like any other argument, say, ``(+ 1 2)``, the
+   anonymous function definition is instantiated into a function value
+   and it is the function value that is passed to ``define``.
+
+   We'll see this rewrite in a second.
+
 .. sidebox::
 
-   Though maybe not that *other* guy...
+   Though maybe not as lazy as that *other* guy...
 
 I'm as lazy as the next guy so the ``:=`` operator has been co-opted
 into use as a synonym for the first form of ``define``: :samp:`{name}
@@ -772,7 +786,7 @@ creating a new one.
 
 :samp:`IDIO_MEANING_TOPLEVEL_SCOPE ({flags})` is used to indicate what
 sort of variable should be created if an existing variable is not
-found.
+found (hint: a toplevel variable).
 
 The "hocus-pocus" is important -- though the details aren't as it's a
 bit bespoke -- in that if the result of the variable lookup does not
@@ -812,8 +826,9 @@ as well as from :ref:`define`.
 A quick recap on the various ways we might stumble over the assignment
 of, in particular, a free variable.  If we have previously defined a
 variable (or are in the act of defining one) then we should have an
-index into the VM's variable array to hand and can perform the
-assignment directly with a :samp:`GLOBAL-VAL-SET {vi}` instruction.
+index into the VM's variable array to hand, :samp:`{vi}`, and can
+perform the assignment directly with a :samp:`GLOBAL-VAL-SET {vi}`
+instruction.
 
 On the other hand, if we're mid-function assigning to a variable we
 haven't seen defined yet, ie. a forward reference, then we ought to
@@ -1000,8 +1015,8 @@ the argument expressions.
   its heart's content whereas we will eventually blow up our
   :lname:`C` stack if the sequence is too large.
 
-  The GoTo large sequence is that sequence of statements in a large
-  source file.
+  The exemplar "large sequence" is that sequence of statements in a
+  large source file.
 
   In practice, then, we convert the :lname:`Scheme`\ ly recursion into
   a :lname:`C`-friendly iterative loop and walk down the list of
@@ -1011,7 +1026,7 @@ the argument expressions.
   Technically, we push it onto the front of a now reversed list of
   meanings which, come the end of the loop, we reverse.
 
-  However, we have managed it, we have a correctly ordered list of
+  However we have managed it, we have a correctly ordered list of
   meanings onto the front of which we tack the
   :samp:`IDIO_I_{sequence}` intermediate code -- ``IDIO_I_BEGIN``
   etc..
@@ -1056,7 +1071,7 @@ First, a quick diversion.
 
 In the source code you'll be using :samp:`module {m}` to change
 module.  ``module`` is a template, though, partly because it needs to
-be concomitant with ``load``.
+be *concomitant* with ``load``.
 
 We have a semantic problem in that if you load in a file which, at the
 top, says ``module foo`` then when do you stop being in module

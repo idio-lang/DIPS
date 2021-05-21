@@ -66,18 +66,26 @@ a. you get used to it
 #. often the quoting is only required to create a table for subsequent
    comparison with a (variable) element from the table
 
-#. many language constructions are templates which will be given the
-   quoted form and construct a test with it (in the preceding style):
+#. many language constructions are syntax transformers (ultimately,
+   templates) which will be given the quoted form and construct a test
+   with it (implicitly using the preceding style):
+
+   .. aside::
+
+      ...but it `won't fall down
+      <https://en.wikipedia.org/wiki/Weeble>`_!
 
    .. code-block:: idio
 
-      case (v) \
-           ((wibble wobble) ...)
+      (case (v)
+	   ((weeble wobble)	...)
+	   ((wibble)		...)
+	   (else		...))
 
    Here, the ``case`` template will be given a fairly complex set of
-   arguments and will eventually find the list, ``(wibble wobble)``
-   consisting of two symbols, in its hands which it can then test as
-   to whether the key, ``v``, is a member.
+   arguments and will eventually find the list, ``(wibble)``
+   consisting of the one symbol, in its hands which it can then test
+   as to whether the key, ``v``, is a member.
 
 Implementation
 --------------
@@ -102,6 +110,16 @@ symbol's name is looked up to see if it already exists and if so the
 value retrieved.  If not a new symbol based on the name is created
 (added to the internal table) and returned.
 
+It's that interning that makes the symbol unique within the program
+and prevents any awkwardness such as:
+
+.. code-block:: idio-console
+
+   Idio> eq? 'x 'x
+   #f
+
+A lot of things grind to a halt at this point.
+
 .. _`defining symbols in C`:
 
 Defining in :lname:`C`
@@ -111,7 +129,8 @@ Defining a symbol in :lname:`C` is a little bit of a run around
 because we need three points of exposure.  Let's consider creating the
 :lname:`Idio` symbol ``:=`` which we are required to call
 ``idio_S_colon_eq`` in the :lname:`C` code base.  The :lname:`C`
-snippet ``colon_eq`` will be our rendezvous point.
+snippet ``colon_eq`` will be used by different :lname:`C` macros to
+brings things together.
 
 #. we need to declare the :lname:`C` symbol in a header so everyone
    can use it:
@@ -121,8 +140,8 @@ snippet ``colon_eq`` will be our rendezvous point.
 
       extern IDIO_SYMBOL_DECL (colon_eq);
 
-   :samp:`IDIO_SYMBOL_DECL({n})` creates the (expected?) simple
-   concatenation of ``idio_S_`` and :samp:`{n}`.
+   :samp:`IDIO_SYMBOL_DECL({n})` creates the simple concatenation of
+   ``idio_S_`` and :samp:`{n}`.
 
 #. we need to repeat the declaration without the ``extern``:
 
@@ -130,6 +149,8 @@ snippet ``colon_eq`` will be our rendezvous point.
       :caption: :file:`symbol.c`
 
       IDIO_SYMBOL_DECL (colon_eq);
+
+   to create the storage for the :lname:`C` value.
 
 #. we need to assign something to our :lname:`C` variable
 
@@ -143,8 +164,9 @@ snippet ``colon_eq`` will be our rendezvous point.
 	  ...
       }
 
-   which creates the :lname:`Idio` symbol ``:=`` and assigns the
-   result to the :lname:`C` variable ``idio_S_colon_eq``.
+   which is a bit more complicated and creates the :lname:`Idio`
+   symbol ``:=`` and assigns the result to the :lname:`C` variable
+   ``idio_S_colon_eq``.
 
 Special Cases
 ^^^^^^^^^^^^^
@@ -154,8 +176,9 @@ fundamental, like ``idio_S_nil``, which are derived from ``#define``\
 s in :file:`idio.h`.
 
 These are required to exist for :lname:`C` functions to return during
-the construction of other symbols.  We can't have a problem *defining*
-``idio_S_nil`` only then to try to return ``idio_S_nil`` on failure.
+the construction of other symbols.  We can't allow ourselves to be in
+the position of having a problem *defining* ``idio_S_nil`` only then
+to try to return ``idio_S_nil`` on failure.
 
 Consequently, there is no explicit creation of a corresponding
 :lname:`Idio` symbol for these :lname:`C` symbols.  For these special

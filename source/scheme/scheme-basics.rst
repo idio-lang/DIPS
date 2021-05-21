@@ -136,8 +136,6 @@ programming language *virtual machine*) might want to invest in a
 Syntactic Structure
 ===================
 
-.. highlight: scheme
-   
 Forms
 -----
 

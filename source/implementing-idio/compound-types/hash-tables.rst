@@ -53,7 +53,7 @@ We need some sentinel values:
 Hashing and Equivalence
 -----------------------
 
-We should (and, indeed, *require*) user-defined hashing and
+We should have (and, indeed, *require*) user-defined hashing and
 equivalence functions.
 
 By default the hashing and equivalence functions are written in
@@ -124,8 +124,8 @@ be collected -- something is always referring to it.
 
 Hence the concept of *weak keys* which are an instruction to the GC to
 **not** flag the *key* as having been "seen" from the root.  You can
-flag the *value* associated with the key as being seen (otherwise we'd
-garbage collect the properties themselves!).
+(read: must) flag the *value* associated with the key as being seen
+(otherwise we'd garbage collect the properties themselves!).
 
 Subsequently, if the function value is still ultimately referred to
 from a root value then all is well and if the function value is no
@@ -230,7 +230,7 @@ The key-value tuples are read as :ref:`pairs`: :samp:`({key} &
 
 The *value-index* operator, ``.`` works with hash tables:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Idio> ht := make-hash #n #n 4
 

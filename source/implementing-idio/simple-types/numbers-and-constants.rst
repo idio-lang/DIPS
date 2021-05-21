@@ -1,10 +1,10 @@
 .. include:: ../../global.rst
 
-**********************
-Integers and Constants
-**********************
+*********************
+Numbers and Constants
+*********************
 
-We will be using integers and constants quite a bit in :lname:`Idio`.
+We will be using numbers and constants quite a bit in :lname:`Idio`.
 Do we really want to create a (relatively) enormous data structure to
 house a 32-bit integer?  Or for ``#t``, ``#f`` and ``#n`` -- the only
 constants I can think of?  Seems a bit wasteful.
@@ -26,7 +26,7 @@ systems where they differ.)
 If everything is allocated on a 4 byte boundary then the last two bits
 (three bits for 64-bit) are *always* zero:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    xxxxxxxx xxxxxxxx xxxxxxxx xxxxxx00
 
@@ -51,9 +51,9 @@ hold that, for signed integers.  This gives us 30 bits for the
 integer, less one bit for the sign, leaving us with 2\ :sup:`29` bits.
 That's a pretty big number, ±536 million or so.
 
-Assuming two-complement, 1 and -1 would be:
+Assuming twos-complement, 1 and -1 would be:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    00000000 00000000 00000000 00000101
 
@@ -74,10 +74,15 @@ and retrieve it with:
    IDIO o = ...;
    int i = ((intptr_t) o) >> 2;
 
+.. aside::
+
+   It still works, mind, they must be used to people abusing the
+   system.
+
 Actually, that ``>> 2`` will extract a complaint about ``arithmetic
 right shift`` from some :lname:`C` compilers as it makes an assumption
 that the top (sign) bit will remain the same (rather than be set to 0,
-say).  It still works, mind.
+say).
 
 This is called a "tagged" type -- we're using the bottom two bits as a
 tag -- and, here, the whole thing for integers, is called a fixed
@@ -118,6 +123,11 @@ takes zero or more arguments.
 Fixnum arithmetic can overflow the limits of a fixnum,
 :samp:`FIXNUM-MAX + 1` is an obvious case, resulting in a shift to
 bignum arithmetic.
+
+.. code-block:: idio-console
+
+   Idio> bignum? (FIXNUM-MAX + 1)
+   #t
 
 Implementation
 ^^^^^^^^^^^^^^
@@ -192,17 +202,17 @@ bunch of constants, in fact, it'll transpire we have half-a-dozen or
 so groups of constants (think: enumerated values) one of which,
 Unicode, we know uses 21 bits.
 
-Quick bit of maths... 30 bits of space, minus 21 bits for Unicode,
-say, gives us 9 bits worth of different constant types.  Hmm, I'm not
-sure we have 512 different constant types or, rather more importantly,
-even want to consider having 512 different types of constants.  Far
-too many to remember!
+Quick bit of maths... 30 bits of space on a 32-bit system, minus 21
+bits for Unicode, say, gives us 9 bits worth of different constant
+types.  Hmm, I'm not sure we have 512 different constant types or,
+rather more importantly, even want to consider having 512 different
+types of constants.  Far too many to remember!
 
 Let's flip the maths around and suggest we have 3 bits of constant
 types (up to 8, then) meaning each constant type could have up to 27
 bits worth of space.  Definitely room for Unicode's 21 bits in one and
-I fancy we could squeeze our trio of ``#t``, ``#f`` and ``#n`` into
-another.
+I fancy we could squeeze our trio of regular constants, ``#t``, ``#f``
+and ``#n`` into another.
 
 And if it turns out that 8 different constant types isn't enough then
 we can revisit this and make it 16 or 32 or ... and still have room
@@ -211,7 +221,7 @@ for what is almost certainly our biggest group of constants, Unicode.
 Let's try that, then, with ``10`` as the tag and ``ccc`` being our 3
 bits of "constant type differentiator":
 
-.. code-block:: console
+.. code-block:: idio-console
 
    xxxxxxxx xxxxxxxx xxxxxxxx xxxccc10
 
@@ -248,14 +258,14 @@ so on.
 
 ---
 
-We've still room for a third type.  I've not settled on one, though.
-I'm partial to a *flonum* type.  Yes, a floating point number squeezed
-into 30 bits.  `IEEE 754`_, or something, with small mantissa and
-exponent.  I don't use floating point enough to warrant the effort
+We've still room for a third tagged type.  I've not settled on one,
+though.  I'm partial to a *flonum* type.  Yes, a floating point number
+squeezed into 30 bits.  `IEEE 754`_, or something, with small mantissa
+and exponent.  I don't use floating point enough to warrant the effort
 especially when what little floating point I use is more than
 adequately handled by :ref:`bignums`.  One day.
 
-In the meanwhile, the space is reserved by the
+In the meanwhile, the tag is reserved by the
 ``IDIO_PLACEHOLDER_TYPE``.
 
 64-bit Virtual Address Space
@@ -348,7 +358,7 @@ has been set and, assuming it is one of the usual suspects
 ``b``?  Yes, of course.  Generate the binary representation of our
 fixnum:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Idio> n := 17
    Idio> format "%b\n" n

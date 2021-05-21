@@ -64,15 +64,27 @@ With no (obvious) punctuation, just like the shell.  Isn't that the
 point?
 
 Mind you, with our :lname:`Scheme` hats on, ``ls`` is *undefined* in
-the program.  We know, with our shell hats on, that the shell will
-take it upon itself to have a rummage around the shell's
-:envvar:`PATH` to find an :program:`ls` executable.  In
-:lname:`Scheme`, though, we need to break the behaviour that ``ls`` is
-undefined.
+the program (probably).  We know, with our shell hats on, that if
+``ls`` is not a function or alias then the shell will take it upon
+itself to have a rummage around the shell's :envvar:`PATH` to find an
+:program:`ls` executable.  From a :lname:`Scheme` perspective, though,
+we need to break the behaviour that ``ls`` is undefined.
 
 Similarly, for ``-l``.  Is that a funky function to subtract the value
-of ``l`` from its argument or just a string of characters to be passed
-as an argument to some command?  Typing ``make debug`` results in an
+of ``l`` from its argument (like a ``+1`` function) or just a string
+of characters to be passed as an argument to some command?
+
+.. sidebox::
+
+   It's an error because there's no sensible translation of an
+   :lname:`Idio` function (value) to an argument in
+   :manpage:`execve(3)`.
+
+   ``-l`` is OK because, even though we will have it in our hands as
+   an :lname:`Idio` *symbol* there is an obvious translation of a
+   symbol into a string of characters.
+
+The inverse is also an issue.  Typing ``make debug`` results in an
 error when ``debug`` is the name of a function.  Tricky.
 
 I like the idea that I can, at long last, have hyphens in my variable
@@ -91,7 +103,7 @@ However, there is a far worse bind we put ourselves under if we allow
 punctuation characters in names as it conflicts with the
 meta-characters the shell uses to spot pathname patterns:
 
-.. code-block:: idio
+.. code-block:: sh
 
    ls -l *foo*.txt
 
@@ -130,24 +142,52 @@ like:
 cause palpitations?  In one sense it is a bit like preparing a regular
 expression in :lname:`Python` or :lname:`Perl`.
 
-It's not *Art*, I agree.
+It's not *Art*, I agree.  However, there is some precedence with
+Murex_ taking to the likes of:
 
-There's a very similar problem with plain filenames:
+.. code-block:: text
+
+   ls -l @{g *.go}	# globbing
+   ls -l @{rx \.go$}	# by regex
+
+although I have this feeling that it would be better/more generic/more
+in the style of *something?* if we indicated a filter to the globbing
+mechanism through the environment in the same was we might use
+:envvar:`IFS`.
+
+There's a very similar problem with plain filenames that you might use
+instinctively in the shell:
 
 .. code-block:: idio
 
    ls -l foo
 
-``foo``, here, will be looked to be evaluated -- and could be --
-otherwise will cause an *unbound* error like ``ls`` might.
+As this is :lname:`Idio` and not the shell, ``foo`` will be looked to
+be evaluated -- and could be -- otherwise would be at risk of causing
+an *unbound* error like ``ls`` might.  Here we get a mixed bag, if
+``foo`` is defined then we'll get the value of the variable ``foo``
+(which could be anything, of course) otherwise the *symbol* ``foo``
+will be passed through to the (external) command execution system and
+the string of characters ``foo`` will be passed to :program:`ls`.
 
-As a transient feature most things that expect a filename will work
-with a string (no globbing!):
+As a :strike:`transient` feature most things that expect a filename --
+recall we don't have a filename *type* internally -- will work with a
+string (implying no globbing!):
 
 .. code-block:: idio
 
    ls -l > "foo"
    open-input-file "foo"
+
+This has led to a few thoughts that perhaps filenames should be a
+subclass of strings -- an extra flag on the underlying string type,
+maybe -- allowing for them to be handled appropriately.
+
+There's a myriad of problems here, though, in that until we have
+successfully :manpage:`stat(2)`'ed the file we don't know it does or
+even *can* exist.  Further complicating matters is that operations
+such as ``open-output-file`` are allowed to *create* files therefore
+we must allow for a filename that we don't know if it can exist.
 
 Single Word Feature
 -------------------
@@ -161,7 +201,7 @@ REPL.  If your command consists of a single word, eg. ``ls`` then it
 is indistinguishable in a standard :lname:`Scheme`-ly REPL where any
 single word will be evaluated and its value printed:
 
-.. code-block:: idio
+.. code-block:: idio-console
 
    Idio> n := 10
    Idio> n
@@ -189,7 +229,7 @@ a more :lname:`Scheme`-ly raise an *unbound* error).
 If you want to force the single word command ``ls`` to be invoked then
 you *must* put it in parentheses:
 
-.. code-block:: idio
+.. code-block:: idio-console
 
    Idio> (ls)
    My Documents
@@ -216,7 +256,7 @@ There's another awkwardness from the idea of a line-oriented shell for
 complex functions, ones that have multiple clauses.  Take, ``cond``,
 for example, which is nominally:
 
-.. code-block:: scheme
+.. code-block:: idio
 
    (cond (c1 e1)
 	 (c2 e2)
@@ -225,7 +265,7 @@ for example, which is nominally:
 ``cond`` by rights, should be invokable in the same way as ``ls``,
 ie. without leading parenthesis but that would lead us with:
 
-.. code-block:: scheme
+.. code-block:: idio
 
    cond (c1 e1)
 	(c2 e2)
@@ -239,13 +279,15 @@ see references to *indent* and *deindent* in the parser -- but it
 doesn't feel like the indentation here is a syntactic thing, it's
 really a visual *aide-mémoir*, after all, we could have written:
 
-.. code-block:: scheme
+.. code-block:: idio
 
    cond (c1 e1) (c2 e2) (else e3)
 
-and be done.  Except the condition and expression clauses are almost
-certainly complex and the resultant enormous line would be difficult
-to read let alone maintain.
+and be done.
+
+Except the condition and expression clauses are almost certainly
+complex and the resultant enormous line would be difficult to read let
+alone maintain.
 
 The original ``(cond ...)`` across multiple lines works because the
 :lname:`Scheme`-ish engine is looking for the matching close-parens
@@ -328,7 +370,7 @@ can scan along, find that ``|`` is an infix operator and call its
 behavioural code.  I'll assume we're all happy that it wants to rework
 this into:
 
-.. code-block:: scheme
+.. code-block:: idio
 
    (| (zcat file)
       (tar tf -))
@@ -360,7 +402,7 @@ Although we start reading ``zcat file ...``, the first *complete*
 parenthetical expression read would be ``(tar tf - | grep foo)`` which
 can be re-written as:
 
-.. code-block:: scheme
+.. code-block:: idio
 
    (| (tar tf -)
       (grep foo))
@@ -402,7 +444,7 @@ expression:
  
 which we might transform into:
 
-.. code-block:: scheme
+.. code-block:: idio
 
    (| (zcat ...) 
       (tar ...) 
@@ -446,7 +488,7 @@ right-associative -- evaluate the value first!
 Pipelines are left associative, hence the triple pipeline example is
 quite likely to be *executed* as:
 
-.. code-block:: scheme
+.. code-block:: idio
 
    (| (| (zcat ...) 
 	 (tar ...) 
@@ -458,13 +500,20 @@ Even if its nominal form is all three children parented by the same
 Operator Precedence
 -------------------
 
+.. sidebox::
+
+   *Careful!* You might have internalised :lname:`C`'s operator
+   precedence rules as The Truth!
+
+   We'll use the same rules but only for familiarity reasons.
+
 There's also *precedence*: ``(1 + 2 * 3)`` could be ``((1 + 2) * 3)``
 or ``(1 + (2 * 3))`` depending on which operator was run first.
 
 Logical operators, pipelines, arithmetic, logical operators and IO
 redirection are all ordered by precedence:
 
-.. code-block:: idio
+.. code-block:: bash
 
    tar *.txt 2>/dev/null | gzip > foo || echo whoops
 
@@ -500,13 +549,13 @@ Such transforms will also mean that:
 
 will be re-written as:
 
-.. code-block:: scheme
+.. code-block:: idio
 
    (echo (+ 1 2) (* 3 4))
  
 resulting in:
 
-.. code-block:: sh
+.. code-block:: idio-console
 
    3 12
 
@@ -652,7 +701,7 @@ to be a ``define`` or a ``let``.  In a lexical block, for example:
 
 would get transformed into:
 
-.. code-block:: scheme
+.. code-block:: idio
 
    (let ((a 1))
     (begin
@@ -672,7 +721,7 @@ lexical block becomes the body of the implied ``let`` such that the
 
 would get transformed into:
 
-.. code-block:: scheme
+.. code-block:: idio
 
    (let ((a 1))
     (let ((b (a + 2)))
@@ -695,7 +744,7 @@ Noting that the *reader* will transform ``a + 1`` into ``(+ a 1)``
 *first* as ``+`` has a higher infix operator precedence than the
 ``=``:
 
-.. code-block:: scheme
+.. code-block:: idio
 
    (= a (+ a 1))
 
@@ -710,7 +759,7 @@ Function calls in assignments come out in the wash, here, as:
 
 is transformed into:
 
-.. code-block:: scheme
+.. code-block:: idio
 
    (= a (func sol bruh va))
 
@@ -771,7 +820,7 @@ Access to the variable is more work because you need to run back up
 Nominally, there's the ``dynamic-let`` call which introduces a dynamic
 variable (onto the stack) and starts processing:
 
-.. code-block:: scheme
+.. code-block:: idio
 
    (dynamic-let ((X 10))
     (foo))
@@ -851,7 +900,7 @@ So that should have been:
 .. code-block:: idio
 
    {
-    PATH :* path-prepend PATH /some/where else
+    PATH :* path-prepend PATH /some/where/else
 
     do stuff
    }
@@ -949,7 +998,7 @@ We can then rustle up something like:
 
 which should display:
 
-.. code-block:: sh
+.. code-block:: idio-console
 
    1 2
    11 12
@@ -974,13 +1023,12 @@ other than a little textual transformation into, say:
 
 .. code-block:: idio
 
-   function (a) {
+   define (foo a) {
      b = a + 1
      b
    }
 
-the differences being that there's no function name in the function
-declaration and we have formal parameters.
+the only useful difference being that we have formal parameters.
 
 Notice too the start of a lexical block, ``{``, *on the end of the
 first line* of the function declaration.  That means our line-oriented
@@ -991,13 +1039,13 @@ If it wasn't on the end of that line:
 
 .. code-block:: idio
 
-   function (a)
+   define (foo a)
    {
      b = a + 1
      b
    }
 
-would be a semantic error as ``function (a)`` was read and deemed by
+would be a semantic error as ``define (foo a)`` was read and deemed by
 the line-oriented code reader to be a whole expression.  But it is a
 function declaration with no body and so is an error.  The remaining
 lexical block is, well, just a lexical block.  That's legal although
@@ -1026,7 +1074,23 @@ closures:
 
 The more you're used to seeing it the easier it is to scan.
 
-I'm not so tied to the idea, though.
+I'm not so tied to the idea, although anonymous function declarations
+are quite wordy.  The ``define`` above is re-written internally to:
+
+.. code-block:: idio
+
+   define foo (function (a) {
+     b = a + 1
+     b
+   })
+
+with the extra parentheses around ``function ...`` to create the
+function value -- otherwise it is just a string of words giving
+``define`` too many arguments!
+
+What the :lname:`Ruby` and :lname:`Swift` variants are doing is
+getting rid of the ``function`` keyword and shifting the formal
+arguments inside the block.
 
 Pipelines
 =========
@@ -1060,10 +1124,10 @@ call is the argument to the next:
    func args || f2 || f3
 
 although you immediately think that the later functions should be
-allowed to have other arguments themselves (albeit ``f2`` and ``f3``
-could be the result of currying themselves and only take a single
-argument) in which case you'd need some symbolic argument for the
-value being passed down.
+allowed to have other arguments themselves in which case you'd need
+some symbolic argument for the value being passed down.
+Alternatively, ``f2`` and ``f3`` could be the result of currying
+themselves and only take a single argument.
 
 :lname:`Perl` used to use ``$_`` for the anonymous value so our
 equivalent would be something like:
@@ -1121,9 +1185,9 @@ source code:
    pair 1
 
 is an error because no matter how many times you run or whatever
-external changes you make, ``pair`` takes two arguments and you've
-only given it one.  It is unrecoverable in any sense other than to
-edit the source code.
+external/environmental changes you make, ``pair`` takes two arguments
+and you've only given it one.  It is unrecoverable in any sense other
+than to edit the source code.
 
 Accordingly, for an error, it is not possible to continue with this
 thread of processing and the engine will revert to some safe place.
@@ -1188,6 +1252,9 @@ We can now start deriving trees of condition types from
   (byte index into the source *handle* -- file or string!) being the
   common root of all reader errors.
 
+- ``^evaluation-error`` with the additional field of ``expr`` being
+  the common root of all evaluation errors.
+
 - ``^io-error`` and its derivatives primarily relating to files
 
 - ``^runtime-error`` which has a wide tree of children including:
@@ -1202,6 +1269,8 @@ We can now start deriving trees of condition types from
   ``^error`` directly as its asynchronous, out-of-band provenance
   means there's no particular association with any message, location
   or detail that ``^idio-error`` requires for its fields
+
+And so on.  There's quite a few.
 
 SIGCHLD
 ^^^^^^^
@@ -1222,7 +1291,7 @@ Separately, the code that ran the external process will eventually
 unwind to return ``#f``, if the process failed, which can be used by
 any of the conditional forms in the shell-ish way:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Idio> if (false) "worked" "failed"
    job 95645: (false): completed: (exit 1)
@@ -1379,7 +1448,7 @@ The chances are that no-one is except the system condition handlers
 which will splurge some message to *stderr* and restart processing
 from some safe place:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Dun goofed!
 
@@ -1520,8 +1589,8 @@ is extracting the commentary can execute some appropriate system.
 
 I'm being slightly vague there as, primarily, I don't have any feel
 for that that documentation generation system might be.  So,
-currently, ``#|`` is just a nested multi-line comment waiting... for
-Godot?
+currently, ``#|`` is just a nested multi-line comment waiting... *for
+Godot?*
 
 We should still be able to have regular nested multi-line comments
 though without the fear that they'll be emitted to some external
@@ -1572,9 +1641,10 @@ character (ie. not whitespace) is the escape character:
 
    *#
 
-where ``\`` does nothing, ``%`` will first escape a space character
-then escape the ``*`` preventing the line comment ending the
-multi-line comment.  The nominal result being ``...\ *#...``.
+where ``\`` does nothing special, ``%``, the escape character, will
+first escape a space character then escape the ``*`` preventing the
+line comment ending the multi-line comment.  The nominal result being
+``...\ *#...``.
 
 *No, you can't use whitespace as an escape character!*
 

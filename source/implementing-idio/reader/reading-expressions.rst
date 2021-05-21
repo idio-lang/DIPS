@@ -38,7 +38,7 @@ whitespace then you're creating an interesting symbol.
 This means that some words (from a reader perspective) are not a lean
 form of arithmetic but are actual symbols (and possibly variables):
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Idio> 3pi/4
    #i2.35619449019234491e+0
@@ -304,7 +304,7 @@ By and large, ``#`` introduces some kind of a constant:
 
 * ``#t``, ``#f`` and ``#n``
 
-* ``#\`` starts a literal or named character
+* ``#\`` starts a literal, ``#\a``, or named character, ``#\{space}``
 
 * ``#[...]`` is a "constant" array definition
 
@@ -329,6 +329,8 @@ By and large, ``#`` introduces some kind of a constant:
   - ``#i...`` an *inexact* number
 
 * ``#T{...}`` a template
+
+* ``#S{...}`` an interpolated string
 
 * ``#P"..."`` a pathname (broken *<sigh>*)
 
@@ -370,9 +372,9 @@ We then try to convert the word to a number, a bignum in particular.
 If our attempt to convert the number uses all of the characters of the
 word then the word becomes a number, otherwise it remains a word.
 
-So, ``pi`` doesn't have any hope so remains a word.  ``3pi`` starts
-promisingly but fails on the ``pi`` bit and remains a word.  Ditto,
-``3pi/4``.
+So, ``pi`` doesn't have any hope of being interpreted as a number so
+remains a word.  ``3pi`` starts promisingly with ``3`` but fails on
+the ``pi`` bit and remains a word.  Ditto, ``3pi/4``.
 
 ``3.14`` does satisfy the criteria for a number, no letters in this
 case, one decimal point (in the right sort of place), all good.  A
@@ -384,6 +386,12 @@ character and ``-2`` is a valid exponent (ie. is an integer).
 ``3`` is a bit more interesting as we can determine it's a number but
 can also throw a couple of heuristics at it and see that it can be a
 fixnum so we'll return one of them instead.
+
+However, those heuristics err on the side of bignums, so ``3e0`` which
+has the value 3 and could therefore reasonably easily be a fixnum,
+remains a bignum because the user gave us a number in the
+"exponent-style" and were therefore showing intent that they didn't
+want us to do any funny business under their feet.
 
 .. include:: ../../commit.rst
 

@@ -1,0 +1,165 @@
+; test-lexer.idio
+
+#*
+
+This file should have examples of all the Idio features we want the
+Idio Pygments lexer to be able to parse.
+
+#*
+
+This is a nested multiline comment
+
+#|
+
+This is a nested-nested semi-literate multiline comment
+
+*# -- should be ignored
+
+|#
+
+Back in the nested multiline comment
+
+*#
+
+Back in the original multiline comment
+
+*#
+
+;; Numbers
+
+; Floating point
+
+ 3.14
+ 3.14e1
+ 3.14e+1
+ 3.14e-1
++3.14
+-3.14
+ 3e3
+ 3e+3
+ 3e-3
+
+; Integers
+
+ 3
++3
+-3
+
+; #[bodx]...
+
+#b0101
+#o0123
+#d0123
+#x01aE
+
+; exact and inexact
+
+#e-3.14
+#i+3.14
+#i3.14
+
+;; Constants
+
+#t
+#f
+#n
+
+;; Characters
+
+#\a
+#\ħ					; U+0127
+#\{space}
+#U+0020
+
+;; Strings
+
+"one line string"
+"two line
+string"
+"don't stop \" me now"
+
+;; Interpolated Strings
+#S{The life of ${pi + 1}.}
+echo #S%{The life of %{pi + 1}.}
+
+;; Symbols and Keywords
+
+pi
+'pi
+:sigstr
+
+;; Bitsets
+
+#B{ 3 010 }
+
+;; Arrays
+
+#[ 1 "apple" ]
+
+;; Hash
+
+#{ (1 & "apple") }
+
+;; Infix Expressions
+
+1 + 1
+1 - 1
+1 * 1
+1 / 1
+1 lt 1
+1 le 1
+1 eq 1
+1 ge 1
+1 gt 1
+
+;; more interesting
+
+man bash | wc -l
+
+ht := make-hash #n #n 4
+
+ht.#\a = "apple"
+
+a := make-array 4
+
+a =+ "a"
+
+a -=
+
+;; Closures
+
+function #n {
+  if #t {
+    printf "1 + 1 = %s\n" (1 + 1)
+  }
+}
+
+function args {
+  if #t {
+    printf "1 + 1 = %s\n" (+ 1 1)
+  }  
+}
+
+function (a b c) {
+  if #t {
+    printf "1 + 1 = %s\n" (apply \+ 1 1)
+  }
+}
+
+;; Builtins
+
+pair 1 2
+
+ph (pair 1 2)
+
+;; Templates
+
+define-template (foo a) {
+  define (helper x) {
+    x
+  }
+
+  #T{
+    printf $a $@(helper a)
+  }
+}

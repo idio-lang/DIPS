@@ -135,7 +135,7 @@ anyway!  We'll come back to this.
 You can access this information with ``find-symbol`` -- noting that it
 takes a symbol as an argument, not a value:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Idio> find-symbol 'read
    (#<CONST predef> 594 908 #<module libc> "idio_predef_extend")

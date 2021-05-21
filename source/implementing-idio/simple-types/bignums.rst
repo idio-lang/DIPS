@@ -351,7 +351,7 @@ bignum.c
 Bignums are normalized after most operations to provide some
 consistency:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Idio> 1234e-3
    1.234e+0
@@ -360,7 +360,7 @@ consistency:
 
 there's a ``bignum-dump`` left in for debug.  On a 64-bit machine:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Idio> pi
    #i3.14159265358979323e+0
@@ -369,7 +369,7 @@ there's a ``bignum-dump`` left in for debug.  On a 64-bit machine:
 
 and on a 32-bit machine:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Idio> pi
    #i3.14159265358979323e+0

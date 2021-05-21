@@ -76,7 +76,7 @@ One aspect of these structures, due to their provenance, is that
 *internally* they support a hierarchy.  This is most visible with
 conditions:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Idio> help ^rt-hash-key-not-found-error
    struct-type: ^rt-hash-key-not-found-error  > ^runtime-error > ^idio-error > ^error > ^condition 
@@ -185,7 +185,7 @@ In both case we'll use an invalid reader input form, ``#<...>``.
 For structure types we want to recurse through the structure
 inheritance hierarchy printing out field names as we go:
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Idio> ^idio-error
    #<ST ^idio-error #<ST ^error #<ST ^condition #n>> message location detail>
@@ -197,7 +197,7 @@ anything else, it is the root of this hierarchy.
 For structure instances we want the structure type and the values of
 the fields (with their names!):
 
-.. code-block:: console
+.. code-block:: idio-console
 
    Idio> make-condition ^idio-error "msg" "loc" "det"
    #<SI ^idio-error message:"msg" location:"loc" detail:"det">

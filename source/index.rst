@@ -22,6 +22,7 @@ The Design and Implementation of a Programmable Shell
    implementing-idio/index
    glossary
    references
+..   test-lexer
    
 
 Indices and tables
