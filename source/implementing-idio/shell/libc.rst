@@ -357,10 +357,10 @@ operating system-dependent.
 Signal Names
 ------------
 
-Surprisingly, despite using the macro value, say, ``SIGINT``, in
-:lname:`C` code there is no way to get the descriptive string "SIGINT"
-back out of the system.  :manpage:`strsignal(3)` provides the helpful
-string "Interrupt".
+Surprisingly, despite using the :lname:`C` macro value, say,
+``SIGINT``, in code there is no way to get the descriptive string
+"SIGINT" back out of the system.  :manpage:`strsignal(3)` provides the
+helpful string "Interrupt".
 
 We're following in the footsteps of :lname:`Bash`'s
 :file:`support/signames.c`.
@@ -378,11 +378,59 @@ We're following in the footsteps of :lname:`Bash`'s
      not necessarily contiguous with regular signals.
 
 You can convert a ``C/int`` signal number into either the short or
-long form names (eg, ``INT`` or ``SIGINT``) with :ref:`libc/sig-name` and
-:ref:`libc/signal-name`.
+long form names (eg, ``INT`` or ``SIGINT``) with :ref:`libc/sig-name
+<libc/sig-name>` and :ref:`libc/signal-name <libc/signal-name>`.
 
 You can get a list of all signal numbers with short or long signal
-names with :ref:`libc/sig-names` or :ref:`libc/signal-names`.
+names with :ref:`libc/sig-names <libc/sig-names>` or
+:ref:`libc/signal-names <libc/signal-names>`.
+
+.. _`libc/sig-name`:
+
+.. function:: sig-name sig
+
+   Return the short-form signal name, eg. "INT"
+
+   :param sig: signal
+   :type sig: ``C/int``
+   :rtype: string
+
+.. _`libc/signal-name`:
+
+.. function:: signal-name sig
+
+   Return the long-form signal name, eg. "SIGINT"
+
+   :param sig: signal
+   :type sig: ``C/int``
+   :rtype: string
+
+.. _`libc/sig-names`:
+
+.. function:: sig-names
+
+   Return a list of the signal number and the short-form signal names,
+   eg. "INT", pairs.
+
+   :rtype: list (``C/int`` & string)
+
+   .. code-block:: idio
+
+      ((1 & "HUP") (2 & "INT") ...)
+
+.. _`libc/signal-names`:
+
+.. function:: signal-names
+
+   Return a list of the signal number and the long-form signal names,
+   eg. "SIGINT", pairs.
+
+   :rtype: string
+
+   .. code-block:: idio
+
+      ((1 & "SIGHUP") (2 & "SIGINT") ...)
+
 
 Error Names
 -----------
@@ -397,16 +445,48 @@ Error Names
      :samp:`libc/ERRUNKNOWN{nnn}`.
 
 You can convert a ``C/int`` error number into the error name with
-:ref:`libc/errno-name`.
+:ref:`libc/errno-name <libc/errno-name>`.
 
 You can get a list of all error numbers with error names with
-:ref:`libc/errno-names`.
+:ref:`libc/errno-names <libc/errno-names>`.
 
-:ref:`libc/strerrno` is the moral equivalent of
+:ref:`libc/strerrno <libc/strerrno>` is the moral equivalent of
 :manpage:`strsignal(3)` and is functionally identical to
-:ref:`libc/errno-name`.
+:ref:`libc/errno-name <libc/errno-name>`.
 
 :lname:`C`'s :ref:`errno <libc/errno>` is accessible as a computed variable.
+
+.. _`libc/errno-name`:
+
+.. function:: errno-name errno
+
+   Return the error name, eg. "EPERM"
+
+   :param errno: error number
+   :type errno: ``C/int``
+   :rtype: string
+
+.. _`libc/strerrno`:
+
+.. function:: strerrno errno
+
+   Return the error name, eg. "EPERM"
+
+   :param errno: error number
+   :type errno: ``C/int``
+   :rtype: string
+
+.. _`libc/errno-names`:
+
+.. function:: errno-names
+
+   Return a list of the error number and the error name pairs.
+
+   :rtype: list (``C/int`` & string)
+
+   .. code-block:: idio
+
+      ((1 & "EPERM") (2 & "ENOENT") ...)
 
 RLIMIT Names
 ------------
@@ -421,10 +501,32 @@ RLIMIT Names
      :samp:`libc/RLIMIT_UNKNOWN{nnn}`.
 
 You can convert a ``C/int`` RLIMIT number into the RLIMIT name with
-:ref:`libc/rlimit-name`.
+:ref:`libc/rlimit-name <libc/rlimit-name>`.
 
 You can get a list of all RLIMIT numbers with names with
-:ref:`libc/rlimit-names`.
+:ref:`libc/rlimit-names <libc/rlimit-names>`.
+
+.. _`libc/rlimit-name`:
+
+.. function:: rlimit-name rlim
+
+   Return the rlimit name, eg. "RLIMIT_NOFILE"
+
+   :param rlim: rlimit identifier
+   :type rlim: ``C/int``
+   :rtype: string
+
+.. _`libc/rlimit-names`:
+
+.. function:: rlimit-names
+
+   Return a list of the rlimit number and the rlimit name pairs.
+
+   :rtype: list (``C/int`` & string)
+
+   .. code-block:: idio
+
+      ((0 & "RLIMIT_CPU") (1 & "RLIMIT_FSIZE") ...)
 
 Computed libc Variables
 =======================
@@ -1293,7 +1395,7 @@ give rise to the fundamental to pattern matching in :lname:`Idio`.
    :return: an array of matching subexpressions or ``#f`` if no match
 
    The ``flags`` are: :var:`REG_NOTBOL`, :var:`REG_NOTEOL` and
-   :var:`REG_STARTEND`(if supported).
+   :var:`REG_STARTEND` (if supported).
 
    On a successful match an array of the subexpressions in ``rx`` is
    returned with the first (zero-th) being the entire matched string.
