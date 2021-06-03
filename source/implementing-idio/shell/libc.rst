@@ -575,7 +575,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
      :param arg: file status flags
      :type arg: ``C/int``
 
-     See :ref:`file status flags <libc/file status flags` for what
+     See :ref:`file status flags <libc/file status flags>` for what
      might be possible.
 
 .. _`libc/fork`:
