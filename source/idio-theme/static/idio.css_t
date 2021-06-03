@@ -116,8 +116,14 @@ code {
     font-style: italic;
 }
 
-.vname {
-    font-style: italic;
+.var {
+    font-family: "Source Code Pro", Courier, monospace;
+    font-weight: bolder;
+}
+
+.val {
+    font-family: "Source Code Pro", Courier, monospace;
+    font-weight: bolder;
 }
 
 .socrates {

@@ -86,6 +86,7 @@ structure of the :samp:`{value}` -- and then call ``idio_debug()``.
    idio-GC
    simple-types/index
    compound-types/index
+   shell/index
    advanced/index
 .. job-control
 

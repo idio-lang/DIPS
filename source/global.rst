@@ -147,8 +147,12 @@
    :class: pname
 
 .. value name
-.. role:: vname
-   :class: vname
+.. role:: var
+   :class: var
+
+.. value name
+.. role:: val
+   :class: val
 
 .. asking a question
 .. role:: socrates

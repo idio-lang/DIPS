@@ -1198,6 +1198,8 @@ See :file:`handle.c`.
 
 In :file:`common.idio` there are some extra utility functions.
 
+.. _`%format`:
+
 :samp:`%format {type} {format} [{args}]`
 
       This ``%format`` function (in :file:`common.idio`) makes a much

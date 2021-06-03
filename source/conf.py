@@ -39,7 +39,7 @@ extensions = [
     'sphinx.ext.graphviz',
     'sphinx_git',
     'aside',
-    'idio_lexer'
+    'idio_lexer',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

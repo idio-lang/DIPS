@@ -109,14 +109,36 @@ constraints of ReStructuredText:
 
 as I pick out different visual styles.  They are all U+0061, though.
 
-The inverse is also an issue.  There are around 150 thousand code
-points defined (of the 1,114,112 possible code points) but the font
-you are using might only cover a small fraction of those.  If a glyph
-for a code point is missing the result isn't clearly defined.  The
-rendering system may substitute a glyph indicating the code point in a
-box or you may get a blank box.  The following is U+01FBF7 (SEGMENTED
-DIGIT 7), 🯷.  (I see a little box with a barely readable ``01F`` on
-one row and ``BF7`` on another.)
+.. sidebox::
+
+   Interestingly, :program:`emacs` is showing the underlined variant
+   of the ordinal indicator in the source where, at least, you can
+   easily see that the glyphs and therefore the code points are
+   different.
+
+The glyph in your font might also cause some entertainment for the
+ages were you to mistake 20º with 20°.  Here, we have (*foolishly!*)
+crossed U+00BA (MASCULINE ORDINAL INDICATOR) with U+00B0 (DEGREE SIGN)
+-- and that's `not the only confusion possible
+<https://en.wikipedia.org/wiki/Ordinal_indicator>`_.
+
+This is not just an issue with squirrelly superscripted characters but
+also where `Punycode <https://en.wikipedia.org/wiki/Punycode>`_ is
+used in domain names to use non-ASCII characters with similar glyphs
+to ASCII characters to masquerade one domain as another.  The example
+in the `Homoglyph <https://en.wikipedia.org/wiki/Homoglyph>`_ page is
+the near identical expressions of a, U+0061 (LATIN SMALL LETTER A),
+and а, U+0430 (CYRILLIC SMALL LETTER A).  Browsers, hopefully, have
+gotten better at alerting users to the duplicitous ``bаnk.com``.
+
+Your choice of font introduces another issue.  There are around 150
+thousand code points defined (of the 1,114,112 possible code points)
+but the font you are using might only cover a small fraction of those.
+If a glyph for a code point is missing the result isn't clearly
+defined.  The rendering system may substitute a glyph indicating the
+code point in a box or you may get a blank box.  The following is
+U+01FBF7 (SEGMENTED DIGIT 7), 🯷.  (I see a little box with a barely
+legible ``01F`` on one row and ``BF7`` on another.)
 
 There's a much better description of some of the differences between
 characters and glyphs -- and, indeed, characters and code points -- in
