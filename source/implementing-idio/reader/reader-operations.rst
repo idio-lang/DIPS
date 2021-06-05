@@ -318,6 +318,34 @@ Infix ``value-index`` operator, ``.`` which will transform
 :samp:`{s}.{i}` for some indexable value :samp:`{s}` into
 :samp:`(value-index {s} {i})`.
 
+The ``value-index`` operator is fraught with problems as ``.``\s
+appear in numbers, ``3.14``, symbols, ``...``, (used in syntax
+expansion) and pathnames, ``./bin``.
+
+Numbers and symbols can be handled as we don't allow numbers without a
+leading digit and we specifically check for a following ``.`` for
+``...``.
+
+Pathnames are more interesting.  In general we would have pathnames
+managed distinctly as, say, strings, ``ls "./bin"`` however, in the
+case of command names, that would feel wrong: :samp:`"./bin/cmd"
+{args}`.  In this case, we'll specifically look for a following ``/``
+and presume it is a word beginning ``./`` and not an indexing
+operation.
+
+If you really wanted to index something by a symbol beginning with
+``/`` then add some whitespace:
+
+.. code-block:: idio-console
+
+   Idio> ht := (make-hash)
+   #{ }
+   Idio> ht . /bin = 3
+   #<unspec>
+   Idio> ht
+   #{ (/bin & 3)}
+
+
 
 From :file:`job-control.idio`:
 

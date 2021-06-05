@@ -15,11 +15,18 @@ from git import Repo
 class aside(nodes.General, nodes.Element):
     pass
 
-def visit_aside_node(self, node):
+def visit_aside_html(self, node):
     self.body.append (self.starttag (node, 'aside', CLASS='aside'))
 
-def depart_aside_node(self, node):
+def depart_aside_html(self, node):
     self.body.append ('</aside>')
+
+def visit_aside_text(self, node):
+    self.new_state()
+    self.add_text ('aside:')
+
+def depart_aside_text(self, node):
+    self.end_state()
 
 class AsideDirective(SphinxDirective):
 
@@ -39,11 +46,19 @@ class AsideDirective(SphinxDirective):
 class sidebox(nodes.General, nodes.Element):
     pass
 
-def visit_sidebox_node(self, node):
+def visit_sidebox_html(self, node):
     self.body.append (self.starttag (node, 'div', CLASS='sidebox'))
 
-def depart_sidebox_node(self, node):
+def depart_sidebox_html(self, node):
     self.body.append ('</div>')
+
+def visit_sidebox_text(self, node):
+    self.new_state()
+    self.add_text ('sidebox:')
+
+def depart_sidebox_text(self, node):
+    self.end_state()
+    pass
 
 class SideboxDirective(SphinxDirective):
 
@@ -63,11 +78,19 @@ class SideboxDirective(SphinxDirective):
 class gitcommit (nodes.General, nodes.Element):
     pass
 
-def visit_gitcommit_node(self, node):
+def visit_gitcommit_html(self, node):
     self.body.append (self.starttag (node, 'div', CLASS='gitcommit'))
 
-def depart_gitcommit_node(self, node):
+def depart_gitcommit_html(self, node):
     self.body.append ('</div>')
+
+def visit_gitcommit_text(self, node):
+    self.new_state()
+    self.add_text ('git commit')
+
+def depart_gitcommit_text(self, node):
+    self.end_state()
+    pass
 
 # we want a git-prompt -like concoction, "commit(master) *"
 class GitCommitDirective (SphinxDirective):
@@ -99,6 +122,7 @@ class GitCommitDirective (SphinxDirective):
             text += " ({0})".format (self.branch_name)
         if 'uncommitted' in self.options and self.repo.is_dirty ():
             text += " *"
+        self.text = text
         markup = gitcommit ()
         markup.append (nodes.paragraph (text=text))
 
@@ -116,19 +140,16 @@ def setup(app):
     app.add_directive("gitcommit", GitCommitDirective)
     
     app.add_node(aside,
-                 html=(visit_aside_node, depart_aside_node),
-                 latex=(visit_aside_node, depart_aside_node),
-                 text=(visit_aside_node, depart_aside_node))
+                 html=(visit_aside_html, depart_aside_html),
+                 text=(visit_aside_text, depart_aside_text))
     
     app.add_node(sidebox,
-                 html=(visit_sidebox_node, depart_sidebox_node),
-                 latex=(visit_sidebox_node, depart_sidebox_node),
-                 text=(visit_sidebox_node, depart_sidebox_node))
+                 html=(visit_sidebox_html, depart_sidebox_html),
+                 text=(visit_sidebox_text, depart_sidebox_text))
     
     app.add_node(gitcommit,
-                 html=(visit_gitcommit_node, depart_gitcommit_node),
-                 latex=(visit_gitcommit_node, depart_gitcommit_node),
-                 text=(visit_gitcommit_node, depart_gitcommit_node))
+                 html=(visit_gitcommit_html, depart_gitcommit_html),
+                 text=(visit_gitcommit_text, depart_gitcommit_text))
 
     return {
         'version': '0.1',

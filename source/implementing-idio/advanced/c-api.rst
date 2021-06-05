@@ -293,7 +293,7 @@ DIEs
 The output is in the form of cascades of :abbr:`DIE (Debugging
 Information Entry)`\ s.  These look something like:
 
-.. code-block:: idio-console
+.. code-block:: text
 
     <1><50>: Abbrev Number: 2 (DW_TAG_base_type)
        <51>   DW_AT_byte_size   : 2
@@ -350,7 +350,7 @@ Let's try a ``pid_t``:
 which compiling, ``gcc -g -c -o libc-api.o libc-api.c`` gives us
 (amongst other things):
 
-.. code-block:: idio-console
+.. code-block:: text
 
     <1><57>: Abbrev Number: 3 (DW_TAG_base_type)
        <58>   DW_AT_byte_size   : 4
@@ -543,7 +543,7 @@ Pointers
 Pointers are flagged en route to the real type underneath.  Here's the
 case for the ``formal_parameter`` :samp:`{argv}`:
 
-.. code-block:: idio-console
+.. code-block:: text
 
     <1><178>: Abbrev Number: 9 (DW_TAG_pointer_type)
        <179>   DW_AT_byte_size   : 8
@@ -576,7 +576,7 @@ indiscriminately from pointers.
 In this example, all of the member of the ``struct utsname`` are
 ``char []`` rather than ``char *``:
 
-.. code-block:: idio-console
+.. code-block:: text
 
     <1><c80>: Abbrev Number: 28 (DW_TAG_structure_type)
        <c81>   DW_AT_name        : (indirect string, offset: 0x1e8): utsname
@@ -666,7 +666,8 @@ applicable to all systems.
 Due to the absence of debugging information in, in my case, libc,
 there's no formal parameter names for the system and library calls I'm
 referencing but we do get the formal parameter types and the return
-type.
+type.  We can obviously invent some arguments names, *arg1*, *arg2*,
+etc..
 
 For :manpage:`kill(2)`, whose prototype looks like:
 
@@ -727,6 +728,123 @@ this becomes:
    }
 
 Now, that's not too shabby for something automatically generated.
+
+.. rst-class:: center
+
+\*
+
+If we *do* install the libc debugging symbols we *still* don't get
+``formal_parameter`` names -- well, for the ``subprogram``\s we're interested in,
+anyway.
+
+Installing the debugging symbols isn't quite as obvious as you might
+think.  In the case of Fedora these are in separate packages in
+disabled repos but on the plus side tools like :program:`gdb` know to
+go looking for them and programs like :program:`objdump` can be
+persuaded with an extra argument (``K`` in this case).
+
+.. code-block:: console
+
+   $ sudo dnf --enablerepo=fedora-debuginfo debuginfo-install glibc-debuginfo
+   $ objdump -WilK /lib64/libc-2.33.so
+
+.. code-block:: text
+
+    <1><3452f>: Abbrev Number: 52 (DW_TAG_subprogram)
+       <34530>   DW_AT_external    : 1
+       <34530>   DW_AT_name        : (indirect string, offset: 0x108c0): kill
+       <34534>   DW_AT_decl_file   : 93
+       <34535>   DW_AT_decl_line   : 112
+       <34536>   DW_AT_decl_column : 12
+       <34537>   DW_AT_prototyped  : 1
+       <34537>   DW_AT_type        : <0x2a>
+       <3453b>   DW_AT_declaration : 1
+       <3453b>   DW_AT_sibling     : <0x34547>
+    <2><3453c>: Abbrev Number: 24 (DW_TAG_formal_parameter)
+       <3453d>   DW_AT_type        : <0x2341>
+    <2><34541>: Abbrev Number: 24 (DW_TAG_formal_parameter)
+       <34542>   DW_AT_type        : <0x2a>
+    <2><34546>: Abbrev Number: 0
+
+Some ``subprogram``\s do have named formal parameters in libc which
+makes me think the construction of things might be considerably more
+interesting than at first blush.
+
+Wait a minute, isn't there some ``__kill`` nonsense floating about
+with system calls?  Hmm.  The ``__kill`` ``subprogram`` also declines
+to offer us any formal parameter names.  So let's dig deeper:
+
+.. code-block:: console
+
+   $ sudo dnf --enablerepo=fedora-debuginfo debuginfo-install kernel-debuginfo-$(uname -r)
+   $ cd /usr/lib/debug/lib/modules/$(uname -r)
+   $ nm vmlinux | grep '[tT] kill_'
+   ...
+   ffffffff810ecb50 T kill_pgrp
+   ffffffff810ecc20 T kill_pid
+   ffffffff810ecb90 T kill_pid_info
+   ffffffff810ea580 T kill_pid_usb_asyncio
+   ffffffff8131ecc0 t kill_procs
+   ...
+
+*I don't think we're in Kansas any more, Toto!*
+
+.. code-block:: console
+
+   $ objdump -WilK vmlinux  | less +/kill_pid
+
+.. code-block:: text
+
+    <1><10e9d79>: Abbrev Number: 53 (DW_TAG_subprogram)
+       <10e9d7a>   DW_AT_external    : 1
+       <10e9d7a>   DW_AT_name        : (indirect string, offset: 0x179603): kill_pid
+       <10e9d7e>   DW_AT_decl_file   : 2
+       <10e9d7f>   DW_AT_decl_line   : 1793
+       <10e9d81>   DW_AT_decl_column : 5
+       <10e9d82>   DW_AT_prototyped  : 1
+       <10e9d82>   DW_AT_type        : <0x10bcbd0>
+       <10e9d86>   DW_AT_low_pc      : 0xffffffff810ecc20
+       <10e9d8e>   DW_AT_high_pc     : 0x1a
+       <10e9d96>   DW_AT_frame_base  : 1 byte block: 9c    (DW_OP_call_frame_cfa)
+       <10e9d98>   DW_AT_GNU_all_call_sites: 1
+       <10e9d98>   DW_AT_sibling     : <0x10e9e07>
+    <2><10e9d9c>: Abbrev Number: 51 (DW_TAG_formal_parameter)
+       <10e9d9d>   DW_AT_name        : pid
+       <10e9da1>   DW_AT_decl_file   : 2
+       <10e9da2>   DW_AT_decl_line   : 1793
+       <10e9da4>   DW_AT_decl_column : 26
+       <10e9da5>   DW_AT_type        : <0x10c3638>
+       <10e9da9>   DW_AT_location    : 0x3a232c (location list)
+       <10e9dad>   DW_AT_GNU_locviews: 0x3a2326
+    <2><10e9db1>: Abbrev Number: 51 (DW_TAG_formal_parameter)
+       <10e9db2>   DW_AT_name        : sig
+       <10e9db6>   DW_AT_decl_file   : 2
+       <10e9db7>   DW_AT_decl_line   : 1793
+       <10e9db9>   DW_AT_decl_column : 35
+       <10e9dba>   DW_AT_type        : <0x10bcbd0>
+       <10e9dbe>   DW_AT_location    : 0x3a237e (location list)
+       <10e9dc2>   DW_AT_GNU_locviews: 0x3a2378
+    <2><10e9dc6>: Abbrev Number: 28 (DW_TAG_formal_parameter)
+       <10e9dc7>   DW_AT_name        : (indirect string, offset: 0x3b5017): priv
+       <10e9dcb>   DW_AT_decl_file   : 2
+       <10e9dcc>   DW_AT_decl_line   : 1793
+       <10e9dce>   DW_AT_decl_column : 44
+       <10e9dcf>   DW_AT_type        : <0x10bcbd0>
+       <10e9dd3>   DW_AT_location    : 0x3a23ce (location list)
+       <10e9dd7>   DW_AT_GNU_locviews: 0x3a23ca
+    <2><10e9ddb>: Abbrev Number: 90 (DW_TAG_GNU_call_site)
+       ...
+    <3><10e9e05>: Abbrev Number: 0
+    <2><10e9e06>: Abbrev Number: 0
+
+Hmm, *three* parameters.  I think we've gone *too* deep.
+
+So, *query-replace* :samp:`arg{n}` seems fine to me.  We almost
+certainly need to tweak the code anyway.
+
+.. rst-class:: center
+
+\*
 
 We have a portability issue as Fedora has defined the API with
 ``__pid_t`` but if we *query-replaced* the double-underscore we're in

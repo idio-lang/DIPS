@@ -652,27 +652,27 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
    Supported commands include:
    
-   * ``F_DUPFD``
+   * ``libc/F_DUPFD``
 
      :param arg: file descriptor to duplicate
      :type arg: ``C/int``
 
 
-   * ``F_DUPFD_CLOEXEC`` (if supported)
+   * ``libc/F_DUPFD_CLOEXEC`` (if supported)
 
      :param arg: file descriptor to duplicate
      :type arg: ``C/int``
 
-   * ``F_GETFD``
+   * ``libc/F_GETFD``
 
-   * ``F_SETFD``
+   * ``libc/F_SETFD``
 
      :param arg: file descriptor flags
      :type arg: ``C/int``
 
-   * ``F_GETFL``
+   * ``libc/F_GETFL``
 
-   * ``F_SETFL``
+   * ``libc/F_SETFL``
 
      :param arg: file status flags
      :type arg: ``C/int``
@@ -1381,9 +1381,6 @@ give rise to the fundamental to pattern matching in :lname:`Idio`.
 .. function:: libc/regexec rx str [flags]
 
    Call :manpage:`regexec(3)`.
-
-   Of course the user can't pass in a ``regex_t *`` so this code will
-   create one and return it.
 
    :param rx: the compiled regular expression
    :type rx: ``C/pointer``

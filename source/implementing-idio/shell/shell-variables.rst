@@ -219,6 +219,11 @@ good neighbours.  *We* might be able to handle environment variable
 names with "non-portable" characters in them, notably hyphens -,
 U+002D (HYPHEN-MINUS), but other users of the environment might not.
 
+POSIX's list of "avoid conflict with" environment variables is
+somewhat dubious appearing to be someone typing ``env | sort`` and
+dumping it in the specification.  :envvar:`RANDOM` and
+:envvar:`SECONDS` are *environment* variables?
+
 .. rst-class:: center
 
 \*
@@ -239,12 +244,7 @@ From our declaration of argument handling we should be able to derive:
 	    set when the shell starts, bash assigns to it the full
 	    pathname of the current user's login shell.
 
-     .. sidebox::
-
-	This should say "set to the current user's login shell" but I
-	haven't added the :manpage:`getpw*(3)` methods yet.
-
-     I suggest we leave alone.
+     Do as :lname:`Bash` does!
 
 :var:`IDIO_CMD`
 
@@ -260,6 +260,14 @@ From our declaration of argument handling we should be able to derive:
 
      This is the kernel or ``argv[0]`` derived full pathname of the
      running executable.
+
+     I see :lname:`Bash` has both:
+
+     - :var:`_` being variously the "pathname used to invoke the shell
+       or shell script being executed" -- before becoming other things
+
+     - :var:`BASH` being "the full filename used to invoke this
+       instance of bash"
 
 .. aside::
 
@@ -326,6 +334,12 @@ Other values can be calculated and some are computed.
      An array of the current user's supplementary group IDs as given
      by :manpage:`getgroups(2)`.
 
+:var:`HOME`
+
+     (environment variable)
+
+     the current user's home directory
+
 :var:`HOSTNAME`
 
      (shell variable)
@@ -344,13 +358,26 @@ Other values can be calculated and some are computed.
 
 :var:`PPID`
 
-     (shell variable)
+     (shell variable; POSIX says environment variable)
 
      :type: ``libc/pid_t``
 
      the result of :manpage:`getppid(2)`
 
+:var:`PWD`
+
+     (environment variable)
+
+     :type: ``libc/pid_t``
+
+     the result of :manpage:`getppid(2)`
+
+Computed Variables
+------------------
+
 :var:`UID`
+
+     (shell variable)
 
      :type: ``libc/uid_t``
 
@@ -360,6 +387,8 @@ Other values can be calculated and some are computed.
 
 :var:`EUID`
 
+     (shell variable)
+
      :type: ``libc/uid_t``
 
      * accessing calls :manpage:`geteuid(2)`
@@ -367,6 +396,8 @@ Other values can be calculated and some are computed.
      * setting calls :manpage:`seteuid(2)`
 
 :var:`GID`
+
+     (shell variable)
 
      :type: ``libc/gid_t``
 
@@ -376,15 +407,14 @@ Other values can be calculated and some are computed.
 
 :var:`EGID`
 
+     (shell variable)
+
      :type: ``libc/gid_t``
 
      * accessing calls :manpage:`getegid(2)`
 
      * setting calls :manpage:`setegid(2)`
 
-
-Computed Variables
-------------------
 
 :var:`SECONDS`
 
