@@ -14,7 +14,7 @@ Predicates
 :lname:`Bash` offers a number of predicates which we can re-imagine
 and maybe (maybe not!) avoid some legacy.  In particular,
 :lname:`Bash` uses upper-case ``-S`` to test if a file is a socket
-whereas all the other file test are in lower-case.  In addition,
+whereas all the other file predicates are in lower-case.  In addition,
 rather than ``-h`` or ``-L`` for testing for a symbolic link we can
 use ``l?``.
 

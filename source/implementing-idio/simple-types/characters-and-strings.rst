@@ -18,6 +18,8 @@ multi-character set strings from the get-go.  We don't want a
 
 Not for strings, anyway.
 
+.. _`idio unicode`:
+
 Unicode
 =======
 
@@ -219,9 +221,9 @@ not, in fact, more than enough.
 
 It doesn't affect treatment of code points but it it worth
 understanding that Unicode is (now) defined as 17 *planes* with each
-plane being 16 bits, ie. potentially 65,536 code points.  (NB. At
-least two code points in every plane are reserved as byte-order
-marks.)
+plane being 16 bits, ie. potentially 65,536 code points.  Note that
+there are several code points which are in some senses invalid in any
+encoding including the last two code points in every plane.
 
 Each plane is chunked up into varying sized blocks which are allocated
 to various character set purposes.  Some very well known character
@@ -655,7 +657,8 @@ DFA-based decoder.
 Reading
 -------
 
-The input form for a string is quite straightforward: ``"..."``.
+The input form for a string is quite straightforward: ``"..."``, that
+is a U+022 (QUOTATION MARK) delimited value.
 
 The reader is, in one sense, quite naive and is strictly looking for a
 non-escaped closing ``"`` to terminate the string, see
@@ -669,9 +672,10 @@ characters being generated.
 
 There are a couple of notes:
 
-#. ``\`` (backslash, reverse solidus) is the escape character.  The
-   obvious character to escape is ``"`` itself allowing you to embed a
-   double-quote symbol in a double-quoted string: ``"hello\"world"``.
+#. ``\``, U+005C (REVERSE SOLIDUS -- backslash) is the escape
+   character.  The obvious character to escape is ``"`` itself
+   allowing you to embed a double-quote symbol in a double-quoted
+   string: ``"hello\"world"``.
 
    In the spirit of `C escape sequences
    <https://en.wikipedia.org/wiki/Escape_sequences_in_C>`_
@@ -680,6 +684,7 @@ There are a couple of notes:
    .. csv-table:: Supported escape sequences in strings
       :header: sequence, (hex) ASCII, description
       :align: left
+      :widths: auto
 
       ``\a``, 07, alert / bell
       ``\b``, 08, backspace
@@ -690,10 +695,21 @@ There are a couple of notes:
       ``\t``, 09, horizontal tab
       ``\v``, 0B, vertical tab
       ``\\``, 5C, backslash
+      ``\x...``, , up to 2 hex digits representing any byte
+      ``\u...``, , up to 4 hex digits representing a Unicode code point
+      ``\U...``, , up to 8 hex digits representing a Unicode code point
 
-   :lname:`Idio` ought to support some means of embedding Unicode code
-   points -- perhaps using the :lname:`C`-like ``\uhhhh`` -- but it
-   doesn't (yet).
+   For ``\x``, ``\u`` and ``\U`` the code will stop consuming code
+   points if it sees one of the usual delimiters or a code point that
+   is not a hex digit: ``"\Ua9 2021"`` silently stops at the SPACE
+   character giving ``"© 2021"`` and, correspondingly,
+   ``"\u00a92021"`` gives ``"©2021"`` as only 4 hex digits are
+   consumed by ``\u``.
+
+   ``\x`` is unrestricted (other than between 0x0 and 0xff) and ``\u``
+   and ``\U`` will have the hex digits converted into UTF-8.
+
+   Adding ``\x`` bytes into a string is an exercise in due diligence.
 
 #. :lname:`Idio` allows multi-line strings:
 
@@ -705,6 +721,261 @@ There are a couple of notes:
       str2 := "Hello\nWorld"
 
    The string constructors for ``str1`` and ``str2`` are equivalent.
+
+Pathnames
+^^^^^^^^^
+
+.. aside::
+
+   I'm not sure there is a proper nomenclature for pathnames and
+   filenames.  I suspect most people will use them interchangeably
+   most of the time (I do) though there is a suggestion of pathnames
+   being filenames joined with ``/``.
+
+The reason the ``\x`` escape exists is to allow more convenient
+creation of "awkward" pathnames.  As noted previously \*nix pathnames
+do not have any *encoding* associated with them.
+
+Now, that's not to say you can't *use* an encoding and, indeed, we are
+probably *encouraged* to use UTF-8 as an encoding for pathnames.
+However, the problem with the filesystem having no encoding is that
+both you and I have to agree on what the encoding we have used is.
+You say potato, I say `solanum tuberosum
+<https://en.wikipedia.org/wiki/Potato>`_.
+
+In general :lname:`Idio` uses the (UTF-8) encoded strings in the
+source code as pathnames and, as the :lname:`Idio` string to
+:lname:`C` string converted uses a UTF-8 generator, by and large,
+every pathname you create will be UTF-8 encoded.
+
+However, any pathname already in the filesystem is of an unknown
+encoding of which the only thing we know is that it won't contain an
+ASCII NUL and it won't have U+0027 (SOLIDUS -- forward slash) in a
+directory entry.  It's a :lname:`C` string.
+
+.. aside::
+
+   Which is the vast majority of humans.  Ever.  *Who knew?*
+
+Of course we "get away with" an implicit UTF-8 encoding because the
+vast majority of \*nix filenames are regular ASCII ones.  Only those
+users outside of North America and islands off the coast of North
+Western Europe have suffered.
+
+So what we really need is to handle such pathnames correctly which
+means, *not* interpret them.
+
+Technically, then, the :lname:`Idio` string ``"hello"`` and the
+filename :file:`hello` are *different*.  Which is going to be a bit
+annoying from time to time.
+
+.. note::
+
+   Of interest, it is possible to manipulate strings such that you
+   have a 1-byte width encoding for ``"hello"`` and a 2 or 4-byte
+   encoding for ``"hello"``.  However, those strings will be
+   considered ``equal?`` because they have the same length and the
+   same code points.
+
+As it so happens, for general file access and creation, the
+:lname:`Idio` strings, converted into UTF-8 encoded :lname:`C` strings
+will do the right thing.  However, if you consume filenames from the
+filesystem they will be treated as pathnames and will not be
+``equal?`` to the nominally equivalent :lname:`Idio` string.
+
+So we need to be able to create \*nix pathnames ourselves for these
+sorts of comparisons and we have a formatted string style to do that:
+``%P"..."`` (or ``%P(...)`` or ``%P{...}`` or ``%P[...]``) where the
+``...`` is a regular string as above.
+
+That's where the ``\x`` escape for strings comes into its own.  If we
+know that a filename starts with ISO8859-1_'s 0xA9 (the same
+"character" as ©, U+00A9 (COPYRIGHT SIGN)), as in a literal byte,
+0xA9, and not the UTF-8 sequence 0xC2 0xA9, then we can create such a
+string: ``%P"\xa9..."``.
+
+The ``%P`` formatted string is fine if we hand-craft our pathname for
+comparison but if we already have an :lname:`Idio` string in our hands
+we need a converter, ``string->pathname``, which will, return a
+pathname from the UTF-8 encoding of your string.  Which sounds
+slightly pointless but gets us round the problem of matching against
+pathnames in the filesystem which have no encoding.
+
+.. code-block:: idio-console
+
+   Idio> string->pathname "hello"
+   %P"hello"
+
+Notice the leading ``%P`` indicating it is a pathname.
+
+Pathname Expansion
+""""""""""""""""""
+
+As if pathnames as an unencoded string aren't complicated enough we
+want *wildcards*!
+
+:lname:`Bash` has a reasonably pragmatic approach to wildcards.  From
+:manpage:`bash(1)`, **Pathname Expansion**:
+
+    After word splitting, unless the **-f** option has been set,
+    **bash** scans each word for the characters **\***, **?**, and
+    **[**.  If one of these characters appears, and is not quoted,
+    then the word is regarded as a pattern, and replaced with an
+    alphabetically sorted list of filenames matching the pattern
+
+Unfortunately, our free hand with the code points allowed in symbols
+means that ``*`` and ``?`` are not just possible but entirely probable
+and, certainly, to be expected.  That makes wildcards a bit tricky.
+
+Hmm.  I've noted before that Murex_ constrains globbing to
+:samp:`@\\{g {*.c}}` and extends the mechanism to regexps,
+:samp:`@\\{rx {\\.c$}}`, and file modes, :samp:`@\\{f {+d}}`.
+
+Although I think we want a mechanism to do globbing which is distinct
+from any sorting and filtering you might perform on the list.
+
+We've mention :ref:`pathname templates` before although they are a
+little bit magical.
+
+.. sidebox::
+
+   Obviously, ``%P...`` and ``#P...`` are ripe for confusion.  I try
+   to think of the ``%`` suggesting a :manpage:`printf(3)` *format*
+   whereas the ``#`` is suggesting the construction of a weird thing.
+
+I want ``#P{...}`` (or ``#P(...)`` or ``#P[...]`` or ``#P"..."``) to
+create a pathname template but not *exercise* it yet.  This is akin to
+creating a regular expression in advance, the :ref:`regcomp
+<libc/regcomp>` before the :ref:`regexec <libc/regexec>` of POSIX
+regexs.
+
+Only when it is *used* do we :manpage:`glob(3)` the expression.  This
+does lead to a little confusion:
+
+.. code-block:: idio-console
+
+   Idio> p := #P"x.*"
+   #<SI ~path pattern:%P"x.*">
+   Idio> p
+   (%P"x.idio")
+   Idio> printf "%s\n" p
+   (%P"x.idio")
+   #<unspec>
+
+which feels OK but
+
+.. code-block:: idio-console
+
+   Idio> printf "%s\n" #P"x.*"
+   #<SI ~path pattern:%P"x.*">
+   #<unspec>
+   Idio> ls #P"x.*"
+   x.idio
+   #t
+
+Feels wrong.  Why does the expansion occur for :program:`ls` and not
+for ``printf``?  Technically, for both, the arguments are constructed
+as you would expect giving both of them the *struct instance* of a
+``~path`` (mnemonically, a dynamic path).  However, because we need to
+convert all of the arguments to strings for :manpage:`execve(2)`, the
+*use* of a ``~path`` struct instance is expanded into a list of
+pathnames.
+
+It's not great.
+
+In the meanwhile, we can do the right sorts of things creating and
+matching files with non-UTF-8 characters in them:
+
+.. code-block:: idio-console
+
+   Idio> close-handle (open-output-file %P"\xa9 2021")
+   #unspec
+   Idio> p := #P"\xa9*"
+   #<SI ~path pattern:%P"\xA9*">
+   Idio> p
+   (%P"\xA9 2021")
+   Idio> ls -1f
+    ...
+   ''$'\251'' 2021'
+   ...
+
+.. aside::
+
+   Rummaging around in the :program:`info` pages I see this is the
+   default "shell-escape" quoting style using the POSIX proposed
+   ``$''`` syntax.
+
+   *Times have changed since SunOS 4!*
+
+I see, here, that :program:`ls` is using a :lname:`Bash`-style
+``$'...'`` quoting such that ``''$'\251'' 2021'`` is the concatenation
+of ``''``, ``$'\251'`` and ``' 2021'`` with ``\251`` being the octal
+for 0xA9.
+
+For :lname:`Idio`, specifically when printing strings in a "use
+escapes" context, here, at the REPL, a pathname string will have
+non-:manpage:`isprint(3)` characters converted to a ``\x`` form,
+hence, ``%P"\xA9 2021"``.  Similarly, a pathname with a newline in it
+would be, say, ``%P"hello\nworld"``.
+
+When *not* printing strings in a "use escapes" context, notably when
+preparing arguments for :manpage:`execve(2)` then we just get the raw
+\*nix pathname characters meaning something like :program:`ls` won't
+get in a tizzy:
+
+.. code-block:: idio-console
+
+   Idio> close-handle (open-output-file %P"\xa9 2021")
+   #<unspec>
+   Idio> ls %P"\xa9 2021"
+   ''$'\251'' 2021'
+   #t
+
+compare with the variations for when 0xA9 is an invalid UTF-8 encoding
+in a regular string and when the Unicode code point U+00A9 is used:
+
+.. code-block:: idio-console
+
+   Idio> ls "\xa9 2021"
+   /usr/bin/ls: cannot access ''$'\357\277\275'' 2021': No such file or directory
+   #f
+   job 327830: (ls "� 2021"): completed: (exit 2)
+   Idio> ls "\ua9 2021"
+   /usr/bin/ls: cannot access ''$'\302\251'' 2021': No such file or directory
+   #f
+   job 327834: (ls "© 2021"): completed: (exit 2)
+
+The first is completely garbled and you can see the copyright sign in
+the notification about the command failure in the second with
+:program:`ls` complaining that it can't access something beginning
+with (*\*quickly translates\**) 0xC2 0xA9, the UTF-8 encoding of 0xA9.
+
+.. rst-class:: center
+
+\*
+
+That said, regex and, by extension pattern matching, are not affected
+by this distinction as they aren't concerned about the *equality* of
+the strings and/or pathnames so much as whether they conform to a
+(regular expression) pattern:
+
+.. code-block:: idio
+
+   pt := #P{\xA9*}
+
+   map (function (p) {
+	  printf "%s: " p
+	  (pattern-case p
+			("*2021" {
+			  printf "2021!\n"
+			})
+			(else {
+			  printf "nope!\n"
+			}))
+   }) pt
+
+
+.. _`interpolated strings`:
 
 Interpolated Strings
 ^^^^^^^^^^^^^^^^^^^^

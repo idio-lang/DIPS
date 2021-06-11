@@ -106,8 +106,8 @@ There is no single-quoted string, partly as ``'`` is used by the
 reader as a macro but also because ``"`` isn't doing any variable
 interpolation.  ``"$PATH"`` is just five characters.
 
-I haven't needed to use an interpolated string so far.  An obvious
-:lname:`C`-style ``sprintf`` function (cf. ``format`` in
+We can use :ref:`interpolated strings <interpolated strings>` but the
+obvious :lname:`C`-style ``sprintf`` function (cf. ``format`` in
 :lname:`Python`) does a lot of heavy lifting for us.
 
 I have included the notion of a *substring* in :lname:`Idio`.  My
@@ -127,13 +127,14 @@ character substring of a two GB file....
 
 Although not mentioned previously, :lname:`Idio` should be able to
 handle Unicode_ in strings.  Unicode is, uh, a *complication* and we
-will dedicate some time to it later.
+will dedicate some time to it :ref:`later <idio unicode>`.
 
 I'd like to say :lname:`Idio` can handle Unicode everywhere but that's
 a work in progress.
 
 Of course there is an implication for not being ASCII any more,
-:lname:`Idio` expects its source code to be encoded in UTF-8.
+:lname:`Idio` expects its source code and inputs to be encoded in
+UTF-8.
 
 Characters
 ^^^^^^^^^^
@@ -245,6 +246,185 @@ IPv6 addresses have many forms too:
    fe80::1ff:fe23:4567:890a
    fe80::1ff:fe23:4567:890a%3
 
+Pathnames
+"""""""""
+
+Pathnames are a constant vexation and I can't quite decide how to fix
+the problem.  :socrates:`What problem?`  Well, the problem is that
+pathnames should probably be treated specially.
+
+Most pathnames that we use are functionally strings albeit ones we
+frequently pass as symbols (or words in :lname:`Bash`):
+
+.. code-block:: bash
+
+   $ ls "${filename}"
+
+Here, ``ls``, is read by :lname:`Bash` as a word and :lname:`Idio`
+might read in as a symbol and, assuming the symbol ``ls`` wasn't bound
+to a value would give us a... symbol for the element in functional
+position -- our future command to be executed.  Even in :lname:`Bash`,
+``"${filename}"`` undergoes parameter expansion and quote removal to
+leave you with the *word* ``foo.txt``, or whatever.  Obviously(?),
+``"${filename}"`` is a valid construction in :lname:`Idio` with the
+value, er, ``"${filename}"`` -- you probably just wanted ``filename``.
+
+In both cases, however, the *intent* is that we find both ``ls`` and
+``foo.txt`` in the filesystem which means they must be converted to
+:lname:`C` strings (being careful about ASCII NULs!) before ``ls`` is
+found on the user's :envvar:`PATH` (via a lot of calls to
+:manpage:`access(2)`) and then :manpage:`ls(1)` will ultimately
+:manpage:`stat(2)` ``foo.txt``.
+
+Is there value at this point in handling these elements as special
+strings?  That's where I'm not sure.  I have a sense that we should
+but we don't.
+
+File globbing will return a list of :lname:`Idio` strings.  As things
+stand we are assuming the encoding is UTF-8 which is *so so* wrong --
+I mean, only *technically* wrong.
+
+There are **no** encoding specifications for \*nix filenames.  About
+the nearest you'll get to a specification is that a \*nix filename is
+a sequence of bytes excluding U+0000 (ASCII NUL) and a directory entry
+also excluding U+0027 (SOLIDUS -- forward slash).  How you interpret
+those bytes is up to you.  Or, rather, how you avoid interpreting
+those bytes defines you.
+
+So, in that sense, we shouldn't be treating filenames coming from or
+going to the filesystem as anything other than an opaque array of
+:lname:`C` characters.  Symbols and strings we get from :lname:`Idio`
+source code will, by definition, be Unicode code points (originally
+encoded as UTF-8) but after that it's all a bit free.
+
+So, taking an example, I want a file called ``© 2021``.  We're already
+in trouble with the first character!  Should that be the ISO8859-1_
+character number A9?  Hmm, if someone is using the ISO-8859-2
+encoding, a listing is likely to *show* them a Š, Unicode's U+0160
+(LATIN CAPITAL LETTER S WITH CARON).  Any UTF-8 decoding will get an
+error.  This called `Mojibake
+<https://en.wikipedia.org/wiki/Mojibake>`_.
+
+Mind you, the problems of interpreting/displaying bytes for files in
+the wrong code page has been true since forever (well, post ISO-8859
+and other implementations in the 1980s).
+
+There's another, slightly more insidious, problem with displaying
+arbitrary strings of bytes in that, quite often, those sequences of
+bytes can control the terminal.  If you type :program:`ls` and your
+terminal jumps into an Alternate Character Set then you'll be most
+aggrieved.
+
+In fact, how do we even *create* such a character?  An :lname:`Idio`
+string, ``"©"``, will have assumed UTF-8 in the source which, when
+recreated/deconstructed into UTF-8 is a two byte sequence, 0xC2 0xA9.
+
+Well, as it happens, our :ref:`c-api` lets us create arbitrary
+:lname:`C` base types with the :samp:`C/integer-> {n} C/char` function
+albeit we probably don't want to create filenames character by
+character.
+
+If we want to use :lname:`Idio` strings as the basis for filenames
+(hint: we do), we also have the problem of "wide" characters in
+Unicode-based strings, ie. those where the Unicode code point is more
+than 0xff.  We can, of course, simply use the UTF-8 encoding as the
+filename but then we're mixing up encodings (remember, the filesystem
+has none) with the danger of retrieving a filename from the filesystem
+which has an invalid UTF-8 encoding, like the 0xA9 in our ISO 8859-1
+``© 2021``.
+
+Hmm.  What's to do?
+
+* In the first instance, if the user supplies an :lname:`Idio` string
+  as a filename then we'll use the UTF-8 encoding of that string to
+  access or create the file.
+
+  .. code-block:: idio-console
+
+     Idio> "© 2021"
+     "© 2021"
+     Idio> "\ua9 2021"
+     "© 2021"
+     Idio> "\xc2\xa9 2021"
+     "© 2021"
+
+* If we retrieve filenames from the file system then they will be in a
+  "pathname" encoding, ie. just a stream of bytes.
+
+Of course, we should allow a user to create a "pathname" encoded
+filename (string) for *special purposes*.
+
+In particular, the :lname:`Idio` string, ``"\xa9 2021"`` will get a
+U+FFFD (REPLACEMENT CHARACTER) when it is used as a regular string and
+printed to a UTF-8 expectant terminal:
+
+.. code-block:: idio-console
+
+   Idio> "\xa9 2021"
+   "� 2021"
+
+because the :lname:`Idio` UTF-8 decoder was unable to decode 0xA9 when
+reading in the string.  In other words this is a problem for
+:lname:`Idio` inputting what it thought was UTF-8 source.
+
+So we need to force the interpretation of the "string" as raw bytes --
+most of which are likely to be perfectly valid UTF-8 encoded Unicode
+code points!  I've mulled over ``%`` introducing formatted things
+(referencing :manpage:`printf(3)`'s format specifier) and so a ``%P``
+pathname format which *doesn't* interpret the string as UTF-8
+(although it probably will be mostly UTF-8 in the source code).  Now I
+can say:
+
+.. code-block:: idio-console
+
+   Idio> %P"\xa9 2021"
+   "© 2021"
+
+Of interest, the reason you're seeing the copyright symbol, there, is
+because the REPL has printed the value and :ref:`printf <printf>` will
+force a UTF-8 interpretation of 0xA9 which we can see with
+:program:`od`:
+
+.. code-block:: idio-console
+
+   Idio> printf %P"\xa9 2021\n"
+   © 2021
+   #<unspec>
+   Idio> printf %P"\xa9 2021\n" | od -t x1
+   0000000 c2 a9 20 49 61 6e 0a
+   0000007
+   #t
+
+Notice the 0xC2 0xA9 before the 0x20/SPACE, the UTF-8 encoding of 0xA9
+itself?
+
+However, we can use a simpler interface:
+
+.. code-block:: idio-console
+
+   Idio> puts %P"\xa9 2021\n"
+   � 2021
+   6
+
+With U+FFFD (REPLACEMENT CHARACTER) indicating that 0xA9 isn't valid
+UTF-8 input for this terminal and the ``6`` means that
+:manpage:`write(2)` wrote 6 bytes.  :program:`od` shows what was
+output:
+
+.. code-block:: idio-console
+
+   Idio> puts %P"\xa9 2021\n" | od -t x1
+   0000000 a9 20 32 30 32 31 0a
+   0000007
+   #t
+
+This time we can see the raw 0xA9 before the 0x20/SPACE.  In other
+words this is a problem for *the terminal* inputting what it thought
+was UTF-8 source.  Looks pretty similar to the problem of
+:lname:`Idio` failing to decode a UTF-8 input stream before and
+therefore makes verifying correctness more... *fun* when an input
+failure and an output failure are visually identical.
+
 Compound Data Types
 ^^^^^^^^^^^^^^^^^^^
 
@@ -325,6 +505,16 @@ You can access the array using negative indexes to index from the end.
 Following the :lname:`Scheme` model we would create and access arrays
 along the following lines:
 
+.. function:: make-array size [default]
+
+   :param size: initial array size
+   :type size: integer
+   :param default: default element value
+   :type default: any
+
+   ``default`` defaults to ``#f``
+
+
 .. code-block:: idio
 
    a := make-array 2 "and"
@@ -367,6 +557,7 @@ as:
  
    array-ref a 2			; 3
  
+with ``#[ ... ]`` being an array constructor.
 
 Hashes
 ^^^^^^
@@ -505,10 +696,48 @@ You can also *assign* to these constructs:
 .. sidebox:: The implementation will make your head hurt.
 
 which will take us into the esoteric world of boxed variables later
-on.  
+on.
 
-This syntactic sugar is much easier to read and understand (for us
-simple folk) although there is a cost.  :lname:`Idio` is a dynamic
+I've also allowed for the *index* to be a (named) function where the
+(now mis-named) index is applied to the value allowing us to write:
+
+.. code-block:: idio
+
+   str.split-string
+
+which is trivially transformed into:
+
+.. code-block:: idio
+
+   split-string str
+
+Hardly rocket science albeit ``split-string`` is defaulting to using
+:var:`IFS` as the delimiter.  Here we might write our own to get the
+first letters of each word:
+
+.. code-block:: idio
+
+   str := "hello world"
+   define (foo s) {
+     map (function (w) {
+	    w.0
+     }) s.split-string
+   }
+   printf "%s\n" str.foo		; (#\h #\w)
+   printf "%s\n" str.foo.2		; w
+
+.. note::
+
+   The ``.2`` in the ``str.foo.2`` is accessing the second element of
+   a list.  Strings and array are indexed from 0 (zero) but lists from
+   their first element.
+
+.. rst-class:: center
+
+\*
+
+This ``.`` syntactic sugar is much easier to read and understand (for
+us simple folk) although there is a cost.  :lname:`Idio` is a dynamic
 language where only values have types and we can only reason with
 those types at *runtime*.
 
@@ -530,7 +759,7 @@ Handles
 I don't like the name *ports* -- *I* immediately thought of TCP/IP
 ports and was mildly confused.
 
-.. sidebox:: I'm much happier, now, thanks!
+.. sidebox:: I'm much happier, now, thanks!  It all makes *sense*.
 
 Executive decision: I'm renaming them *handles* like :lname:`Perl` and
 others.  So, file handles and string handles.
@@ -545,7 +774,7 @@ Templates
 Macros in :lname:`Lisp`\ s have had a bad press.  If we rename them
 *templates* then we're halfway to sorting the problem out, right?
 
-Also I find the quasiquoting hard to read.  :literal:`\``, ``,`` and
+Also I find the quasiquoting hard to read: :literal:`\``, ``,`` and
 ``'`` combine to become a bit unintelligible (to non-:lname:`Lisp`\
 ers).  On top of which, I quite like ``$`` as a sigil telling me I'm
 about to expand some expression, it's much more
@@ -579,7 +808,7 @@ to change that.  Hang on, ``'`` is the sigil for ``quote``'ing things
 (again) -- which, again, is fine as a default, we ought to be able to
 change that too.  Finally, we could do with some means of escaping any
 of the above.  By default, in :lname:`Idio` -- it's not a
-:lname:`Scheme` thing, that is ``\``.  Which is the, er, universal
+:lname:`Scheme` thing -- that is ``\``.  Which is the, er, universal
 escape sigil.
 
 The upshot of that is that we can let loose and say:
@@ -607,6 +836,8 @@ If you want to use ``.`` as your ``unquote`` sigil (or any other),
 even if the snippet is for :lname:`Scheme` as the ``unquote`` sigil,
 ``$`` doesn't conflict with :lname:`Scheme` and we can embed one
 within the other with ease (probably, must try it!).
+
+.. _`pathname templates`:
 
 Pathname Templates
 ------------------
@@ -640,6 +871,8 @@ You should you should be able to say:
 and only get the files extant at the time of invoking :program:`ls`.
 
 Work in progress.
+
+.. _`sorted pathname expansion`:
 
 Sorted Pathname Expansion
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -680,9 +913,14 @@ GNU's :ref-title:`libc` only supports :manpage:`qsort(3)` but we can
 fall back on our :lname:`Scheme` friends and SRFI-95_ gives use some
 useful sorting and merging functions, here:
 
-.. parsed-literal::
+.. function:: sort sequence less? [key]
 
-   sort *sequence* *less?* *key*
+   :param sequence: initial array sequence
+   :type sequence: array or list
+   :param less?: comparison predicate
+   :type less?: function
+   :param key: value to be sorted accessor
+   :type key: function
 
 which will return a new sequence sorted according to ``less?`` (a
 comparator function) where the value to be compared for each element
@@ -870,9 +1108,9 @@ Remember :ref:`string ports`?
    date +%Y%m%d-%H%M%S > out
    now := get-output-string out
 
-That's how it is at the moment where the IO redirection operator is
-happy to do the right thing when given a string (for a filename) or a
-handle (file or string).
+Where the IO redirection operator, ``>``, is happy to do the right
+thing when given a string (for a filename) or a handle (file or
+string).
 
 I guess we could do with another bit of syntax sugar to eliminate the
 temporary variable, ``out``, how about:

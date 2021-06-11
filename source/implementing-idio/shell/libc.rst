@@ -1457,7 +1457,7 @@ them with ``.*`` and ``.`` respectively giving us:
 	   printf "this is a BSD\n"
 	 })
 	(else {
-	   printf "this isn't Solaris\n"
+	   printf "this isn't Solaris or a BSD\n"
 	 }))
 
 

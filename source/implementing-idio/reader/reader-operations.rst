@@ -329,9 +329,9 @@ leading digit and we specifically check for a following ``.`` for
 Pathnames are more interesting.  In general we would have pathnames
 managed distinctly as, say, strings, ``ls "./bin"`` however, in the
 case of command names, that would feel wrong: :samp:`"./bin/cmd"
-{args}`.  In this case, we'll specifically look for a following ``/``
-and presume it is a word beginning ``./`` and not an indexing
-operation.
+{args}` -- and we can't execute strings.  In this case, we'll
+specifically look for a following ``/`` and presume it is a word
+beginning ``./`` and not an indexing operation.
 
 If you really wanted to index something by a symbol beginning with
 ``/`` then add some whitespace:
