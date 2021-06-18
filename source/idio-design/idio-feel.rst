@@ -1081,8 +1081,8 @@ an environment variable.
 
 In this particular case, trying to have :program:`awk` use its *stdin*
 for both the script and the stream it is trying to filter is doomed.
-Clearly what we need is something like :ref:`process substitution` but
-for strings.
+Clearly what we need is something like :ref:`feel/process
+substitution` but for strings.
 
 Expansion
 =========
@@ -1143,7 +1143,7 @@ obviously like ``out`` above) used to capture the output.
 
 It will confuse many people, mind.
 
-.. _`process substitution`:
+.. _`feel/process substitution`:
 
 Process Substitution
 --------------------

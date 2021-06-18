@@ -13,6 +13,8 @@ Bringing a shell to life.
 
    shell-variables
    shell-functions
+   pipelines
+   process-substitution
    libc
 
 .. include:: ../../commit.rst

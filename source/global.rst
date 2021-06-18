@@ -65,6 +65,7 @@
 .. _UTF-8: https://en.wikipedia.org/wiki/UTF-8
 .. _Ubuntu: https://ubuntu.com
 .. _Unicode: https://home.unicode.org/
+.. _WebAuthn: https://en.wikipedia.org/wiki/WebAuthn
 .. _YAML: https://yaml.org/
 .. _Zerologon: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-1472
 .. _Zsh: https://www.zsh.org
