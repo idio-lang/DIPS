@@ -183,7 +183,7 @@ Here, you might see:
 
 Hence several iterations over the set of values.
 
-One advantage of the tri-colour method is that it is possibly to
+One advantage of the tri-colour method is that it is possible to
 implement it "on the fly" limiting any stop-the-world effects.
 
 GC Variations
@@ -204,6 +204,12 @@ recent era.
 
 Clearly you need some algorithm to include older and older eras in the
 GC.
+
+You also start introducing "write barriers" where you need to figure
+out if someone has updated an older generation value to point at a
+newer generation value.  If you only scan the newer generation values
+during collection then you'll miss the link from old to new and think
+the new can be deleted.
 
 Pools
 ^^^^^

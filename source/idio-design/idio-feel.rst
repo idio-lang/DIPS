@@ -753,6 +753,20 @@ Maybe, if, possibly, we did some *type inference* work we could
 recognise that ``h`` is a hash and therefore re-write the dot
 operation ``h."a"`` as ``hash-ref h "a"`` directly.
 
+.. warning::
+
+   The dot operator is far from a panacea.  In particular, the fact
+   that it will allow you to use variables to walk over an array, say,
+   :samp:`arr.{i}`, where :samp:`{i}` is some loop variable is great.
+
+   Until you want your ``i`` to be the symbolic name of a structure
+   field, say, :samp:`si.sym` and you've only gone and defined a
+   variable called ``sym`` somewhere else in your code.
+
+   Here you can force ``sym`` to be the symbol ``'sym`` or use a
+   type-appropriate accessor such as one of the field accessor methods
+   for your structure's type, say, ``st-sym si``.
+
 Handles
 ^^^^^^^
 

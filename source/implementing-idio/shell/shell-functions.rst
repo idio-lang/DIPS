@@ -88,7 +88,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. function:: r? pathname
 
-   Does ``pathname`` pass :samp:`libc/access {pathname} libc/R_OK``?
+   Does ``pathname`` satisfy :samp:`libc/access {pathname} libc/R_OK`?
 
    :param pathname: pathname to test
    :type pathname: string
@@ -115,7 +115,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. function:: w? pathname
 
-   Does ``pathname`` pass :samp:`libc/access {pathname} libc/W_OK``?
+   Does ``pathname`` satisfy :samp:`libc/access {pathname} libc/W_OK`?
 
    :param pathname: pathname to test
    :type pathname: string
@@ -124,7 +124,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. function:: x? pathname
 
-   Does ``pathname`` pass :samp:`libc/access {pathname} libc/X_OK``?
+   Does ``pathname`` satisfy :samp:`libc/access {pathname} libc/X_OK`?
 
    :param pathname: pathname to test
    :type pathname: string

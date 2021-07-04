@@ -28,7 +28,7 @@ It's all defined in :file:`lib/job-control.idio` (with duplicating
 efforts in :file:`src/job-control.c` as I wrote it first and some of
 it is still used) and mostly from the directions in the
 :program:`info` pages on *Job Control* (in *libc* or read the `online
-JOb Control`_ pages) but there's a few twists and turns.
+Job Control`_ pages) but there's a few twists and turns.
 
 I'm going to assume that we're all happy with the basics of running a
 sub-program in the context of job control which involves prepping a
@@ -97,15 +97,13 @@ the caller is dealing with handles.
    it when the action starts.
 
 There is an overall ``$pipeline-r-fd`` and ``$pipeline-w-fd`` -- which
-the first and last commands use (indirectly via the per-command
-``$cmd-r-fd`` and ``$cmd-w-fd``).
+the first and last commands use (indirectly via the per-command input
+and output file descriptors ``$cmd-r-fd`` and ``$cmd-w-fd``).
 
-``$cmd-pipe`` is the inter-cmd pipe, created by the left hand command to
-generate its own output file descriptor and then to leave trailing
-around the loop an input file descriptor for the next command.
-
-For each command there is a per-cmd input file descriptor,
-``$cmd-r-fd``, and output file descriptor, ``$cmd-w-fd``.
+``$cmd-pipe`` is the inter-cmd pipe, created by the left hand command
+to generate its own output file descriptor, ``$cmd-w-fd``, and then to
+leave trailing around the loop an input file descriptor,
+``$cmd-r-fd``, for the next command in the pipeline.
 
 The ``$cmd-r-fd`` is normally the pipe-reader of the previous
 command's ``$cmd-pipe`` except, of course, the first command whose
@@ -115,8 +113,8 @@ The ``$cmd-w-fd`` is normally the pipe-writer of of ``$cmd-pipe``
 except, of course, the last command whose ``$cmd-w-fd`` is
 ``$pipeline-w-fd``.
 
-The ``$pipeline-*-fd``, the overarching input and output of the entire
-pipeline, could be:
+The ``$pipeline-[rw]-fd``, the overarching input and output file
+descriptors of the entire pipeline, could be:
 
 #. entities figured out by ``(stdin-fileno)`` and ``(stdout-fileno)``,
    ie.:
@@ -126,12 +124,14 @@ pipeline, could be:
    * whatever ``(current-input-handle)`` and
      ``(current-output-handle)`` actually are
 
-   * either of which which could be string-handles (necessitating
-     temporary files and some post-pipeline content recovery)
+     * either of which which could be string-handles (necessitating
+       temporary files and some post-pipeline content recovery)
 
 #. actual pipes!
 
 #. future *stuff* (sockets are the obvious missing contender)
+
+.. _`pipeline meta-commands`:
 
 Meta-Commands
 -------------
@@ -144,7 +144,12 @@ Prefixing the pipeline continues an overall style of :samp:`{cmd}
 {args}`. where, in this case, :samp:`{args}` happens to be an entire
 pipeline.
 
-You can only use a single meta-command per pipeline.
+You can use a number of meta-commands per pipeline although some
+conflict.  The effectiveness depends on which is checked for first
+after the pipeline is successfully launched.
+
+You have a similar concept to meta-commands in :lname:`Bash` in that a
+pipeline can be preceded by ``time [-p]``.
 
 fg-job / bg-job
 ^^^^^^^^^^^^^^^
@@ -162,31 +167,87 @@ backgrounded then the process group will get an appropriate signal,
    which look at the set of outstanding jobs and run the targeted one
    in the foreground or background.
 
+   ``bg-job`` is more closely aligned with the function of the shell's
+   ``&`` operator, as in:
+
+   .. code-block:: bash
+
+      cmd args &
+
+   where in :lname:`Idio` you might write:
+
+   .. code-block:: idio
+
+      bg-job cmd args
+
 pipe-into / pipe-from
 ^^^^^^^^^^^^^^^^^^^^^
 
 If the caller passed ``'pipe-into`` or ``'pipe-from`` as the first
-argument of the pipeline then ``$pipeline-*-fd`` will be real pipes
-and the other ends of these are returned as pipe handles,
-``$pipeline-w-ph`` and ``$pipeline-r-ph``, for the caller to write
-into and read from the pipeline.
+argument of the pipeline then ``$pipeline-r-fd`` or ``$pipeline-w-fd``
+will be real pipes and the other ends of these are returned as pipe
+handles, ``$pipeline-w-ph`` or ``$pipeline-r-ph``, for the caller to
+write into and read from the pipeline.
 
 In practice, a ``$use-w-pipe`` or ``$use-r-pipe`` flag is set and we
-set ``$pipeline-*-fd`` to the appropriate end of a :manpage:`pipe(2)`
-and prepping ``$pipeline-*-ph`` to a pipe handle of the other end to
-be returned to the caller.
+set ``$pipeline-[rw]-fd`` to the appropriate end of a
+:manpage:`pipe(2)` and assigning ``$pipeline-[wr]-ph`` to a pipe
+handle constructed from the other end to be returned to the caller.
+
+.. _`collect-output`:
 
 collect-output
 ^^^^^^^^^^^^^^
 
 This is *Command Substitution* in that we'll set ``$pipeline-w-fd`` to
 a temporary file to collect the output.  We'll use
-``libc/make-tmp-fd`` which removes the temporary file name before
-returning the file descriptor.
+``libc/make-tmp-fd`` which calls :manpage:`mkstemp(3)` and removes the
+temporary file name before returning the file descriptor.
 
 When we're done with the pipeline, we'll slurp the contents of the
 temporary file back into a string handle then return the string
 contents of the string handle back to the caller.
+
+time
+^^^^
+
+All jobs have start and end statistics recorded including
+:manpage:`gettimeofday(2)` and :manpage:`getrusage(2)` for "self" and
+"children".
+
+The ``time`` meta-command sets a ``report-timing`` flag which is
+tested by ``wait-for-job`` which can report much like :lname:`Bash`'s
+``time`` prefix.
+
+Meta-Command Preferences
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The meta-commands are utilised in the following order (in order words,
+if you have set two conflicting meta-commands then the first listed is
+used):
+
+#. ``pipe-into``
+
+   returning an output pipe handle
+
+#. ``pipe-from``
+
+   returning an input pipe handle
+
+#. ``collect-from``
+
+   which always runs the job in the foreground
+
+   returning the :ref:`stripped <strip-string>` collected output
+   discarding trailing newlines, U+000A (LINE FEED)
+
+#. ``fg-job``
+
+   returning the job status (``#t`` or ``#f``)
+
+#. ``bg-job``
+
+   returning ``#t``
 
 Simple Commands
 ---------------
@@ -216,8 +277,9 @@ Exiting
 =======
 
 With our book keeping hats on we do have a minor problem when we exit
-in that there could be un-waited for jobs lying around.  This is
-particularly prevalent if they were run immediately before we exit.
+in that there could be jobs lying around for which we haven't called
+:manpage:`wait(2)`.  This is particularly prevalent if they were run
+immediately before we exit.
 
 What should we do with them?  The info pages skip over this but we can
 take a look at what :lname:`Bash` does which is to terminate all
@@ -311,6 +373,18 @@ Assuming we still going then we set the appropriate handle
 
 Finally, set the handle back.
 
+Notice that we only set the handle.  We don't deal in file
+descriptors, here.  If (and only if?) we get round to trying to
+actually run an external command to we actually care about file
+descriptors.
+
+If we had redirected the output of some expression into a string
+handle and the expression was some :lname:`Idio` code then there's no
+need for any file descriptors to get involved.  Only if the expression
+reduced down to an external command will we start considering file
+descriptors.  In the particular case of a string handle, we need to
+indirect through a temporary file as well.
+
 with-handle-dup
 -----------------
 
@@ -354,6 +428,8 @@ Assuming we still going then we set the appropriate handle
 ``set-error-handle!``) and run the thunk.
 
 Finally, set the handle back.
+
+Again, we're only dealing with handles, here, no file descriptors.
 
 .. include:: ../../commit.rst
 

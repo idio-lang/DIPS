@@ -13,6 +13,7 @@ Bringing a shell to life.
 
    shell-variables
    shell-functions
+   job-control
    pipelines
    process-substitution
    libc

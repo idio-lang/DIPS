@@ -106,12 +106,21 @@ overflow.  If we have overflowed we can account for *carry* in our
 long-hand arithmetic and therefore avoid the undefined behaviour that
 plagues integer maths in :lname:`C`.
 
+.. sidebox::
+
+   Obviously, ``pi`` (π) is a `transcendental number
+   <https://en.wikipedia.org/wiki/Transcendental_number>`_ and any
+   numeric representation of it should be inexact.
+
+   Inexactness is transitive so any use of ``pi`` results in another
+   inexact number.
+
 :lname:`Scheme`'s number tower supports slightly more interesting
 numbers than many programming languages in that it has the concept of
 *exact* and *inexact* numbers.  Inexact numbers are where we've lost
 precision because of rounding errors or, because we can, we were given
 an inexact number in the first place.  *I* don't have any immediate
-use for inexact numbers but someone might.
+use for inexact numbers in their own right but someone might.
 
 Summing that up:
 
@@ -131,9 +140,20 @@ Summing that up:
      #define IDIO_BIGNUM_FLAG_REAL_INEXACT  (1<<3)
      #define IDIO_BIGNUM_FLAG_NAN           (1<<4)
 
-* we need an exponent and mantissa.  We'll use an ``int32_t``
-  exponent because... because *we can*.  So what if there are only 10\
-  :sup:`80` atoms in the universe?  We want *more*.
+* we need an exponent and mantissa.  We'll use an ``int32_t`` exponent
+  because...
+
+  .. sidebox::
+
+     because *we can*.  So what if there are only 10\ :sup:`80` atoms
+     in the universe?  You're obviously not including all the other
+     universes!
+
+  Well, from a practical perspective, because it is a separate field
+  in the ``idio_bignum_s`` structure and we don't have any others
+  meaning it **will** consume a machine word.  So, 32 bits for a
+  machine word on a 32-bit system and we'll take the hit on a 64-bit
+  system for consistency.
 
   .. code-block:: c
      :caption: gc.h
@@ -179,6 +199,16 @@ Summing that up:
 
   Note that the significand array is not fixed in the sense that as
   the number is being constructed the array may grow.
+
+  Here, our ``pi`` inexactness comment comes to the fore.  We
+  (correctly) construct it with 61 significant figures (why not?) but,
+  in normalising the constructed bignum back into the nominal 18
+  digits we clearly truncated this four (or eight) segment number down
+  to one (or two) and flagged it as inexact.  Job done!
+
+  The definition should really start ``#i3.14159...`` to avoid any
+  ne're-do-wells fiddling in :file:`src/bignum.h` and changing the
+  defaults.
 
 * we have the usual accessors seen above with the slightly more
   interesting array accessors:
@@ -312,10 +342,10 @@ different *radix*:
    :widths: auto
    :align: left
 
-   ``#b``, 2, ``#b101``, 5
-   ``#o``, 8, ``#o101``, 65
-   ``#d``, 10, ``#d11``, 11
-   ``#x``, 16, ``#xff``, 255
+   ``#b``, 2,  ``#b101``, 5
+   ``#o``, 8,  ``#o101``, 65
+   ``#d``, 10, ``#d101``, 101
+   ``#x``, 16, ``#x101``, 257
 
 ``idio_read_bignum_radix()`` supports bases up to 36 (using 0-9 then
 a-z/A-Z) although there are no specific reader input forms.
@@ -346,7 +376,7 @@ bignum.c
 
 * printing bignums is possibly complicated
 
-* actual bignum operations
+* actual bignum operations (add, subtract etc.)
 
 Bignums are normalized after most operations to provide some
 consistency:

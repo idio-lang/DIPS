@@ -495,9 +495,9 @@ and its :lname:`Idio` equivalent :samp:`load {filename}` will load
 Pipe Handles
 ------------
 
-We would like to read and write to commands for which we need to pipe
-our input and output to and from.  Maintaining the *handle*-style is
-important, hence pipe handles.
+We would like to read from and write to external commands for which we
+need to pipe their output from them or pipe our output to them.
+Maintaining the *handle*-style is important, hence pipe handles.
 
 The implementation of pipe handles will hold no surprises,
 ``open-input-pipe`` is essentially the ``open-input-file-from-fd``
@@ -601,7 +601,7 @@ We're passing
 
 * an :lname:`Idio` *list* of the :samp:`{name}` associated with the
   file descriptor (defaulting to :file:`/dev/fd/X`) and the
-  :samp:`{mode}` (defaulting to ``re``/``we``).
+  :samp:`{mode}` (defaulting to ``r``/``w``).
 
 * ``IDIO_C_FUNC_LOCATION ()`` is a macro which, when compiled with
   ``DEBUG``, brings together ``__FILE__``, ``__LINE__`` and GNU's

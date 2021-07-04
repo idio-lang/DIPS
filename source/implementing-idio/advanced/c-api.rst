@@ -938,6 +938,8 @@ stat`` to be freed later.
 This leads to the idea that the automatic code generation will give us
 a starter for ten which we can edit into permanence.
 
+.. _`CSI`:
+
 Auto-Application of Methods
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

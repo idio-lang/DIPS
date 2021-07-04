@@ -9,8 +9,44 @@ Shell Variables
 We need some shell variables, environment variables, etc. set up when
 we start.  For some of these, notably, environment variables, we
 should be good to go as we pick up on, *duh*, the values in our
-environment noting there are some that we *require*.  We can't assume
-there is a :envvar:`PATH`, for example.
+environment noting there are possibly some that we *require*.  We
+can't assume there is a :envvar:`PATH`, for example.
+
+Just out of interest let's give :program:`bash` an empty environment
+and then get it to print out its (created) environment:
+
+.. code-block:: console
+
+   $ env - bash -c env
+   PWD=/home/idf
+   SHLVL=0
+   _=/usr/bin/env
+
+Hmm, less than I thought.  Not *even* an exported :envvar:`PATH`.
+*Interesting.* Of course, if we print out the shell variables with
+``set``, it's something more expected:
+
+.. code-block:: console
+
+   $ env - bash -c set
+   BASH=/usr/bin/bash
+   ...
+   IFS=$' \t\n'
+   PATH=/usr/local/bin:/usr/bin
+   PWD=/home/idf
+   SHELL=/bin/bash
+   ...
+
+Hmm, what are the semantics of process behaviour, here, with regard to
+environment variables?  Should we intervene or be invisible?
+
+Another consideration is *how* we choose to intervene.  We have a
+model which uses distinct *dynamic* and *environ* variables.  Can we
+switch between the two?  (Currently, no!)
+
+.. rst-class:: center
+
+\*
 
 There's also a subtlety regarding whether arguments are for us,
 :lname:`Idio`, or the script we are intending to run.
@@ -348,6 +384,57 @@ Other values can be calculated and some are computed.
 
      See also :ref:`libc/idio-uname <libc/idio-uname>`.
 
+.. _IDIO_PID:
+
+:var:`IDIO_PID`
+
+     (shell variable)
+
+     :type: ``libc/pid_t``
+
+     the result of :manpage:`getpid(2)`
+
+     This value is not updated, see :ref:`PID <PID>`.
+
+.. _IFS:
+
+:var:`IFS`
+
+     (dynamic variable)
+
+     .. aside::
+
+	I'll probably still call it Input Field Separator, though!
+
+     I've always called this the *Input* Field Separator, after
+     :program:`awk`, but I see I am completely wrong.  :program:`awk`
+     never(?) had an :var:`IFS` but only an :var:`FS` which was "blank
+     and tab" but separately has :var:`RS` the (input) *Record
+     Separator* which is the newline you expect.
+
+     :lname:`Bash` merged :var:`FS` and :var:`RS` into :var:`IFS`
+     (*Internal* Field Separator) partly, I suppose, as it meant a
+     single value would be used to split the entire multi-line output
+     from *Command Substitution* whereas :program:`awk` would be
+     expecting to (generally) process line by line.
+
+     :program:`awk` does have distinct :var:`OFS` and :var:`ORS` when
+     outputting whereas :lname:`Bash` uses the first character of
+     :var:`IFS` in various expansion rules.
+
+     There's no such output mangling in :lname:`Idio` -- we'd need to
+     figure out something similar to :ref:`interpolated strings` -- so
+     we'll hold off there.
+
+     In the meanwhile, we can use the standard SPACE TAB NEWLINE for
+     :var:`IFS`.
+
+     Notice :var:`IFS` is a dynamic variable meaning you can redefine
+     it for the duration of a block (rather than redefine it for
+     everyone globally).
+
+.. _PID:
+
 :var:`PID`
 
      (shell variable)
@@ -356,6 +443,9 @@ Other values can be calculated and some are computed.
 
      the result of :manpage:`getpid(2)`
 
+     This value is updated when :lname:`Idio` forks.  Compare with
+     :ref:`IDIO_PID <IDIO_PID>`.
+
 :var:`PPID`
 
      (shell variable; POSIX says environment variable)
@@ -363,6 +453,8 @@ Other values can be calculated and some are computed.
      :type: ``libc/pid_t``
 
      the result of :manpage:`getppid(2)`
+
+     This value is updated when :lname:`Idio` forks.
 
 :var:`PWD`
 

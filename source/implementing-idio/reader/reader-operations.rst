@@ -296,6 +296,8 @@ Assignment operators are slightly different to the other in that they
 They differ slightly in that, having determined the entity to be
 assigned to, the right hand size is explicitly operator-expanded.
 
+.. _`standard operators`:
+
 Standard Operators
 ------------------
 

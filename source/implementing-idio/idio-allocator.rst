@@ -104,8 +104,9 @@ allocation itself.
 
 So if you request 20 bytes, say, you'll get passed into the 64 byte
 bucket chain (your 20 bytes plus another 16-odd of overhead etc. takes
-you beyond a 32 byte bucket), 200 bytes into the 256 bucket chain (as
-the added overhead bytes don't bump us into the next bucket).
+you beyond a 32 byte bucket); a 200 byte request goes into the 256
+bucket chain (as the added overhead bytes don't bump us into the next
+bucket).
 
 The overhead is a bit vague as it is a fixed size header, a fixed
 sized range marker and some padding.

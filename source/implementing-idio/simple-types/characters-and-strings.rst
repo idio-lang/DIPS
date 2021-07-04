@@ -85,7 +85,7 @@ characters that you or I might draw with a pen.
 
     .. code-block:: console
 
-       % stty -a
+       $ stty -a
        ...
        intr = ^C; quit = ^\; erase = ^?; kill = ^U;
        eof = ^D; eol = M-^?; eol2 = <undef>;
@@ -191,6 +191,34 @@ We *might* have to consider matters such as `Collation
 be using any system-provided collation library (which you would hope
 would have considered it).  But we really don't want to.  That
 document is 29 thousand words long!
+
+    For those, like me, who often wonder about the Rest of the World
+    there are non-obvious examples such as:
+
+    * the set [ "Ähnlich", "Äpfel", "Bären", "Käfer", "küssen" ] would
+      have the strings beginning with Ä sorted to the end as Ä is one
+      of three additional characters and comes after the regular Latin
+      Z in the `Swedish alphabet
+      <https://en.wikipedia.org/wiki/Swedish_alphabet>`_.
+
+    * in Danish, Aalborg sorts after Zaragoza because aa in personal
+      and geographical names is å (borrowed from the Swedish) and
+      sorts after z (a decision made 7 years after re-introducing the
+      letter in 1948).
+
+      This also has the side-effect of the regular expression
+      ``[a-z][a-z]`` does not match å in a Danish locale even though
+      it can be expressed as a digraph (``aa``).
+
+    * German allows for a distinct collation order for telephone
+      listings
+
+    Of course it would be naïve to believe that there were not a
+    soupçon of names like Cæsar and Zoë roaming around in `English
+    text
+    <https://en.wikipedia.org/wiki/English_terms_with_diacritical_marks>`_,
+    I wasn't né stupid.  I have no idea what the collation algorithm
+    for them is, though.
 
 We can almost certainly ignore Unicode's view on `Regular Expressions
 <https://www.unicode.org/reports/tr18/>`_ as their view has been
@@ -1246,32 +1274,64 @@ Strings
       perform :manpage:`strncasecmp(3)` comparisons of the UTF-8
       representations of the string arguments
 
-:samp:`split-string {string} {delim}`
+.. _`split-string`:
 
-      split string :samp:`{string}` into a list of string delimited by
-      the code points in the string :samp:`{delim}`
+:samp:`split-string {string} [{delim}]`
 
-      ``split-string`` is meant to act like the shell's or
-      :program:`awk`'s word-splitting by ``IFS``.
+      Split string :samp:`{string}` into a list of string delimited by
+      the code points in the string :samp:`{delim}` which itself
+      defaults to :var:`IFS`.
 
-      Clearly it does not act like a regular expression string
-      delimitation in that multiple adjacent instances of delimiter
-      characters only provoke one "split."
+      ``split-string`` acts like the shell's or :program:`awk`'s
+      word-splitting by ``IFS`` in that multiple adjacent instances of
+      delimiter characters only provoke one "split."
 
-:samp:`split-string-exactly {string} {delim}`
+:samp:`split-string-exactly {string} [{delim}]`
 
-      split string :samp:`{string}` into a list of string delimited by
-      the code points in the string :samp:`{delim}`
+      Split string :samp:`{string}` into a list of string delimited by
+      the code points in the string :samp:`{delim}` which itself
+      defaults to :var:`IFS`.
 
       ``split-string-exactly`` is meant to act more like a regular
       expression matching system.
 
-      It was required to split the contents of the Unicode Character
-      Database file :file:`UnicodeData.txt` -- which has multiple
-      ``;``-separated fields, often with no value in a field -- to
-      help generate the code base for regular expression handling.
+      It was originally required to split the contents of the Unicode
+      Character Database file :file:`utils/Unicode/UnicodeData.txt` --
+      which has multiple ``;``-separated fields, often with no value
+      in a field -- to help generate the code base for regular
+      expression handling.
 
-:samp:`join-string {delim} {list}`
+.. _`fields`:
+
+.. function:: fields string
+
+   A variation on :ref:`split-string <split-string>` with a view to
+   more :program:`awk`-like line splitting functionality, ``fields``
+   splits string :samp:`{string}` into an *array* of strings delimited
+   by the code points in :var:`IFS` with the first element of the
+   array being the original string.
+
+   Indexing of the array gives you :program:`awk`-like field numbers
+   as in :program:`awk`'s ``$0``, ``$1``, ..., here, array index ``0``
+   for the original string, index ``1`` for the first :var:`IFS`
+   delimited field, ``2`` for the second :var:`IFS` delimited field
+   etc..
+
+   As a function taking a single argument it can be used with the
+   :ref:`value-index <value-index>` operator, ``.``:
+
+   .. code-block:: idio-console
+
+      Idio> fs := "hello world".fields
+      #[ "hello world" "hello" "world" ]
+      Idio> fs.0
+      "hello world"
+      Idio> fs.1
+      "hello"
+
+   
+
+.. function:: join-string delim list
 
       construct a string from the strings in :samp:`{list}` with the
       string :samp:`{delim}` placed in between each pair of strings
@@ -1284,13 +1344,15 @@ Strings
       after every argument, infix (the default) and a strict
       infix for complaining about no arguments.
 
-:samp:`strip-string {str} {discard} {ends}`
+.. _`strip-string`:
+
+:samp:`strip-string {str} {discard} [{ends}]`
 
       return a string where the characters in :samp:`{discard}` have
       been removed from the :samp:`{ends}` of :samp:`{str}`
 
       :samp:`{ends}` can be one of ``'left``, ``'right``, ``'both`` or
-      ``'none``.
+      ``'none`` and defaults to ``'right``.
 
 .. include:: ../../commit.rst
 
