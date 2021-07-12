@@ -110,10 +110,10 @@ quite large range of numbers.  Plenty for most shell-ish purposes.
 fixnum.c
 --------
 
-:file:`fixnum.c` hosts not just the basic fixnum arithmetic but also
-is the front end for most arithmetic meaning it has to decide whether
-any of the numbers being processed are bignums and promote all the
-fixnums to bignums if that is the case.
+:file:`src/fixnum.c` hosts not just the basic fixnum arithmetic but
+also is the front end for most arithmetic meaning it has to decide
+whether any of the numbers being processed are bignums and promote all
+the fixnums to bignums if that is the case.
 
 There is also the :lname:`Scheme`-ish arithmetic style that, say,
 ``+`` for addition is not a binary function as in :lname:`C`,

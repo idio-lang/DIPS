@@ -253,15 +253,16 @@ Reading
 
 Reading is a two-step process.
 
-#. In the reader, ``idio_read_number_C()`` in :file:`read.c` we are
-   concerned with *recognising* a number, a syntactic check of sorts
+#. In the reader, ``idio_read_number_C()`` in :file:`src/read.c` we
+   are concerned with *recognising* a number, a syntactic check of
+   sorts
 
    Actually, there's another number-recogniser/constructor,
-   ``idio_read_bignum_radix()`` in :file:`read.c` (which I suppose
+   ``idio_read_bignum_radix()`` in :file:`src/read.c` (which I suppose
    should have a trailing ``_C`` to be consistent) for a particular
    input form.
 
-#. In ``idio_bignum_C`` in :file:`bignum.c` we are concerned with
+#. In ``idio_bignum_C`` in :file:`src/bignum.c` we are concerned with
    *constructing* a number from the character-based representation
 
 The Reader
@@ -319,13 +320,13 @@ format and make some decisions about the way forward:
 
   (That should be more closely analysed for leading sign characters.)
 
-  ``idio_fixnum_C()`` in :file:`fixnum.c` uses :manpage:`strtoll(3)`
-  which I think is non-controversial and we shouldn't be pushing the
-  boundaries of an ``intptr_t``.
+  ``idio_fixnum_C()`` in :file:`src/fixnum.c` uses
+  :manpage:`strtoll(3)` which I think is non-controversial and we
+  shouldn't be pushing the boundaries of an ``intptr_t``.
 
 * otherwise we call ``idio_bignum_C()`` for a full conversion to a
   bignum then attempt to convert the bignum back to a fixnum with
-  ``idio_bignum_to_fixnum()`` in :file:`bignum.c`.
+  ``idio_bignum_to_fixnum()`` in :file:`src/bignum.c`.
 
   (Some fixnums may not be realised by this conversion.  I need to
   (re-)\ *do the math*.)
@@ -334,7 +335,7 @@ Non-base-10 Numbers
 ^^^^^^^^^^^^^^^^^^^
 
 There are several reader input forms for non-base-10 numbers all of
-which call ``idio_read_bignum_radix()`` in :file:`read.c` with a
+which call ``idio_read_bignum_radix()`` in :file:`src/read.c` with a
 different *radix*:
 
 .. csv-table:: Non-base-10 reader number formats
@@ -367,7 +368,8 @@ in that:
 bignum.c
 --------
 
-:file:`bignum.c` looks fearsomely complex but that's because there's:
+:file:`src/bignum.c` looks fearsomely complex but that's because
+there's:
 
 * a sort of combinatorial explosion for handling integers and reals
 
@@ -419,8 +421,8 @@ integer and the exponent is scaled appropriately.
 Writing
 =======
 
-``idio_bignum_as_string()`` in :file:`bignum.c` is called from
-``idio_as_string()`` in :file:`util.c`.
+``idio_bignum_as_string()`` in :file:`src/bignum.c` is called from
+``idio_as_string()`` in :file:`src/util.c`.
 
 Integers
 --------

@@ -275,7 +275,7 @@ Definitions
 you'll need to search down for each file.
 
 
-#. :file:`.../utils/Unicode/UnicodeData.txt` is the main list of all
+#. :file:`utils/Unicode/UnicodeData.txt` is the main list of all
    allocated Unicode code points.
 
    It uses ranges in case you're wondering why it isn't 150k lines
@@ -303,18 +303,18 @@ you'll need to search down for each file.
    <https://www.grammar-monster.com/lessons/capital_letters_title_case.htm>`_
    might help explain.
 
-#. :file:`.../utils/Unicode/PropList.txt` puts more characters into
+#. :file:`utils/Unicode/PropList.txt` puts more characters into
    categories where their *General_Category* was something else.
 
    For example, U+0009 through U+000D are nominally ASCII Control
-   characters, in the Category ``Cc`` but are in :file:`PropList.txt`
-   tagged as *White_Space*.
+   characters, in the Category ``Cc`` but are tagged as *White_Space*
+   in :file:`utils/Unicode/PropList.txt`.
 
-#. :file:`.../utils/Unicode/DerivedCoreProperties.txt` is similar to
-   :file:`PropList.txt`
+#. :file:`utils/Unicode/DerivedCoreProperties.txt` is similar to
+   :file:`utils/Unicode/PropList.txt`
 
 If we parse all of that (see
-:file:`.../utils/extract-unicode-char-sets.idio`) we can build up some
+:file:`utils/extract-unicode-char-sets.idio`) we can build up some
 tables (of tables ...).
 
 As noted, the sparse char sets are an array of 17 Unicode planes where
@@ -336,9 +336,9 @@ we are using 56kB of memory in bitsets to do the mapping.
 I mused with the idea of allowing the user to use only ASCII or only
 the Basic Multilingual Plane (plane 0) or the full Unicode set and
 added unnecessary complexity to
-:file:`.../utils/extract-unicode-char-sets.idio` to do so.
+:file:`utils/extract-unicode-char-sets.idio` to do so.
 
-The various outputs are in :file:`.../lib/unicode.*.idio`.
+The various outputs are in :file:`lib/unicode.*.idio`.
 
 At the moment we're stuck with full Unicode only.
 

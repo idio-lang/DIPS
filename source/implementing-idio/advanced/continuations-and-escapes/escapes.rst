@@ -514,7 +514,7 @@ For special forms, we could say, OK, let's rewrite the
 make the special forms use it.
 
 That's possible.  However, as things stood at the time I had
-``dynamic-wind`` implemented in :file:`call-cc.idio` using ``reroot!``
+``dynamic-wind`` implemented in :file:`lib/call-cc.idio` using ``reroot!``
 and ``*here*`` which were private variables inside the block of code
 that uses them.
 

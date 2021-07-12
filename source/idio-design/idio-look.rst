@@ -337,9 +337,9 @@ The line-continuation style has the decency to be consistent.
 \*
 
 Actually, when I came to write the :term:`metacircular evaluator` in
-:file:`evaluate.idio` I gave up and used the "wrapped" form.  Mostly
-because it was easier to convince my editor to line the elements up to
-preserve my sanity.
+:file:`lib/evaluate.idio` I gave up and used the "wrapped" form.
+Mostly because it was easier to convince my editor to line the
+elements up to preserve my sanity.
 
 It's OK, in the end.
 

@@ -169,9 +169,9 @@ is going to involve a few basic repeating variables:
   changing statements in the source code.
 
 All of which are :lname:`C` lexical variables used throughout
-:file:`evaluate.c` (and :lname:`Idio` lexical variables in the
-:lname:`Idio` variant :file:`evaluate.idio`, the :term:`metacircular
-evaluator`).
+:file:`src/evaluate.c` (and :lname:`Idio` lexical variables in the
+:lname:`Idio` variant :file:`lib/evaluate.idio`, the
+:term:`metacircular evaluator`).
 
 In effect, all of the above become formal parameters to almost every
 function in the evaluator.
@@ -255,8 +255,8 @@ otherwise treat it as a derived form or constant.
 first position of a list so, if the expression is a list we simply
 need to look at what the first element is.
 
-``idio_meaning()`` in :file:`evaluate.c` (a debatably poor name as it
-*is* the evaluator but almost everything is called
+``idio_meaning()`` in :file:`src/evaluate.c` (a debatably poor name as
+it *is* the evaluator but almost everything is called
 :samp:`idio_meaning_{something}`!) has a big test:
 
 .. code-block:: c

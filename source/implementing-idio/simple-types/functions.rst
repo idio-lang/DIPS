@@ -82,7 +82,7 @@ primitive.
 
 I've limited the number of formal parameters, ``arity``, to 255.  That
 *should* be OK for most people.  In practice, you need to edit
-``idio_vm_invoke()`` in :file:`vm.c` to have more than five formal
+``idio_vm_invoke()`` in :file:`src/vm.c` to have more than five formal
 parameters.
 
 ``varargs`` is a boolean and could, perhaps, should, be a
@@ -99,7 +99,7 @@ The actual function *call* needs to gather together the arguments to
 be able to say, broadly, for a binary function:
 
 .. parsed-literal::
-   :name: ``idio_vm_invoke()`` in :file:`vm.c`
+   :name: ``idio_vm_invoke()`` in :file:`src/vm.c`
 
    result = (IDIO_PRIMITIVE_F (prim)) (*arg1*, *arg2*, *args*);
 
@@ -179,8 +179,8 @@ we use (in its simplest form):
 
 Let's break this down:
 
-* ``IDIO_DEFINE_PRIMITIVE2``, from :file:`idio.h`, says I'm defining a
-  primitive that takes 2 formal parameters.
+* ``IDIO_DEFINE_PRIMITIVE2``, from :file:`src/idio.h`, says I'm
+  defining a primitive that takes 2 formal parameters.
 
   ``IDIO_DEFINE_PRIMITIVE2V`` says two formal parameters and varargs.
 
@@ -316,8 +316,8 @@ although we don't need to know anything about that directly, we just
 need to know the :lname:`C` function name snippet and we can work out
 the rest from there.
 
-You may recall all of the :file:`.c` files relating to types have a
-similar bootstrap structure including:
+You may recall all of the :file:`src/*.c` files relating to types have
+a similar bootstrap structure including:
 
 .. code-block:: c
 

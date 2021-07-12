@@ -1,5 +1,7 @@
 .. include:: ../global.rst
 
+.. _`Idio Form`:
+
 *******************
 :lname:`Idio` Form
 *******************
@@ -25,7 +27,7 @@ of blithely crashing on through despite earlier commands failing.
 the screen is clogged with command output with errors and warnings
 lost in the noise.
 
-Even something as simple as ``ls \*.tar`` can be a life-saver
+Even something as simple as ``ls *.tar`` can be a life-saver
 (script-saver?) as if the expected files don't exist then Pathname
 Expansion will have failed passing the literal text ``*.tar`` to
 :program:`ls` which will, unsurprisingly, be unable to find such a
@@ -73,6 +75,8 @@ For these examples we'll modify our prompt to include the
 so we know where we are and you can check :var:`$-` for current shell
 settings -- albeit that it doesn't report on :samp:`set -o
 {long-form}` options.
+
+.. _`set -e`:
 
 set -e
 ------

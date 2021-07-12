@@ -699,7 +699,7 @@ is a U+022 (QUOTATION MARK) delimited value.
 
 The reader is, in one sense, quite naive and is strictly looking for a
 non-escaped closing ``"`` to terminate the string, see
-``idio_read_string()`` in :file:`read.c`.
+``idio_read_string()`` in :file:`src/read.c`.
 
 Subsequently the collected bytes are assumed to be part of a valid
 UTF-8 sequence.  If the byte sequence is invalid UTF-8 you will get
@@ -1075,7 +1075,7 @@ Writing
 -------
 
 :lname:`Idio` strings will be UTF-8 encoded on output, see
-``idio_utf8_string()`` in :file:`unicode.c` for the details.
+``idio_utf8_string()`` in :file:`src/unicode.c` for the details.
 
 There's a couple of qualification to that:
 

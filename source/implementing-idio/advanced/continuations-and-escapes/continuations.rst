@@ -1138,7 +1138,7 @@ Kiselyov`'s `dyn-wind.scm
 An :lname:`Idio` port of the *yield* parts looks something like:
 
 .. code-block:: idio
-   :caption: :file:`delim-control.idio`
+   :caption: :file:`lib/delim-control.idio`
 
    yield-record-tag := make-ptag 'yield-record
    define (make-yield-record v k) {
@@ -1223,7 +1223,7 @@ thing work.  Things start becoming less obvious with
 ``dyn-wind-yield``:
 
 .. code-block:: idio
-   :caption: :file:`delim-control.idio`
+   :caption: :file:`lib/delim-control.idio`
 
    define (dyn-wind-yield before-thunk thunk after-thunk) {
      dwy-loop :+ function (th) {

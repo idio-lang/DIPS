@@ -189,7 +189,7 @@ defined as:
    function (op before after) *body*
 
 You can see the evaluator construct this function in
-``idio_meaning_define_infix_operator()`` in :file:`evaluate.c`:
+``idio_meaning_define_infix_operator()`` in :file:`src/evaluate.c`:
 
 .. code-block:: c
 
@@ -280,7 +280,7 @@ Arbitrary Word List Operators
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There *are* operators that do take argument lists of arbitrary length,
-``|`` is an example, defined in :file:`job-control.idio`.
+``|`` is an example, defined in :file:`lib/job-control.idio`.
 
 ``|``, the operator, also performs the functionality you would expect
 of a ``|``, the function.  I'm not sure why I wrote it that way.
@@ -303,7 +303,7 @@ Standard Operators
 
 :lname:`Idio` defines some operators by default.
 
-From :file:`operator.idio`:
+From :file:`lib/standard-operators.idio`:
 
 Infix arithmetic operators: ``+``, ``-``, ``*`` and ``/``.
 
@@ -349,7 +349,7 @@ If you really wanted to index something by a symbol beginning with
 
 
 
-From :file:`job-control.idio`:
+From :file:`lib/job-control.idio`:
 
 Infix operator ``|`` for pipelines.
 

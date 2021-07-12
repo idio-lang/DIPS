@@ -15,6 +15,7 @@ Bringing a shell to life.
    shell-functions
    job-control
    pipelines
+   async-commands
    process-substitution
    libc
 

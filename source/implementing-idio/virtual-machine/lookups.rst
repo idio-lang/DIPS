@@ -142,8 +142,8 @@ takes a symbol as an argument, not a value:
 
 Suggesting (to me) that the symbol was first created in the ``libc``
 module as a *predefined* element (ie. a primitive) by the :lname:`C`
-function ``idio_predef_extend()``.  ``read`` is #594 in the constants
-table and this maps to value #908 in the values table.
+function ``idio_predef_extend()``.  The symbol ``read`` is #594 in the
+constants table and this maps to value #908 in the values table.
 
 You can dump out the VM's constants and values tables if you pass the
 ``--vm-reports`` option to :program:`idio` then search for those

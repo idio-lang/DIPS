@@ -246,7 +246,7 @@ to be added.
 The macros get used in the likes of:
 
 .. code-block:: c
-   :caption: ``idio_init_condition()`` in :file:`condition.c`
+   :caption: ``idio_init_condition()`` in :file:`src/condition.c`
 
    IDIO_DEFINE_CONDITION0 (idio_condition_error_type,
 			   "^error",
@@ -275,8 +275,8 @@ wrapper to what would have been the specialized
    }
 
 This requires a :samp:`make-struct-type {name} {parent} {fields}` form
-(in :file:`struct.c`) which will return a structure *type* value which
-is set in the environment as ``$name`` -- ``define-struct`` is a
+(in :file:`src/struct.c`) which will return a structure *type* value
+which is set in the environment as ``$name`` -- ``define-struct`` is a
 template, remember, so ``$name`` expands out to whatever the first
 argument to ``define-struct`` was.
 
@@ -286,7 +286,7 @@ Note that the :samp:`{parent}` argument is always ``#n``.
 constructing all the accessory methods: :samp:`make-{name}`,
 :samp:`{name}?` etc..
 
-``define-struct-accessors-only`` (in :file:`struct.idio`) is quite
+``define-struct-accessors-only`` (in :file:`lib/struct.idio`) is quite
 complicated as it involves templates generating templates using
 constructed and generated symbols.  There's some examples in the
 commentary that show the expanded forms which might make it a bit

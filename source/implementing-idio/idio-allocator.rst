@@ -72,7 +72,7 @@ it would be nice to be ready for threading should we ever get there.
 Design
 ======
 
-So :file:`malloc.c` is a :lname:`Bash` inspired variation on the
+So :file:`src/malloc.c` is a :lname:`Bash` inspired variation on the
 Kingsley fast storage allocator.
 
 The basic mechanism is that you assign allocation requests into chains
@@ -214,7 +214,7 @@ The nominal :samp:`{overhead}` "structure" is actually a union with
 the :samp:`{overhead}` structure a member:
 
 .. code-block:: c
-   :caption: :file:`malloc.c`
+   :caption: :file:`src/malloc.c`
 
    union idio_malloc_overhead_u {
        uint64_t o_align;	/* 					8 bytes */
@@ -264,7 +264,7 @@ better test than ``PTRDIFF_MAX`` -- or other integer) and parameterise
 a few things:
 
 .. code-block:: c
-   :caption: :file:`malloc.c`
+   :caption: :file:`src/malloc.c`
 
    #if PTRDIFF_MAX == 2147483647L
    #define idio_alloc_t			uint32_t
@@ -285,7 +285,7 @@ in the stats gathering if ``IDIO_DEBUG`` is set.
 We can then change ``ovu_size`` to the normalised ``idio_alloc_t``:
 
 .. code-block:: c
-   :caption: :file:`malloc.c`
+   :caption: :file:`src/malloc.c`
 
    union idio_malloc_overhead_u {
        uint64_t o_align;		/* 					8 bytes */
@@ -493,7 +493,7 @@ The implementation of ``malloc``, ``calloc``, ``realloc`` and ``free``
 works pretty much as you might expect with having to rummage around
 finding buckets etc..
 
-If you have a debug build then :file:`vm-perf.log` will have some
+If you have a debug build then :file:`./vm-perf.log` will have some
 allocator stats for you.
 
 This is where I thought there might be some improvements to be had.

@@ -388,8 +388,8 @@ corresponding *handle*.
 file-handle.c
 ^^^^^^^^^^^^^
 
-:file:`file-handle.c` contains a bundle of functions relating to the
-business of finding :lname:`Idio` library files.
+:file:`src/file-handle.c` contains a bundle of functions relating to
+the business of finding :lname:`Idio` library files.
 
 We will have the usual sort of library search list environment
 variable, cleverly called ``IDIOLIB``.  When a user *loads* a library
@@ -582,7 +582,7 @@ need to fake one up by maintaining and ``end`` of buffer marker and
 It turns out that string handles are really handy for generating error
 messages within the code base from, say, a bit of :lname:`C` string
 and a bit of :lname:`Idio` object.  Take, for example, the calls to
-:manpage:`fdopen(3)` in :file:`file-handle.c`, above.
+:manpage:`fdopen(3)` in :file:`src/file-handle.c`, above.
 
 If the *system call* fails we want to raise an error condition
 indicating the system call and the arguments:
@@ -672,7 +672,7 @@ re-constituted strings from the two output string handles.
 handle.c
 --------
 
-:file:`handle.c` is the front-end for manipulating handles and its
+:file:`src/handle.c` is the front-end for manipulating handles and its
 methods are largely just calls to the underlying file handle or string
 handle methods.
 
@@ -761,7 +761,7 @@ Operations
 File Handles
 ------------
 
-See :file:`file-handle.c`.
+See :file:`src/file-handle.c`.
 
 Note that when manipulating a file descriptor (rather than a file
 handle) you are manipulating a ``C-int``, not a fixnum (and certainly
@@ -933,7 +933,7 @@ around opaquely.
 String Handles
 --------------
 
-See :file:`string-handle.c`.
+See :file:`src/string-handle.c`.
 
 :samp:`open-input-string {string}`
 
@@ -967,7 +967,7 @@ See :file:`string-handle.c`.
 Handles
 -------
 
-See :file:`handle.c`.
+See :file:`src/handle.c`.
 
 :samp:`handle? {value}`
 
@@ -1196,14 +1196,14 @@ See :file:`handle.c`.
 
 ---
 
-In :file:`common.idio` there are some extra utility functions.
+In :file:`lib/common.idio` there are some extra utility functions.
 
 .. _`%format`:
 
 :samp:`%format {type} {format} [{args}]`
 
-      This ``%format`` function (in :file:`common.idio`) makes a much
-      better attempt at the vagaries of :manpage:`printf(3)` by
+      This ``%format`` function (in :file:`lib/common.idio`) makes a
+      much better attempt at the vagaries of :manpage:`printf(3)` by
       utilising some dynamic variables to convey the print conversion
       *format* and *precision* to other parts of the system
 

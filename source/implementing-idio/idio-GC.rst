@@ -165,9 +165,9 @@ now using the `Shenandoah GC`_.
 GC Code-base
 ------------
 
-:file:`gc.h` defines all the value types and their accessors and flags
-and ....  It also defines the ``IDIO`` type itself which is a pointer
-to an ``idio_t``/``struct idio_s``:
+:file:`src/gc.h` defines all the value types and their accessors and
+flags and ....  It also defines the ``IDIO`` type itself which is a
+pointer to an ``idio_t``/``struct idio_s``:
 
 .. code-block:: c
 
@@ -207,7 +207,7 @@ value.  We never pass a value *per se*.
 gc.c
 ^^^^
 
-:file:`gc.c` concerns itself with allocating memory, accounting,
+:file:`src/gc.c` concerns itself with allocating memory, accounting,
 garbage collection.  It *does not* perform value initialisation.
 
 Individual value constructors will ask for a base value from the GC
@@ -285,9 +285,9 @@ There are three sections of interest:
    will be large ``switch`` statements handling each possible
    :lname:`Idio` type.  The usual culprits are:
 
-   * :file:`gc.c` to handle GC
+   * :file:`src/gc.c` to handle GC
 
-   * :file:`util.c` to handle both equality and printing
+   * :file:`src/util.c` to handle both equality and printing
 
 #. defining the :lname:`C` struct and accessors for the value, say:
 
@@ -459,7 +459,7 @@ where:
 
 * ``idio_init_foo()`` is called early on to allow you to perform any
   basic initialisation.  You might need to be careful of the ordering
-  in ``idio_init()`` in :file:`idio.c`.
+  in ``idio_init()`` in :file:`src/idio.c`.
 
 * ``idio_foo_add_primitives()`` is a mechanism to add your primitive
   functions to :lname:`Idio`.  This is called after all the

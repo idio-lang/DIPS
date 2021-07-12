@@ -36,6 +36,9 @@ as Arnd Bergmann and John Stultz plodded though and changed the
 interfaces to 64-bit (kicking the Epochalyse can down the road for a
 few hundred billion years...).
 
+And, another bugbear, how do I print a ``time_t`` out without
+upsetting the compiler on some system or another?
+
 Underlying this is that the :lname:`C` API uses an opaque *typedef*
 for some base :lname:`C` type.  For us to be able to store and
 transport it we could do with knowing what that type is.
@@ -182,7 +185,7 @@ For these to be portable you will have to resort to using something
 along the lines of the error, signal and rlimit value tests:
 
 .. code-block:: c
-   :caption: :file:`libc-wrap.c`
+   :caption: :file:`src/libc-wrap.c`
 
    #if defined (EBADF)
        IDIO_LIBC_ERRNO (EBADF);
@@ -338,7 +341,7 @@ pid_t
 Let's try a ``pid_t``:
 
 .. code-block:: c
-   :caption: :file:`libc-api.c`
+   :caption: :file:`src/libc-api.c`
 
    int main (int argc, char ** argv)
    {
@@ -407,24 +410,44 @@ redefinitions of existing base types.
 In the :lname:`C` world, you can imagine creating:
 
 .. code-block:: c
-   :caption: :file:`libc-api.h`
+   :caption: :file:`src/libc-api.h`
 
+   #define IDIO_TYPE_C_libc___pid_t            IDIO_TYPE_C_INT
    #define idio_libc___pid_t                   idio_C_int
    #define IDIO_C_TYPE_libc___pid_t            IDIO_C_TYPE_int
    #define idio_isa_libc___pid_t               idio_isa_C_int
 
+   #define IDIO_TYPE_C_libc_pid_t              IDIO_TYPE_C_libc___pid_t
    #define idio_libc_pid_t                     idio_libc___pid_t
    #define IDIO_C_TYPE_libc_pid_t              IDIO_C_TYPE_libc___pid_t
    #define idio_isa_libc_pid_t                 idio_isa_libc___pid_t
 
-The :samp:`IDIO_USER_libc_TYPE_ASSERT({type},{x})` is a generic macro
-which ultimately is going to call :samp:`idio_isa_libc_{type} ({x})`
-which we've just defined.
+Here,
+
+* :samp:`IDIO_TYPE_C_{module}_{name}` is a mapping from the :lname:`C`
+  constructed name to an :lname:`Idio` :file:`src/gc.h` compatible
+  macro for the :lname:`C` base types
+
+  This allows us to figure out the correct :manpage:`printf(3)` format
+  string for a given type.
+
+* :samp:`idio_{module}_{name}` is the constructor
+
+* :samp:`IDIO_C_TYPE_{module}_{name}` is the destructor
+
+  An unfortunate naming near-miss with
+  :samp:`IDIO_TYPE_C_{module}_{name}`.
+
+* :samp:`idio_isa_{module}_{name}` is a predicate
+
+The :samp:`IDIO_USER_{module}_TYPE_ASSERT({type},{x})` is a generic
+macro which ultimately is going to call
+:samp:`idio_isa_{module}_{type} ({x})` which we've just defined.
 
 and for the :lname:`Idio` world:
 
 .. code-block:: idio
-   :caption: :file:`libc-api.idio`
+   :caption: :file:`lib/libc-api.idio`
 
    export (
 	   __pid_t
@@ -525,17 +548,17 @@ stat``, let's call it ``struct-stat-ref``:
        ...
    }
 
-For the answer to testing whether ``stat`` really is a ``struct
-stat``, see :ref:`subprograms`, below.
-
 We should be able to generate a similar ``struct-stat-set!`` although
 whether such a function is warranted is another question.  *a priori*
 it's a valid operation.
 
-There is the question, of course, about how the system might know that
-``struct-stat-ref``, in particular, might be used for some (random)
-:lname:`C` pointer, rather than any other primitive (or function).
-More below.
+For the answer to testing whether ``stat`` really is a ``struct
+stat``, see :ref:`subprograms`, below.
+
+Separately, though related, there is the question, about how the
+system might know that it should use ``struct-stat-ref``, in
+particular, when de-structuring some (random) :lname:`C` pointer,
+rather than any other primitive (or function).  More on that below.
 
 Pointers
 ^^^^^^^^
@@ -563,8 +586,9 @@ case for the ``formal_parameter`` :samp:`{argv}`:
        <1165>   DW_AT_type        : <0x2fa>
        <1169>   DW_AT_location    : 4 byte block: 91 f0 b9 7f      (DW_OP_fbreg: -8976)
 
-Which you should be able to see that :samp:`{argv}` is a pointer to a
-pointer to a ``char``, ie. ``char **argv``.
+Which you should be able to see both that :samp:`{argv}` is a pointer
+to a pointer to a ``char``, ie. ``char **argv`` and that DIEs are not
+necessarily printed in an obvious order.
 
 Arrays
 """"""
@@ -1012,7 +1036,7 @@ and we can extend the code for ``value-index`` to have a nosey in any
 :lname:`C` pointers that come its way:
 
 .. code-block:: c
-   :caption: :file:`util.c`
+   :caption: :file:`src/util.c`
 
 	    ...
 	    case IDIO_TYPE_C_POINTER:
@@ -1035,10 +1059,10 @@ work.
 In :lname:`Idio`\ -land we can check that both *-ref* and *-set!*
 primitives exist -- after all, someone might deem modifying a
 :samp:`struct {foo}` a poor move and have removed ``struct-stat-set!``
--- but the auto-generated :file:`libc-api.idio` doesn't know that:
+-- but the auto-generated :file:`lib/libc-api.idio` doesn't know that:
 
 .. code-block:: idio
-   :caption: :file:`libc-api.idio`
+   :caption: :file:`lib/libc-api.idio`
 
    if (and (function? struct-stat-ref)
 	   (function? struct-stat-set!)) {
@@ -1049,7 +1073,7 @@ and the code for ``set-value-index!`` can be updated for :lname:`C`
 pointers as well:
 
 .. code-block:: c
-   :caption: :file:`util.c`
+   :caption: :file:`src/util.c`
 
 	    ...
 	    case IDIO_TYPE_C_POINTER:
@@ -1095,6 +1119,98 @@ structures with ``idio_CSI_`` support.  The printer is associated with
 the ``idio_CSI_`` value such that all :lname:`C` pointers to the same
 kind of ``struct`` use the same printer.
 
+The generated printers have two parts, a :lname:`C` part
+``_as_string()`` which creates the results via ``idio_display_C()``
+and ``idio_display()`` and an output string handle and an
+:lname:`Idio` part which calls the :lname:`C` part.
+
+The normal structure printing is to:
+
+#. add :samp:`#<CSI {structure-name}`
+
+#. for each structure member:
+
+   #. add :samp:`{member-name}:`
+
+   #. add the printed form of the structure member
+
+      This requires a helper function, ``idio_C_type_format_string()``
+      which can map, say, ``libc/pid_t`` into the appropriate
+      :manpage:`printf(3)` format string (probably, ``%ld`` or ``%d``)
+
+#. add ``>``
+
+For some structure types there is a natural printed format.  For
+example, a ``struct timeval`` has seconds and micro-seconds parts and
+is commonly displayed in a :samp:`{seconds}.{micro-seconds}` form.
+
+We know that the ``tv_usec`` member of a ``struct timeval`` represent
+micro-seconds and can only be six decimal digits even though its type,
+``suseconds_t``, is probably a ``long``.  In fact, it *must* be
+displayed as six leading-0-padded digits otherwise it makes no sense.
+For example, 1s and 213us would be displayed as ``1.000213`` and not
+``1.213``.
+
+Further, if there is a precision pending, say, 3, then the precision
+is applied to the leading-0-padded string, not the literal ``tv_usec``
+value, giving a result of ``1.000``.
+
+.. sidebox::
+
+   You wouldn't read back in the printed form, would you?
+
+   No brownie points for you!
+
+Note that the resultant printed form does not include the structure
+name, it appears as just a floating point number.  The *value* is a
+``struct timeval``, it's just the printed form that looks like a
+floating point number.  Compare that with the printed representation
+of the fixnum, 23, and the ``libc/pid_t``, 23, we had before.
+
+The auto printing of :lname:`C` structures comes in quite handy.  For
+example, noting I accidentally called the external command
+:program:`stat` first, we get to compare results:
+
+.. code-block:: idio-console
+
+   Idio> stat "."
+     File: .
+     Size: 8192            Blocks: 24         IO Block: 4096   directory
+   Device: fd00h/64768d    Inode: 17910888    Links: 3
+   Access: (0775/drwxrwxr-x)  Uid: ( 1000/     idf)   Gid: ( 1000/     idf)
+   Context: unconfined_u:object_r:user_home_t:s0
+   Access: 2021-07-05 12:24:42.072310969 +0100
+   Modify: 2021-07-05 12:24:43.574321757 +0100
+   Change: 2021-07-05 12:24:43.574321757 +0100
+    Birth: 2021-05-11 11:19:01.916839841 +0100
+   #t
+   Idio> libc/stat "."
+   #<CSI libc/struct-stat
+	 st_dev:64768
+	 st_ino:17910888
+	 st_nlink:3
+	 st_mode:16893
+	 st_uid:1000
+	 st_gid:1000
+	 st_rdev:0
+	 st_size:8192
+	 st_blksize:4096
+	 st_blocks:24
+	 st_atim:1625484282.072310969
+	 st_mtim:1625484283.574321757
+	 st_ctim:1625484283.574321757>
+
+(I've broken the CSI printout for viewing convenience -- it is one long line!)
+
+In this case, a ``struct timespec`` with a ``tv_nsec`` field for
+nano-seconds is seen for the timestamp fields.  Notice the leading 0
+for the access time entries.
+
+And, not wanting to emphasise the point, those ``struct timespec``
+printed representations use 19 significant digits which, if you recall
+the work on :ref:`bignums`, is one too many for an accurate floating
+point value.  Off to inexact school for you!
+
 Files
 -----
 
@@ -1115,7 +1231,7 @@ generating output in :file:`.../ext/libc/gen`:
 
   This :lname:`C` source file contains:
 
-  - primitives for the :lname:`C` ``struct`` accessors
+  - primitives for the :lname:`C` ``struct`` accessors and printer
 
   - primitives for any ``subprogram`` definitions -- excluding
     ``main``
@@ -1207,6 +1323,11 @@ generating output in :file:`.../ext/libc/gen`:
   It is impossible to infer how to create such an argument and the
   sample code simply refers to :samp:`{v}`.
 
+  For example, for ``stat``-related tests which require a valid
+  ``struct stat`` I've replaced :samp:`{v}` with ``(libc/stat ".")``
+  which, since we've been writing the above code, successfully returns
+  a ``struct stat`` with appropriate ``idio_CSI_`` definition.
+
 Inconsistent Outputs
 --------------------
 
@@ -1220,7 +1341,8 @@ There are further complications with ``struct`` definitions and
 In the case of a ``struct`` you may find that some systems define
 extra structure members over and above the nominal :lname:`C` API.
 These should have no effect -- other than adding extra member name
-symbols that you have no reason to use.
+symbols that you have no reason to use.  I have generally removed them
+from the code to reduce the members down to the portable set.
 
 For both ``struct`` and ``subprogram`` definitions you may find that
 the actual :lname:`C` API uses some of these intermediate typedefs
@@ -1236,7 +1358,7 @@ There are two problems here:
 
    That's not too traumatic to fix but you need to be aware of it if
    you choose a Fedora system as the source for your proto-permanent
-   :file:`libc-api.c`.
+   :file:`src/libc-api.c`.
 
 #. unless you make an effort then the typedef for ``pid_t`` itself
    will be nowhere to be found
@@ -1252,6 +1374,9 @@ There are two problems here:
 
    Although, obviously, you won't know that that is required until you
    discover that the expected ``pid_t`` is missing.
+
+   In other words, the creation of :file:`.../ext/libc/src/libc-api.c`
+   could take a couple of iterations around the loop.
 
 Inconsistent API
 ----------------
@@ -1291,11 +1416,12 @@ the object file.
 That means that :program:`idio-c-api-gen` cannot generate any such
 references.
 
-Of course, that's easy enough to fix.  We can declare and use the
-extra symbols, ``st_atime`` etc., and add extra clauses in the
-``struct`` accessor primitives to handle the extra symbols and, of
-course, we can correctly return the value with the constructor
-``idio_libc_time_t``.
+Of course, that's easy enough to fix when we're patching up the
+generated code for other reasons.  We can manually write the code to
+declare and use the extra symbols, ``st_atime`` etc., and add extra
+clauses in the ``struct`` accessor primitives to handle the extra
+symbols and, of course, we can correctly return the value with the
+constructor ``idio_libc_time_t``.
 
 Oddities
 ^^^^^^^^
@@ -1319,13 +1445,13 @@ Evolution
 
 In the first instance, `muggins
 <https://www.lexico.com/definition/muggins>`_, here, wrote the
-``libc`` interfaces by hand in :file:`libc-wrap.c` -- the initial
+``libc`` interfaces by hand in :file:`src/libc-wrap.c` -- the initial
 prompt to look to automate the process as I was getting fed up trying
 to figure out that a ``pid_t`` was on my collection of test systems.
 
 I can then run :program:`idio-c-api-gen` for ``libc`` and take a copy
 of the resultant :file:`libc-api.c` and refashion it to replace the
-interfaces in :file:`libc-wrap.c`.
+interfaces in :file:`src/libc-wrap.c`.
 
 Refashioning for me consisted largely of replacing the likes of
 ``__pid_t`` with ``pid_t`` and query-replacing the interface argument
@@ -1341,15 +1467,16 @@ error tests and something like :manpage:`mkstemp(3)` requires even
 more fiddling to return the open file descriptor and the name of the
 file (from the modified template passed in).
 
-:file:`libc-api.c` requires the definitions in :file:`libc-api.h` to
-build and, once I'd rejigged all the callers -- think all the ``libc``
-interfaces in :file:`job-control.idio` -- :program:`idio` requires the
-definitions in :file:`libc-api.idio` to run.
+Thus :file:`src/libc-api.c` requires the definitions in
+:file:`src/libc-api.h` to build and, once I'd rejigged all the callers
+-- think all the ``libc`` interfaces in :file:`lib/job-control.idio`
+-- :program:`idio` requires the definitions in
+:file:`lib/libc-api.idio` to run.
 
-So, :file:`libc-api.*` are great for me on this box.  But, whilst
-:file:`libc-api.c` has been tweaked to use the nominal :lname:`C` API,
-:file:`libc-api.h` and :file:`libc-api.idio` are full of
-system-specific definitions.
+So, :file:`src/libc-api.*` are great for me on this box.  But, whilst
+:file:`src/libc-api.c` has been manually tweaked to use the nominal
+:lname:`C` API, :file:`src/libc-api.h` and :file:`lib/libc-api.idio`
+are full of system-specific definitions.
 
 I can't check those into source control as they're simply wrong for
 anyone else.
@@ -1359,16 +1486,16 @@ Build Bootstrap II
 
 Well, they're wrong but not *too* wrong which let's us play a trick.
 Let's put a copy of whatever I've generated here, on my dev system, in
-a :file:`build-bootstrap` directory which *all other systems* will use
-to get going.
+a :file:`src/build-bootstrap` directory which *all other systems* will
+use to get going.
 
-We can say that :program:`idio` depends on a locally created
-:file:`libc-api.h` and :file:`libc-api.idio` and have a specific rule
-to create those.
+We can say that :program:`bin/idio` depends on a locally created
+:file:`src/libc-api.h` and :file:`lib/libc-api.idio` and have a
+specific rule to create those.
 
 That specific rule can change the include paths for both the
-:lname:`C` compiler and :program:`idio` such that it uses the
-:file:`build-bootstrap` directories just for long enough to run
+:lname:`C` compiler and :program:`bin/idio` such that it uses the
+:file:`src/build-bootstrap` directories just for long enough to run
 :program:`idio-c-api-gen`.
 
 Compiling this bootstrap version is likely to generate some warnings
@@ -1381,8 +1508,8 @@ generated correct typedef mappings in :file:`libc-api.h` and
 rebuild :program:`idio` because a header file has changed
 (technically, appeared).
 
-:file:`libc-api.c` was refashioned to use the nominal :lname:`C` API
-so requires no adjustment on any other system.
+:file:`src/libc-api.c` was refashioned to use the nominal :lname:`C`
+API so requires no adjustment on any other system.
 
 
 .. include:: ../../commit.rst

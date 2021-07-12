@@ -237,7 +237,7 @@ Operational Behaviour
 The expression ``1 / 0`` will get a little way into some piece of code
 before something realises that the denominator is zero.  That code
 will raise an ``^rt-divide-by-zero-error`` condition and call
-``idio_raise_condition()`` in :file:`vm.c`.
+``idio_raise_condition()`` in :file:`src/vm.c`.
 
 That code will rummage about on the stack looking down the list of
 traps on the stack looking for one which will handle
@@ -463,7 +463,7 @@ Next job, make the simple wrapper use ``prompt-at`` and a standard
 ``trap-return`` which can use that prompt-tag.  OK:
 
 .. code-block:: idio
-   :caption: :file:`delim-control.idio`
+   :caption: :file:`lib/delim-control.idio`
 
    trap-return-tag := make-prompt-tag 'trap-return
    (define-syntax trap-return

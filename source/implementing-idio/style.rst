@@ -66,11 +66,15 @@ itself.  Similarly ``array-set!`` with a whole array?  What is the
 intention, what are you trying to do?
 
 By way of some possibly confusing examples, on the one hand, if we
-want to set a fixed attribute of a compound element then we use the
-former variant, eg. ``set-ph!``.  On the other hand, from the
+want to set a particular attribute of a compound element then we use
+the former variant, eg. ``set-ph!`` because we are setting the
+"entirety" of that attribute.  On the other hand, from the
 :ref:`C-api`, the likes of ``struct-rlimit-set!`` go the other way
 because the function needs to be told which (of several) elements to
 set (like setting an array element).
+
+If we had defined an accessor for *struct rlimit* we might have said
+``set-struct-rlimit-rlim_cur!``, say.  But we haven't, so we can't.
 
 There are, of course, anomalies which could be fixed.  Pairs/lists are
 a case in point.  The constructors are ``pair`` & ``list`` (rather
@@ -99,10 +103,11 @@ There are cases where it is (more) accurate as in
 ``get-output-string`` (to return the contents of a dynamic output
 string).  Here, the string you are given did not exist previously and,
 indeed, if you call it again will return a *different* string (albeit
-the content is the same).  You might argue that it should be
-``return-output-string`` or ``make-output-string`` some other
-imperative verb-noun construction but I think the intention is clear
--- and you *are* getting something that no-one else will!
+the content, the sequence of Unicode code points, is the same).  You
+might argue that it should be ``return-output-string`` or
+``make-output-string`` some other imperative verb-noun construction
+but I think the intention is clear -- and you *are* getting something
+that no-one else will!
 
 .. rst-class:: center
 
@@ -145,6 +150,12 @@ There's a simple fix for that: prefix everything with ``idio_`` or
 
 Actually, that requires a little clarification.
 
+.. sidebox::
+
+   There's a qualification to :lname:`C` macro names in that for the
+   :ref:`C-api` the transposed-from-:lname:`C` names are preserved,
+   case-intact.
+
 I've made all :lname:`C` preprocessor macros have names in upper case.
 That's fairly common.  There are a lot of quite involved macros (for
 me) and so if something is a macro it should stand out:
@@ -163,17 +174,23 @@ depending on how much debugging information is being compiled in.
 
 For local macros you should make the macro name local using the file
 name as an additional prefix plus any suitable functional prefix:
-``IDIO_READ_CHARACTER_SIMPLE`` is a simple value in :file:`read.c`
-used as a flag in the code for inputting characters.
+``IDIO_READ_CHARACTER_SIMPLE`` is a macro value in :file:`src/read.c`
+used as a flag in the code for inputting characters.  In one sense,
+``CHARACTER_SIMPLE`` is the useful macro part and ``IDIO_READ_`` is a
+distinguishing prefix.
 
 All other :lname:`C` names with external linkage should be prefixed
 with ``idio_`` and it should be the case that all :lname:`C` static
 names are too.
 
+.. aside::
+
+   I haven't checked.  I *daren't* check!
+
 Hopefully, the only non-:lname:`Idio`-ified name in the code is
 ``main``.
 
-Lexical names are a bit more problematic.  As a standard lazy
+Lexical (scoped) names are a bit more problematic.  As a standard lazy
 programmer I will use the shortest coherent name that makes sense *in
 context*.  Of course, you only discover how effective that has been
 when you return to the code some time later to be left scratching your
@@ -196,21 +213,25 @@ Here, we should probably use some pseudo-Hungarian notation where
 variant.  I know, though, that I've used ``Ix`` and ``Cx`` and
 elsewhere one variant doesn't use a prefix/suffix and the other does.
 
+This last variant is particularly prevalent where :lname:`C` functions
+are the *primitive* implementations of :lname:`Idio` functions.  The
+:lname:`C` function will take arguments that should be named after the
+nominal :lname:`Idio` argument names.  Here, then, the :lname:`C`
+variant gets the suffix.
+
 I have used ``ci`` for the :lname:`C` value of a "constant index" (or
 index into the table of constants) and ``fci`` for the :lname:`Idio`
 *fixnum* variant.
 
 *Mea culpa.*
 
-We have to be slightly careful as many :lname:`C` functions are the
-*primitive* implementations of :lname:`Idio` functions.  The
-:lname:`C` function will take arguments that should be named after the
-nominal :lname:`Idio` argument names.  That, of course, precludes any
-enforced prefix/suffix notation for both the :lname:`Idio` and
-:lname:`C` variants.
-
 Symbols
 ^^^^^^^
+
+.. aside::
+
+   For a qualified value of standard.  Essentially, the ones I've
+   needed.
 
 All of the standard :lname:`Idio` symbolic names/values are available
 in :lname:`C`.  They are all prefixed ``idio_S_`` with the ``S``
@@ -271,8 +292,11 @@ dramatically differently to mine.  I wouldn't say I find it
 However, some aspects of style represent completeness or thoroughness.
 *Dot the i's and cross the t's.*
 
-Any condition statement should cover all possibilities... including
-the "impossible".
+Any condition or ``switch`` statement should cover all
+possibilities... including the "impossible".  It doesn't take much
+development to perturb the code and find yourself in the impossible
+``default`` clause.  You'll be glad the code frames your issue in
+uncompromising ways.
 
 In other words, every ``if`` should cover the "else" clause and
 :lname:`C`'s ``switch`` should have a ``default`` clause.  Or document
@@ -301,6 +325,10 @@ I've noted elsewhere that, other than functions, I usually have any
        ...
    }
 
+I'm sure plenty of people dislike that :lname:`C` coding style but the
+one-liner nature of :lname:`Idio` means that trailing braces are *de
+règle*.
+
 if
 ^^
 
@@ -328,8 +356,9 @@ will get fixed and the ``default`` clause can go back to wasting space
 until the next developer comes along.
 
 A rare exception is something like the printing of :lname:`C` types in
-:file:`util.c` where there the outer switch allows :lname:`C` types
-into the clause but non inside as the clause is already guarded.
+:file:`src/util.c` where, there, the outer switch only allows :lname:`C`
+types into the clause and therefore there are fewer inside as the
+clause is already guarded.
 
 That said, I've managed to fall foul in forgetting to include one of
 the :lname:`C` types further in...  So, maybe a ``default`` clause
@@ -382,6 +411,8 @@ rule.  Which leads to the following:
        break;
    }
 
+Notice the ``break`` after the ``{`` block.
+
 structs
 ^^^^^^^
 
@@ -420,7 +451,7 @@ elsewhere in the code.
 return
 ^^^^^^
 
-.. sidebox:: Not a promising admission, I know.
+.. aside:: Not a promising admission, I know.
 
 I discovered that I'm not very good at getting things right, either
 the first time or several subsequent times.  Consequently almost all
@@ -486,8 +517,7 @@ of:
 It does require a bit of mental effort and it doesn't scan as well: I
 always have the sense of comparing something that I've just calculated
 to something else which gives the :samp:`{variable} == {constant}`
-thought process but is, of course, one character away from
-embarrassment.
+thought process but is, of course, one character away from disaster.
 
 For some comparisons, notably function calls, I revert to "normal":
 
@@ -498,13 +528,13 @@ For some comparisons, notably function calls, I revert to "normal":
 :lname:`Idio` Style
 -------------------
 
-I've written a putative ``idio-mode.el`` (in :file:`.../utils`) which
-broadly does the right thing.
+I've written a putative ``idio-mode.el`` (in :file:`utils`) for Emacs
+which broadly does the right thing.
 
 The most prominent feature about being right is that the basic indent
 is two spaces.
 
-From what, is another question.
+Indented from what, is another question.
 
 Two spaces, rather than four, because of the
 :lname:`Idio`/:lname:`Scheme` nature of more frequent use of
@@ -522,7 +552,9 @@ indication of the issue with a particular parameter.
 Code Coverage
 =============
 
-.. sidebox:: Swahili for: slowly, gently, be calm, ... 
+.. aside::
+
+   Swahili for: slowly, gently, be calm, ...
 
 *pole pole*
 
@@ -542,7 +574,7 @@ of "tests".
    closing ``}`` of a function as "not run" because of the ``return``
    statement on the previous line.
 
-These test should be identified in the :lname:`C` code base together
+These tests should be identified in the :lname:`C` code base together
 with any explanatory text.
 
 For example, some errors are impossible to generate without breaking

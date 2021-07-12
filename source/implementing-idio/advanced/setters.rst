@@ -135,7 +135,7 @@ procedure, ``p`` -- I'm using "procedure" to mean either a primitive
 or a closure:
 
 .. code-block:: c
-   :caption: :file:`closure.c`
+   :caption: :file:`src/closure.c`
 
    IDIO_DEFINE_PRIMITIVE1_DS ("setter", setter, (IDIO p), ...)
    {
@@ -150,7 +150,7 @@ or a closure:
        return setter;
    }
 
-Reasonably straightforward.  The fun is in :file:`closure.idio`.
+Reasonably straightforward.  The fun is in :file:`lib/closure.idio`.
 
 In the first instance, we'll ask for the "keyword table",
 ``setter-kwt``, for ``setter`` itself and create one if it doesn't
@@ -164,7 +164,7 @@ What is ``setter``?  *Really?* We defined it as a primitive a moment
 ago.
 
 .. code-block:: idio
-   :caption: :file:`closure.idio`
+   :caption: :file:`lib/closure.idio`
 
      setter-kwt := %properties setter
      if (null? setter-kwt) {
@@ -206,7 +206,7 @@ In the :lname:`Scheme`-ish way, we'll do it all in one (and use
 confusing names in place of ``p`` and ``s``):
 
 .. code-block:: idio
-   :caption: :file:`closure.idio`
+   :caption: :file:`lib/closure.idio`
 
      keyword-set! setter-kwt :setter (function (proc setter) {
 					proc-kwt := %properties proc
@@ -221,7 +221,7 @@ confusing names in place of ``p`` and ``s``):
 Not quite done yet.  Let's fill in some standard setters:
 
 .. code-block:: idio
-   :caption: :file:`closure.idio`
+   :caption: :file:`lib/closure.idio`
 
    set! (setter ph)				set-ph!
    set! (setter pt)				set-pt!

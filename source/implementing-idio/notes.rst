@@ -19,6 +19,44 @@ which transform the :lname:`Idio` language into something processable
 by the VM, then a section on garbage collection before the only useful
 part of the whole thing, the different types of values in the system.
 
+Compiling
+=========
+
+I nominally use GCC although FreeBSD and Mac OS X use `Clang
+<https://clang.llvm.org/>`_ with no obvious side-effects.
+
+I have defined the :lname:`C` macro :var:`_GNU_SOURCE`, originally for
+:manpage:`asprintf(3)` on CentOS 6 although, as I wasn't paying
+attention, it has some side-effects.  Some of which we want!
+
+According to :manpage:`feature_test_macros(7)` on Linux, defining
+:var:`_GNU_SOURCE` implicitly defines, amongst several others:
+
+* :var:`_POSIX_C_SOURCE` with the value ``200809L``
+
+* :var:`_XOPEN_SOURCE` with the value ``700``
+
+* :var:`_DEFAULT_SOURCE`
+
+.. aside::
+
+   I should pay more attention!
+
+It is the definition of :var:`_POSIX_C_SOURCE` that exposes
+:manpage:`sigsetjmp(3)` and :manpage:`sigaction(2)`, for example,
+which we use.
+
+.. aside::
+
+   I really should.
+
+Either :var:`_XOPEN_SOURCE` greater than or equal to 500 or
+:var:`_DEFAULT_SOURCE` expose :manpage:`getpwent(3)` which we don't
+currently use but it is quite likely that we will.
+
+Debugging
+=========
+
 Help, in the form of everyone's favourite debugging tool,
 :manpage:`printf(3)`, is at hand.  Once we have the ability to
 construct a string representation of an :lname:`Idio` value it became

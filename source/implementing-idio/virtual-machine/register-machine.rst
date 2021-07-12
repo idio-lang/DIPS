@@ -138,8 +138,8 @@ read the upcoming positive number and, uh, negate it.
 Nominally, we can have up to 256 opcodes -- I've define 150-odd so
 far, several of which aren't used.  Go figure.
 
-These are defined in :file:`vm.h` and look like a rather tedious set
-of variations on a theme, here's a sample:
+These are defined in :file:`src/vm.h` and look like a rather tedious
+set of variations on a theme, here's a sample:
 
 .. code-block:: c
    :caption: vm.h
@@ -164,12 +164,12 @@ of variations on a theme, here's a sample:
 
 which they are.
 
-They are implemented in ``idio_vm_run1()`` in :file:`vm.c` which is an
-enormous ``switch`` statement where, having read in the byte code
-opcode as ``ins`` we can:
+They are implemented in ``idio_vm_run1()`` in :file:`src/vm.c` which
+is an enormous ``switch`` statement where, having read in the byte
+code opcode as ``ins`` we can:
 
 .. code-block:: c
-   :caption: idio_vm_run1() in :file:`vm.c`
+   :caption: idio_vm_run1() in :file:`src/vm.c`
 
    switch (ins) {
    case IDIO_A_SHALLOW_ARGUMENT_REF0:
@@ -233,7 +233,7 @@ and so we have a dedicated opcode for that rather than the generic
 :samp:`SHALLOW-ARGUMENT-REF {j}` with :samp:`{j}` being zero:
 
 .. code-block:: c
-   :caption: idio_vm_run1() in :file:`vm.c`
+   :caption: idio_vm_run1() in :file:`src/vm.c`
 
    case IDIO_A_SHALLOW_ARGUMENT_REF:
        {
@@ -253,7 +253,7 @@ specific tasks then we should consider taking them.
 
 Just to get a feel for those numbers, the current test suite produces
 the following numbers (run a debug build with ``--vm-reports`` and
-look in :file:`vm-perf.log`):
+look in :file:`./vm-perf.log`):
 
 .. csv-table::
    :widths: auto
@@ -289,7 +289,7 @@ quick win if we avoid the rigmarole of creating an argument frame for
 it to be picked apart not long after to call the primitive function.
 
 .. code-block:: c
-   :caption: idio_vm_run1() in :file:`vm.c`
+   :caption: idio_vm_run1() in :file:`src/vm.c`
 
    case IDIO_A_PRIMCALL1_PAIRP:
        {
@@ -321,14 +321,14 @@ So, a couple of steps behind the curve but I think it's OK.
 
 .. aside::
 
-   And :file:`evaluate.idio` couldn't actually test the underlying
+   And :file:`lib/evaluate.idio` couldn't actually test the underlying
    :lname:`C` data structure for a primitive easily anyway but let's
    say it was about the data in three places problem.
 
    Our little secret.
 
 I partly did this because in writing the :lname:`Idio` version of the
-evaluator, :file:`evaluate.idio`, I realised I was now putting the
+evaluator, :file:`lib/evaluate.idio`, I realised I was now putting the
 information about which opcodes were specialised in three places.
 That just compounds the problem.
 
@@ -451,7 +451,7 @@ instructions until we ``FINISH``.
 OK, step back, re-jig things a little, and:
 
 .. code-block:: c
-   :caption: idio_vm_run() in :file:`vm.c`
+   :caption: idio_vm_run() in :file:`src/vm.c`
 
    for (;;) {
        if (idio_vm_run1 (thr)) {
@@ -849,9 +849,9 @@ It's not really useful other than for someone asking, *what's the
 current module?*
 
 There is some standard(-ish) but suitably head-scratchingly
-complicated :lname:`Idio` code mixed across :file:`module.idio` and
-:file:`call-cc.idio` which handles the automatic reversion of the
-sense of the "current module" when the reader hits end of file
+complicated :lname:`Idio` code mixed across :file:`lib/module.idio`
+and :file:`lib/call-cc.idio` which handles the automatic reversion of
+the sense of the "current module" when the reader hits end of file
 (technically, when the ``load`` function completes).
 
 Environment
@@ -988,7 +988,7 @@ and ``unwind-protect``.
 Here, the continuations would be at risk of saving, ready to restore,
 file descriptors that were transiently opened which will get closed in
 the cleanup thunk.  That does happen in ``with-handle-redir`` in
-:file:`job-control.idio` although the problem isn't restricted to
+:file:`lib/job-control.idio` although the problem isn't restricted to
 there, anyone could make the same mistake.
 
 .. include:: ../../commit.rst

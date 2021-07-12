@@ -136,7 +136,7 @@ brings things together.
    can use it:
 
    .. code-block:: c
-      :caption: :file:`symbol.h`
+      :caption: :file:`src/symbol.h`
 
       extern IDIO_SYMBOL_DECL (colon_eq);
 
@@ -146,7 +146,7 @@ brings things together.
 #. we need to repeat the declaration without the ``extern``:
 
    .. code-block:: c
-      :caption: :file:`symbol.c`
+      :caption: :file:`src/symbol.c`
 
       IDIO_SYMBOL_DECL (colon_eq);
 
@@ -155,7 +155,7 @@ brings things together.
 #. we need to assign something to our :lname:`C` variable
 
    .. code-block:: c
-      :caption: :file:`symbol.c`
+      :caption: :file:`src/symbol.c`
 
       void idio_symbol_init ()
       {
@@ -173,7 +173,7 @@ Special Cases
 
 There are a few :lname:`C` versions of symbols which are even more
 fundamental, like ``idio_S_nil``, which are derived from ``#define``\
-s in :file:`idio.h`.
+s in :file:`src/idio.h`.
 
 These are required to exist for :lname:`C` functions to return during
 the construction of other symbols.  We can't allow ourselves to be in
@@ -202,8 +202,8 @@ This is not yet guaranteed safe for Unicode names however they will
 probably work.
 
 The reader has a dual purpose when reading in *words*, see
-``idio_read_word()`` in :file:`read.c`.  Broadly, it will have read in
-bytes until it matches a separator, :kbd:`SPACE` or
+``idio_read_word()`` in :file:`src/read.c`.  Broadly, it will have
+read in bytes until it matches a separator, :kbd:`SPACE` or
 ``\t\n\r()].;`,"``, and then will attempt to convert the word to a
 number.
 

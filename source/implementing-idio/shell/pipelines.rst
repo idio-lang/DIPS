@@ -194,6 +194,25 @@ set ``$pipeline-[rw]-fd`` to the appropriate end of a
 :manpage:`pipe(2)` and assigning ``$pipeline-[wr]-ph`` to a pipe
 handle constructed from the other end to be returned to the caller.
 
+These two meta-commands set the :ref:`asynchronous command
+<asynchronous commands>` flag on the job.
+
+named-pipe-into / named-pipe-from
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If the caller passed ``'named-pipe-into`` or ``'named-pipe-from`` as
+the first argument of the pipeline then ``$pipeline-r-fd`` or
+``$pipeline-w-fd`` will be real pipes and the other ends of these are
+returned as *pathnames*, ``$pipeline-w-ph`` or ``$pipeline-r-ph``, for
+the caller to open and write into and read from the pipeline.
+
+In practice, the same ``$use-w-pipe`` or ``$use-r-pipe`` flag is set
+to ``'named`` and we figure out a system dependent pathname to return.
+See :ref:`Process Substitution`, next, for more details.
+
+These two meta-commands set the :ref:`asynchronous command
+<asynchronous commands>` flag on the job.
+
 .. _`collect-output`:
 
 collect-output
@@ -208,6 +227,9 @@ When we're done with the pipeline, we'll slurp the contents of the
 temporary file back into a string handle then return the string
 contents of the string handle back to the caller.
 
+``collect-output`` is always run as a foreground command -- we're
+waiting for the results before we can continue, after all!
+
 time
 ^^^^
 
@@ -219,6 +241,40 @@ The ``time`` meta-command sets a ``report-timing`` flag which is
 tested by ``wait-for-job`` which can report much like :lname:`Bash`'s
 ``time`` prefix.
 
+I use ``time`` in :lname:`Bash` all the, er, time although it wasn't
+until I added this meta-command that I came to realise that it's not
+all it's cracked up to be.
+
+The problem is that :manpage:`getrusage(2)`'s ``RUSAGE_CHILDREN``
+represents all descendent processes that have terminated and been
+waited on.  (It does not include any not yet terminated and waited on
+descendents.)
+
+So, here at least, we assume it was the job we just ran but maybe it
+was also the other jobs that just finished and ``wait-for-job`` has
+run for off the back of a ``SIGCHLD``:
+
+    Return resource usage statistics for all children of the calling
+    process that have terminated and been waited for.
+
+    --- :manpage:`getrusage(2)`
+
+*We're* the calling process and we've *lots* of children.  Hmm.
+
+I dunno.  I guess if you're pretty confident that you only had one
+thing running (and now completed) then this usage is probably fairly
+accurate.
+
+If you'd fired off a dozen jobs in the background that completed
+whilst this job was running then you can be less confident (as can
+``wait-for-job`` if it is reporting on those jobs).
+
+On the plus side, ``tv-real`` (the elapsed real time) should be
+accurate.  Erm, except that the *end* time is dependent on when
+``wait-for-job`` wakes up.
+
+So, use it as a hand-wavy, *about this much* time.
+
 Meta-Command Preferences
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -226,9 +282,17 @@ The meta-commands are utilised in the following order (in order words,
 if you have set two conflicting meta-commands then the first listed is
 used):
 
+#. ``named-pipe-into``
+
+   returning a pathname
+
 #. ``pipe-into``
 
    returning an output pipe handle
+
+#. ``named-pipe-from``
+
+   returning a pathname
 
 #. ``pipe-from``
 
@@ -248,6 +312,82 @@ used):
 #. ``bg-job``
 
    returning ``#t``
+
+Further Meta-Commands
+^^^^^^^^^^^^^^^^^^^^^
+
+With these sorts of options to hand we can start to imagine some more
+exotic forms.
+
+Suppose we wanted to return a named-pipe pathname to a command and yet
+retain control over what is written by also getting the other end of
+the pipe returned to us?
+
+You can imagine a sort of:
+
+.. code-block:: bash
+
+   diff file <( ... )
+
+where, instead of ``...`` being an asynchronous command, *we* somehow
+get an output pipe handle to give :program:`diff` some input through
+the named pipe of that second argument.
+
+Well, we can't return two things and certainly not to two different
+people but maybe there's a trick we can pull?
+
+Suppose we passed a function expecting a single argument, the putative
+output pipe handle as ``...``?  Under those circumstances, the code
+could detect that the value passed was a function and call it with the
+appropriate end of the pipe.
+
+The function would be expected to assign the value to a variable in
+scope, a trick with "private variables" we've played before.
+
+The meta-command code can continue on and return the named pipe as an
+argument to the command as it would have done normally.
+
+At this point however, we get a disturbance in the force.
+:program:`diff` wants to run in the foreground reading from
+:file:`/dev/fd/X` or whatever as it would have done normally and *we*
+now want to run in the foreground in order to supply :program:`diff`
+with some input.
+
+.. aside::
+
+   And perhaps :program:`diff` wasn't the best example.
+
+One or other is going to have to be run the in the background which is
+going to be problematic if whichever wants to write to the terminal.
+Let's go with the command being run in the background -- a complete
+*volte-face* from previous behaviour -- but we are doing something
+exotic!
+
+You can imagine something like:
+
+.. code-block:: idio
+
+   oph := #f
+
+   define (set-oph ph) {
+     oph = ph
+   }
+
+   diff file <( set-opf )
+
+   hprintf oph "hello\n"
+
+   close-handle oph
+
+Now we have to wait for and get the exit status of :program:`diff` --
+assuming it hasn't been stopped for trying to write to the terminal.
+
+This mechanism is not too far fetched from the various "Coprocess"
+facilities from newer :lname:`Bash`'s and :lname:`Ksh` although we are
+retaining a connection with a specific argument in the command's
+arguments.
+
+Coprocesses themselves should be equally feasible.
 
 Simple Commands
 ---------------
@@ -287,6 +427,33 @@ stopped jobs: you can follow *exit_shell()* in :file:`shell.c` to
 *end_job_control()* in :file:`jobs.c` to *terminate_stopped_jobs()*.
 
 Of course that means that any backgrounded not-stopped jobs continue.
+
+    .. aside::
+
+       It felt like the old `Alexei Sayle
+       <http://www.alexeisayle.me/>`_ gag where he notes that the
+       capacity of the mind is finite and when you're walking down the
+       street and someone tells you a new fact you forget how to walk.
+
+    When I typed that, I'll be honest, I had a mental panic thinking,
+    "What a *disaster*!  Are we not in control?" as I'd not thought
+    about the functionality using that expression and `couldn't see
+    the wood for the trees
+    <https://www.collinsdictionary.com/dictionary/english/cant-see-the-wood-for-the-trees>`_.
+
+    Of course, running commands in the background is the very
+    *essence* of most initialisation scripts.  Their only purpose is
+    to prepare the ground for the daemon to be kicked off then exit
+    themselves.
+
+    Of course, with our `systemd
+    <https://www.freedesktop.org/wiki/Software/systemd/>`_ hats on,
+    there's a preference for initialisation scripts to **not** run
+    daemons in the background so as :program:`systemd` can better keep
+    an eye on them.
+
+In addition the system will terminate any outstanding
+:ref:`asynchronous commands`.
 
 HUPing
 ======
