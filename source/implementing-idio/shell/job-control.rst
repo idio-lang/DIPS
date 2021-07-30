@@ -310,5 +310,40 @@ the nominal "foreground" job for interactive and non-interactive cases
 leaving a "background" job to be left to run in the background in the
 expected way.
 
+Forking Hell
+============
+
+*[ Surely no-one, documenting a shell, can resist that title?  I know I can't! ]*
+
+Most of the time we're merrily launching *jobs* and, by and large, we
+collect them all up again.
+
+However, we have released :manpage:`fork(2)` upon our suspecting
+public and things can go subtly wrong.
+
+Here's the problem.  If I, independently from :lname:`Idio`'s official
+*Job Control* mechanisms, fork and exec stuff then :lname:`Idio`
+doesn't know anything about it.  I might fork a sub-:lname:`Idio`, let
+it do its thing and then in the parent :lname:`Idio` call
+:manpage:`waitpid(2)` with the child PID I just forked.
+
+Surprisingly (to me) this works without an issue rather a lot of the
+time but doesn't always.  Sometimes ``libc/waitpid`` fails because
+there is "no child PID."  *Spooky!*
+
+The problem is that :lname:`Idio` gets a signal that a child has died
+and starts reaping PIDs.  All of them that have died.  Normally these
+are elements of a job and the job gets updated by
+``mark-process-status``.
+
+If those include your independent PID then... well, :lname:`Idio`
+doesn't know anything about it.  All it can do is shovel it in a table
+of "stray" PIDs.
+
+We can now have ``libc/waitpid`` do some checking.  If the system
+called failed and the error was ECHILD then we'll take a look in the
+table of stray PIDs and pluck the stashed results out of there.
+Otherwise we'll return the previous stock answer of ``(0, #n)``.
+
 .. include:: ../../commit.rst
 

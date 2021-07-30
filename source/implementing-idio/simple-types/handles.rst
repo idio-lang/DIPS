@@ -395,6 +395,32 @@ We will have the usual sort of library search list environment
 variable, cleverly called ``IDIOLIB``.  When a user *loads* a library
 file we need to find it.
 
+.. note::
+
+   Before I read of `an issue with systemd
+   <https://news.ycombinator.com/item?id=27893181>`_ I had some
+   preconceived notions about ``PATH_MAX``.
+
+   I still do, but hopefully fewer incorrect ones.  If I understand
+   things correctly then ``PATH_MAX`` is a (:lname:`glibc`?)
+   constraint on user-supplied pathnames (as distinct from filenames
+   in directory entries) but is not a constraint on the pathnames
+   retrievable from the filesystem.
+
+   Causing a bit more fun, ``PATH_MAX`` is probably, in reality,
+   filesystem-dependent, see :manpage:`pathconf(3)`, and may return a
+   very large number indeed with the suggestion being there is no
+   limit in the general case.
+
+   As to how to :manpage:`open(2)` a file that has a pathname more
+   than ``PATH_MAX - 1`` bytes you'll need to refactor the original
+   pathname into leading directory segments, each up up to
+   ``PATH_MAX - 1`` bytes, and make repeated calls to
+   :manpage:`openat(2)`.
+
+   There is a similar note in "APPLICATION USAGE" in
+   :manpage:`pwd(1p)`.
+
 Most of that work is delegated to ``idio_libfile_find_C(char *file)``
 which potters about worrying about:
 

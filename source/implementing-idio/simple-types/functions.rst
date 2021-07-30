@@ -793,6 +793,74 @@ When we come to *run* the closure, the closure value has had
 ``#5`` -- the definition of :samp:`{z}` -- because it has a ``RETURN``
 statement stamped on the end.
 
+Local Assignments
+=================
+
+We saw in :ref:`scheme-let` how ``let`` statements can be transformed
+into closed function calls.  *Woo!*  Great *Art* is being made.
+
+Except it's pretty inefficient.  Every function call requires some
+saving and restoration of the current state, the creation of and
+assignment to a frame and the closed function call itself.
+
+For *every* "local" variable.  It doesn't look pretty.
+
+So I've created a Bit of a Hack™.  The goal is to say that, where we
+are creating a "local" variable in the context of a function body,
+then do a bit of shuffling so that the variable is treated like an
+extra, unseen parameter to the function:
+
+.. code-block:: idio
+
+   define (foo a) {
+      b := 1
+      a + 1
+   }
+
+will have had created a *frame* for ``a`` and space for the
+not-necessarily-used varargs -- which we'll call :samp:`{v}`: ``#[ *a*
+*v* ]``.  We know that access to ``a`` is made with efficient
+``SHALLOW-ARGUMENT-REF0``-style calls in the VM.
+
+When we see ``b`` being defined in the context of a function body
+then:
+
+* extend the list of names in the *nametree* for this level with ``b``
+  -- we'll need to insert a dummy name, ``#f`` for the varargs
+  argument otherwise we'll get an off-by-one error.
+
+* we'll extend the *frame* with a slot for ``b``, ``#[ *a* *v* *b* ]``
+
+* and set that slot with a ``SHALLOW-ARGUMENT-SET2``
+
+and then carry on with further references to ``b`` now being to the
+otherwise unknown parameter ``b`` in slot #2 of the frame.
+
+As we've updated the *nametree* then any enclosed blocks which make
+reference to ``b`` will successfully find it and reference with
+:samp:`DEEP-ARGUMENT-REF {i} 2` as appropriate.
+
+Top-Level Block
+---------------
+
+In the case of a top-level block such as:
+
+.. code-block:: idio
+
+   {
+     a := 1
+     b := 2
+     a + b
+   }
+
+there is no enclosing function body for the definition of ``a`` so we
+have to revert to the previously described :ref:`scheme-let`
+mechanism.
+
+The defintion of ``b``, however, is now inside a function body,
+created by the implied ``let`` and so ``b`` can be handled as a local
+assignment.
+
 Operations
 ==========
 

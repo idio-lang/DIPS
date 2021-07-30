@@ -40,6 +40,12 @@ job.
    It's not like *I* know what I'm doing, I'm just following the other
    guy.
 
+.. aside::
+
+   Well, imagine it *was* all reasonably one-for-one until someone
+   came along and started "adding value."  We all know how that ends
+   up.
+
 That's a given, right?  If not, read the :program:`info` pages,
 realise that's there's nothing too surprising other than how
 straight-forward it is and then read the code for ``fork-command`` in
@@ -186,16 +192,32 @@ pipe-into / pipe-from
 If the caller passed ``'pipe-into`` or ``'pipe-from`` as the first
 argument of the pipeline then ``$pipeline-r-fd`` or ``$pipeline-w-fd``
 will be real pipes and the other ends of these are returned as pipe
-handles, ``$pipeline-w-ph`` or ``$pipeline-r-ph``, for the caller to
+handles, ``$pipeline-w-phn`` or ``$pipeline-r-phn``, for the caller to
 write into and read from the pipeline.
 
 In practice, a ``$use-w-pipe`` or ``$use-r-pipe`` flag is set and we
 set ``$pipeline-[rw]-fd`` to the appropriate end of a
-:manpage:`pipe(2)` and assigning ``$pipeline-[wr]-ph`` to a pipe
+:manpage:`pipe(2)` and assigning ``$pipeline-[wr]-phn`` to a pipe
 handle constructed from the other end to be returned to the caller.
 
 These two meta-commands set the :ref:`asynchronous command
 <asynchronous commands>` flag on the job.
+
+As reasonable analogy would be something like ``"|cmd args"`` or
+``"cmd args|"`` in :lname:`Perl`.  The second case is anathema to us
+as the syntactic distinguisher, the ``|"``, is at the end of the
+expression.  That breaks our *cmd args* model.
+
+I don't have a particularly good answer for that.  Maybe we need the
+reader to support:
+
+.. csv-table::
+   :widths: auto
+
+   ``|``, a regular pipe
+   ``|>{...}`` ``|>(...)``, syntactic sugar for ``pipe-into``
+   ``|<{...}`` ``|<(...)``, syntactic sugar for ``pipe-from``
+   ``||``, *reserved*
 
 named-pipe-into / named-pipe-from
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -203,15 +225,41 @@ named-pipe-into / named-pipe-from
 If the caller passed ``'named-pipe-into`` or ``'named-pipe-from`` as
 the first argument of the pipeline then ``$pipeline-r-fd`` or
 ``$pipeline-w-fd`` will be real pipes and the other ends of these are
-returned as *pathnames*, ``$pipeline-w-ph`` or ``$pipeline-r-ph``, for
-the caller to open and write into and read from the pipeline.
+returned as *pathnames*, ``$pipeline-w-phn`` or ``$pipeline-r-phn``,
+for the caller to open and write into and read from the pipeline.
 
 In practice, the same ``$use-w-pipe`` or ``$use-r-pipe`` flag is set
 to ``'named`` and we figure out a system dependent pathname to return.
-See :ref:`Process Substitution`, next, for more details.
+See the section on :ref:`Process Substitution` for more details.
 
 These two meta-commands set the :ref:`asynchronous command
 <asynchronous commands>` flag on the job.
+
+Following the above reader forms, perhaps:
+
+.. csv-table::
+   :widths: auto
+
+   ``>{...}`` ``>(...)``, syntactic sugar for ``named-pipe-into``
+   ``<{...}`` ``<(...)``, syntactic sugar for ``named-pipe-from``
+
+These reader forms clearly only differ by a leading ``|`` symbol from
+their non-*named* variants.  Not much.
+
+.. aside::
+
+   I see that we `SVO speakers
+   <https://en.wikipedia.org/wiki/Subject%E2%80%93verb%E2%80%93object>`_
+   are not in the majority.  So I apologise for my assumptions about
+   how easily some constructions may scan.  I'm not about to change my
+   mind, though.
+
+   Not for *that* reason, anyway.
+
+I don't feel too bad about that, though.  This form, the *named* form,
+implementing *Process Substitution*, is clearly a match for the
+:lname:`Bash`-style for *Process Substitution*.  The non-*named*
+variant has a visual mnemonic: ``|>``, I feel, says *pipe into*.
 
 .. _`collect-output`:
 
@@ -230,6 +278,9 @@ contents of the string handle back to the caller.
 ``collect-output`` is always run as a foreground command -- we're
 waiting for the results before we can continue, after all!
 
+This meta-command sets the :ref:`asynchronous command <asynchronous
+commands>` flag on the job.
+
 time
 ^^^^
 
@@ -240,6 +291,17 @@ All jobs have start and end statistics recorded including
 The ``time`` meta-command sets a ``report-timing`` flag which is
 tested by ``wait-for-job`` which can report much like :lname:`Bash`'s
 ``time`` prefix.
+
+.. aside::
+
+   I *think* this helps me subconsciously get a feel for how long
+   things should take and therefore raise a subconscious alert that
+   things aren't quite going right.
+
+   Or I have an undiagnosed psychological disorder.  Which is fine.
+   Timing things doesn't hurt anyone, right?
+
+   (You're taking a long time to answer that...)
 
 I use ``time`` in :lname:`Bash` all the, er, time although it wasn't
 until I added this meta-command that I came to realise that it's not
@@ -336,8 +398,8 @@ the named pipe of that second argument.
 Well, we can't return two things and certainly not to two different
 people but maybe there's a trick we can pull?
 
-Suppose we passed a function expecting a single argument, the putative
-output pipe handle as ``...``?  Under those circumstances, the code
+Suppose we passed a function expecting a single argument (the putative
+output pipe handle) as ``...``?  Under those circumstances, the code
 could detect that the value passed was a function and call it with the
 appropriate end of the pipe.
 
@@ -349,9 +411,9 @@ argument to the command as it would have done normally.
 
 At this point however, we get a disturbance in the force.
 :program:`diff` wants to run in the foreground reading from
-:file:`/dev/fd/X` or whatever as it would have done normally and *we*
-now want to run in the foreground in order to supply :program:`diff`
-with some input.
+:file:`/dev/fd/{X}` or whatever as it would have done normally and
+*we* now want to run in the foreground in order to supply
+:program:`diff` with some input.
 
 .. aside::
 
@@ -388,6 +450,66 @@ retaining a connection with a specific argument in the command's
 arguments.
 
 Coprocesses themselves should be equally feasible.
+
+Asynchronous Command House-Keeping
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+There's a tiny bit more annoyance with asynchronous commands, in
+particular with the pipe we create to pass data into or out of the
+asynchronous command.
+
+This is going to get messy so let's take an example and work it
+through:
+
+.. code-block:: idio
+
+   oph := pipe-into {
+     cat > file
+     do something else
+   }
+
+We obviously create the connectivity pipe in the parent :lname:`Idio`
+as it is that parent which is going to utilise the pipe (even if that
+is just giving the pipe (handle or name) to someone else, it, the
+parent, needs the one end).  Here, the parent wants the *write end* of
+the connectivity pipe and will return an output pipe handle for the
+user to write into.
+
+We now :manpage:`fork(2)` a sub-:lname:`Idio` to run through the
+asynchronous command itself.  It will dutifully remap its own *stdin*
+or *stdout* according to the asynchronous connectivity and close the
+corresponding read or write end of the pipe.  So, here, the
+sub-:lname:`Idio` will :manpage:`dup2(2)` the *read end* of the
+connectivity pipe to *stdin* for the asynchronous commands and will
+:manpage:`close(2)` the original connectivity pipe file descriptor
+(10, or whatever, who cares?).
+
+We now run the asynchronous commands.  :program:`cat` will read its
+*stdin* and print the contents to *stdout* which we happen to have
+redirected to :file:`file`.
+
+But wait, :program:`cat` hangs.  What's going on?  Well,
+:program:`cat` reads from its *stdin* until it gets an *EOF*.  If we
+:program:`strace` it we see it happily blocked reading from file
+descriptor 0.  "ENOEOF" -- if we could make up new error codes.
+
+The problem, here, is that :program:`cat`'s *stdin* is a pipe and the
+problem with pipes is that they remain open, without an EOF indicator,
+whilst anyone still holds a *write end* open.
+
+That's where we've made our mistake.  The parent :lname:`Idio` has the
+write end open -- otherwise we're not going to do much "piping into"
+-- and then we *forked*.  The sub-:lname:`Idio` *also* has the write
+end open.  In fact, if you nose around carefully, :program:`cat` has
+the write end open too as it was forked from the sub-:lname:`Idio`.
+*D'oh!*
+
+So, our extra bit of house-keeping for asynchronous commands is to
+ensure that the sub-:lname:`Idio` closes down the other end of the
+connectivity pipe from the one it needs.  Or, another way of
+describing it, is that the sub-:lname:`Idio` needs to close the end of
+the connectivity pipe that the parent :lname:`Idio` will be keeping
+open.
 
 Simple Commands
 ---------------
