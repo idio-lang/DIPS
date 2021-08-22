@@ -350,6 +350,10 @@ available to us.
    `Virtual Address space
    <https://en.wikipedia.org/wiki/X86-64#Virtual_address_space_details>`_.
 
+   Although I see Linux now supports ARM64's `Memory Tagging Extension
+   <https://lwn.net/Articles/834289/>`_ which precludes the use of
+   bits 59-56.
+
 Other processes are using memory, including us, so we'll aim a bit
 lower.  Any number which generates an allocation over 4GB is good
 enough as it demonstrates 64-bit handling and we're in no position to

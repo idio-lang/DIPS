@@ -1219,15 +1219,15 @@ say, ``libc``.  It then seeks out an :file:`.../ext/libc` directory
 where :file:`.../ext` is derived from possible directories called
 :file:`.../lib` in :envvar:`IDIOLIB`.
 
-It then looks for :file:`.../ext/libc/src/libc-api.c` and compiles it
-into :file:`.../ext/libc/src/libc-api.o` using the local
+It then looks for :file:`.../ext/libc/api/libc-api.c` and compiles it
+into :file:`.../ext/libc/api/libc-api.o` using the local
 :file:`Makefile`.
 
 It then runs :program:`objdump` on that :file:`.o` file and starts
 generating output in :file:`.../ext/libc/gen`:
 
-* :file:`libc-api.c` (unfortunate name clash with the original source
-  file)
+* :file:`gen/libc-api.c` (unfortunate name clash with the original
+  source file)
 
   This :lname:`C` source file contains:
 
@@ -1268,7 +1268,7 @@ generating output in :file:`.../ext/libc/gen`:
     * the corresponding ``idio_CSI_`` definition for the ``struct``
       itself
 
-* :file:`libc-api.h`
+* :file:`gen/libc-api.h`
 
   This :lname:`C` header file contains:
 
@@ -1284,9 +1284,10 @@ generating output in :file:`.../ext/libc/gen`:
 
     * a predicate
 
-  - declarations for the ``struct`` definitions in :file:`libc-api.c`
+  - declarations for the ``struct`` definitions in
+    :file:`gen/libc-api.c`
 
-* :file:`libc-api.idio`
+* :file:`gen/libc-api.idio`
 
   This :lname:`Idio` source file contains:
 
@@ -1300,7 +1301,7 @@ generating output in :file:`.../ext/libc/gen`:
 
   - the setup for some :ref:`setters`
 
-* :file:`test-libc-error.idio`
+* :file:`gen/test-libc-error.idio`
 
   This :lname:`Idio` source file contains a reasonable attempt at a
   test suite based on the known type and value tests that can be
@@ -1310,7 +1311,7 @@ generating output in :file:`.../ext/libc/gen`:
   It should be able to alert when a test fails to generate the
   expected error but do not rely on this.
 
-* :file:`libc-errors/*`
+* :file:`gen/libc-errors/*`
 
   This directory contains putative instances of all the test cases
   described above.
@@ -1353,7 +1354,7 @@ where the nominal :lname:`C` API thinks a ``pid_t`` should be used.
 
 There are two problems here:
 
-#. the generated :file:`libc-api.c` will be using ``__pid_t``,
+#. the generated :file:`gen/libc-api.c` will be using ``__pid_t``,
    eg. ``IDIO_USER_libc_TYPE_ASSERT (__pid_t, arg1);``
 
    That's not too traumatic to fix but you need to be aware of it if
@@ -1375,7 +1376,7 @@ There are two problems here:
    Although, obviously, you won't know that that is required until you
    discover that the expected ``pid_t`` is missing.
 
-   In other words, the creation of :file:`.../ext/libc/src/libc-api.c`
+   In other words, the creation of :file:`.../ext/libc/gen/libc-api.c`
    could take a couple of iterations around the loop.
 
 Inconsistent API
@@ -1450,8 +1451,8 @@ prompt to look to automate the process as I was getting fed up trying
 to figure out that a ``pid_t`` was on my collection of test systems.
 
 I can then run :program:`idio-c-api-gen` for ``libc`` and take a copy
-of the resultant :file:`libc-api.c` and refashion it to replace the
-interfaces in :file:`src/libc-wrap.c`.
+of the resultant :file:`gen/libc-api.c` and refashion it to replace
+the interfaces in :file:`src/libc-wrap.c`.
 
 Refashioning for me consisted largely of replacing the likes of
 ``__pid_t`` with ``pid_t`` and query-replacing the interface argument
@@ -1503,9 +1504,9 @@ about overflow and implicit constant conversions and others.  We care
 deeply about this and... *Look! A squirrel!*
 
 Having run :program:`idio-c-api-gen` on this system we will have
-generated correct typedef mappings in :file:`libc-api.h` and
-:file:`libc-api.idio` and :program:`make` should convince itself to
-rebuild :program:`idio` because a header file has changed
+generated correct typedef mappings in :file:`src/libc-api.h` and
+:file:`lib/libc-api.idio` and :program:`make` should convince itself
+to rebuild :program:`idio` because a header file has changed
 (technically, appeared).
 
 :file:`src/libc-api.c` was refashioned to use the nominal :lname:`C`
