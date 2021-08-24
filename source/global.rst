@@ -43,6 +43,7 @@
 .. _PowerShell: https://docs.microsoft.com/en-us/powershell/
 .. _Qish: http://www.starynkevitch.net/Basile/qishintro.html
 .. _RFC1918: https://tools.ietf.org/html/rfc1918
+.. _RFC8259: https://tools.ietf.org/html/rfc8259
 .. _Readline: https://tiswww.case.edu/php/chet/readline/rltop.html
 .. _SBCL: http://www.sbcl.org/
 .. _SQLite: https://www.sqlite.org/index.html

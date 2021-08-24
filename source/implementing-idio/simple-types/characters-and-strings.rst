@@ -691,6 +691,14 @@ To read in UTF-8 we use :ref-author:`Bjoern Hoehrmann`'s
 :ref-title:`Flexible and Economical UTF-8 Decoder` :cite:`BH-UTF-8`, a
 DFA-based decoder.
 
+Categories and Properties
+-------------------------
+
+Whilst looking for a :ref:`JSON5 extension` library I stumbled across
+Simon Schoenenberger's `Unicode character lookup table work
+<https://github.com/detomon/unicode-table>`_ which I have re-imagined
+as :ref:`USI`.
+
 Reading
 -------
 

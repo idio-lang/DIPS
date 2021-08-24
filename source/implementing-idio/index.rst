@@ -35,6 +35,7 @@ straight in.
    compound-types/index
    shell/index
    advanced/index
+   extensions/index
 
 .. include:: ../commit.rst
 

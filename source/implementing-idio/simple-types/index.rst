@@ -18,6 +18,7 @@ simple types.
 
    numbers-and-constants
    characters-and-strings
+   USI
    symbols-and-keywords
    bignums
    handles
