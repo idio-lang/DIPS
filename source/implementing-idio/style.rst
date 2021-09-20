@@ -583,5 +583,240 @@ the calling code as they fall in the ``default`` clause of a
 be documented as "impossible" but the error raising code should
 remain.  A developer *will* fall into it.
 
+.. _`version numbers`:
+
+Version Numbers
+===============
+
+Version numbers are particularly vexing.  I'm not sure I like *any* of
+the `existing popular systems
+<https://en.wikipedia.org/wiki/Software_versioning>`_.
+
+Of course, :lname:`Python` has `PEP 440 -- Version Identification and
+Dependency Specification <https://www.python.org/dev/peps/pep-0440/>`_
+which states that the canonical public version identifiers MUST comply
+with:
+
+    ``[N!]N(.N)*[{a|b|rc}N][.postN][.devN]``
+
+which, to be positive about it, only has the four optional parts.
+
+The one thing I especially don't like about the ``[{a|b|rc}N]``
+element is that it goes missing when the code is released, or,
+possibly, the ``.rc3`` is replaced with a ``.0`` for some ``N(.N*)``
+prefix.  (It's not especially clear how they are meant to interact
+before you even worry about alphabetics in a version number.)
+
+That strikes me as something hard to rationalise, especially when
+you're trying to sort version numbers.  You could argue that sorting
+alphabetic version numbers isn't a problem except for development
+teams by which you mean it is a problem just not for some people.  The
+problem needs, *\*ahem\**, sorting so why not go all in?
+
+.. sidebox::
+
+   A numeric status scheme means that the alpha and beta stages
+   consume ``.0`` and ``.1`` and, via the release candidate, the
+   actual release gets a ``.3`` (or later) suffix.
+
+   ``M.N.3`` suggests a maturity the software probably doesn't have
+   for a general access release.
+
+If you're going to step away from a pure *Numeric status* then why not
+allow the full sequence ``a``, ``b``, ``c`` ... to give the developers
+some flexibility before jumping to ``r`` (for release candidate) and
+settling on ``s`` (for stable, say)?  You can even have ``t`` versions
+and beyond should circumstances require.
+
+This would have the (stable) release as, say, ``M.N.s.0`` -- a
+reworking of the final release candidate, some ``M.N.r.3``, say.
+
+I can see detractors declaiming that ``.s`` serves no purpose as it is
+(almost certainly) unchanging from here on in.  *Meh!* It would appear
+to be redundant to users but so is the trailing :samp:`.{n}` as, in
+the modern age, no user has any control over it.  It will be updated
+automatically by the operating system or an administrator.
+
+In the rare occasions a user updates a piece of software themselves
+they'll simply be picking the latest bits they can or, following
+advice, a specific version.  No-one cares about the sub-version
+numbers.
+
+Automated systems determining the latest version will simply sort the
+components.
+
+In the meanwhile, developers are free to work their way through
+:samp:`M.N.a.{n1}` through :samp:`M.N.c.{n2}`, say, before finally
+suggesting there's something worth the braver user experiencing with
+:samp:`M.N.r.{n3}`.
+
+.. aside::
+
+   I admit I had to double check the `Greek alphabet
+   <https://en.wikipedia.org/wiki/Greek_alphabet>`_ as, in the
+   peculiar way of these things, we tend to use the romanised names of
+   Greek letters ("alpha" vs. "άλφα")!
+
+In the modern age I'd like to use ``α`` (alpha), ``β`` (beta), ``γ``
+(gamma) ... through ``ρ`` (rho) and ``σ`` (sigma) with possibilities
+for ``τ`` etc. but I imagine that we'd hiccup over storing the version
+numbers in filenames in some filesystems in a way that we could
+reliably sort them.
+
+.. rst-class:: center
+
+   \*
+
+.. sidebox::
+
+   OpenIndiana exercises a different scheme, this is SunOS in all its
+   glory.
+
+Exciting(?) alternatives might include the version numbers in Solaris
+`Fault Management Resource Identifier
+<https://docs.oracle.com/cd/E36784_01/html/E36802/fmri.html>`_ such as
+the FMRI:
+
+    .. rst-class:: smaller
+
+       ``pkg://solaris/system/library@0.5.11,5.11-0.175.1.0.0.2.1:20120919T082311Z``
+
+which has the version number
+``0.5.11,5.11-0.175.1.0.0.2.1:20120919T082311Z``.
+
+That is clearly and obviously:
+
+* ``0.5.11``, the component version -- which might use (as this
+  example does) ``uname -r`` for operating system components or some
+  dotted release number for non-OS-tied components
+
+* ``5.11``, the build version, ``uname -r`` (again)
+
+* ``0.175.1.0.0.2.1``, the branch version which itself is:
+
+  * ``0.175``, the major release number with, here, ``0.175`` meaning Oracle Solaris 11
+
+  * ``1``, the update release number with ``0`` being the first customer shipment
+
+  * ``0``, the Support Repository Update (SRU) number (bug fixes to paying customers)
+
+  * ``0``, reserved
+
+  * ``2``, the SRU build number (or re-spin number for a major release)
+
+  * ``1``, the nightly build number
+
+* ``20120919T082311Z`` a timestamp, in the ISO-8601 style.
+
+.. aside::
+
+   *Yes?*
+
+Is that too much?
+
+.. rst-class:: center
+
+   \*
+
+*CalVer*, or Calendar Versioning, uses the date in some way.  With a
+sysadmin hat on you'd name accumulated (log, backup, whatever) files
+with ``YYYYMMDD[-HHMMSS]`` extensions so that some lexicographical
+sorting by :program:`ls` or ``*`` in the shell gets you an easily
+time-sorted list.
+
+It also includes the Ubuntu-style release numbers ``18.04`` (2018,
+April) which CentOS 7 picked up on.
+
+I quite like a datestamp, possibly replacing a build or patch number,
+although, in practice, you'd need a DNS-serial number-style revision
+component ``YYYYMMDDREV`` to handle multiple patches per day.  After
+all, if you can commit multiple changes per day your automated CI/CD
+system will want automated release numbers per day.
+
+Using a timestamp looks a bit more clumsy although, most of the time,
+it would avoid the revision component (but not guaranteed to do so).
+
+Sorting
+-------
+
+Sorting version numbers has been noted above and is a minefield.  The
+easier you can make it, the better.
+
+That said, one persistent problem is people using a lexicographical
+sort on numeric fields.  No, ``1.12`` is not "less than" ``1.2``.
+*Stupid machine!*
+
+On the other hand, if you suggest a simple mechanism where you sort
+fields numerically unless a field has an alphabetic then you sort
+lexicographically then you bump up against the ``M.N.0`` vs
+``M.N.rc1`` problem.  That's partly what puts me in favour of *always*
+having that alphabetic field, :samp:`M.N.s.{n}` will always sort after
+:samp:`M.N.r.{n}`.
+
+Marketing
+---------
+
+A few people care about complete version numbers but most people are
+satisfied with the headline, "marketing" version number.
+
+:lname:`Python` is mostly Python 2 or Python 3.  I haven't cared
+particularly whether it is Python 3.6 or Python 3.9 but more people
+will as the chances are there's some useful functional changes between
+them where it matters which one you have.
+
+.. aside::
+
+   They should have called it `Bruce
+   <https://en.wikipedia.org/wiki/Bruces_sketch>`_ if they really
+   wanted to avoid confusion.
+
+Similarly with :lname:`Perl`.  I dabbled a little with Perl 4 before
+Perl 5 became the norm.  Perl 6 did appear on the scene but has been
+renamed Raku to avoid confusion.  In the meanwhile, Perl 5 is Perl
+5.10-something, probably.  I don't know, I don't care.
+
+The lack of concern on my part reflects that the minor changes between
+releases by and large don't break changes in user code and that
+includes extensions using shared libraries.
+
+Ubuntu's CalVer numbering works well from a marketing point of view,
+particularly their :abbr:`LTS (Long-Term Support)` releases.  People
+will describe 18.04 or 20.04 systems rather than the more exact
+18.04.5 or 20.04.3.
+
+A variation on the marketing theme is when the major version number is
+likely to be unchanging then it gets dropped.  Solaris 11 is Solaris
+5.11.  Java 8 is Java 1.8.  (Both these examples are Sun/Oracle --
+maybe not a consistent theme across the industry).
+
+Microsoft did use tradition numbering for Windows 1.0 through 3.x,
+dropped that for the year oriented releases 95 (actually v4.0), 98
+(v4.10) and 2000 (v5.0) then named releases ME (v4.90), XP (v5.1),
+Vista (v6.0) and NT (?) and then came back with numbers for 7 (v6.1),
+8 (v6.2), 8.1 (v6.3) before resyncing with 10 (v10.0) and 11 (?).
+
+.. rst-class:: center
+
+   \*
+
+Of course, what all of these marketing examples are showing is that
+the marketing name fixes the allowable internal features.  *No
+breaking user code!* You can add more features but not break existing
+stuff.
+
+That means the marketing name aspect of a version number, say,
+``M.N``, is fixed and developers have to work off that.
+
+Does that mean a single ``M.N.x`` before adding a :samp:`s.{n}`?  Or a
+little more flexibility with :samp:`M.N.x.y.s.{n}`?
+
+The latter is getting a touch messy.  Why do we have a marketing
+number of ``M.N`` anyway?
+
+:samp:`M.x.y.s.{n}` is still a mouthful but is in practice ``M.x.y``
+-- which people are likely to call ``M.x`` anyway -- and supports a
+fairly arbitrary development and release space with room for patching
+with :samp:`.{n}`.
+
 .. include:: ../commit.rst
 

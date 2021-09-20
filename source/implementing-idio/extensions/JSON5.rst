@@ -20,11 +20,11 @@ In truth, I didn't want to write a JSON library, isn't the point that
 someone else has written one already?  Indeed, what's the pressing
 reason for getting involved with JSON at all?
 
-Well, for good or for ill, JSON has become a *de facto* interchange
-format for REST-oriented systems.  And we'll probably want to talk to
-REST-oriented systems at some point so our card is marked.
+Well, for good or for ill, JSON has become a *de facto* data
+interchange format for REST-oriented systems.  And we'll probably want
+to talk to REST-oriented systems at some point so our card is marked.
 
-JSON itself, now RFC8259_, appears in the guise of a *machine*
+JSON itself, now RFC8259_, appears in the guise of a *machine* data
 interchange format except that, as is the way, it has become a
 configuration format and is obligingly human-editable.
 
@@ -34,19 +34,22 @@ Humans are rubbish, though, and they:
   <https://en.wikipedia.org/wiki/Aide-mémoire>`_ and, despite an early
   iteration that did support comments, JSON does not support comments
 
-* like to comment out lines of configuration meaning that trailing
-  commas become a thing which is illegal in JSON
+* like to delete lines of configuration meaning that trailing commas
+  become a thing which is illegal in JSON
 
 * like to use regular identifiers as the names in JSON objects rather
   than strings.
 
 So JSON5_ was created to accommodate these things and some other
-`fettling <https://en.wiktionary.org/wiki/fettle#Verb>`_.
+`fettling <https://en.wiktionary.org/wiki/fettle#Verb>`_ around
+unrepresentable numbers that JSON explicitly denies.
 
-Interestingly, a favourite bugbear, whilst JSON5 supports comments in
-a JSON5 token stream, they are not accommodated in the resultant
-structure.  It is a one way trip for your precious thoughts, they
-don't make it through the gate.
+.. sidebox::
+
+   Interestingly, a favourite bugbear, whilst JSON5 supports comments
+   in a JSON5 token stream, they are not accommodated in the resultant
+   structure.  It is a one way trip for your precious thoughts, they
+   don't make it through the gate.
 
 So, job #1, find a JSON5 library.
 
@@ -62,20 +65,25 @@ I then hit upon Simon Schoenenberger's `standalone C library for JSON5
 <https://github.com/detomon/json5>`_.  Slightly more importantly, is
 his `Unicode character lookup table
 <https://github.com/detomon/unicode-table>`_ work.  You can read more
-about my re-imagining in :ref:`USI`.
+about my re-imagining in :ref:`USI` and its changes to how Unicode is
+handled in :lname:`Idio`.
 
 Parser
 ======
+
+.. aside::
+
+   You had one rule.  Only one rule...
 
 Enthused, I immediately broke rule one, above, and started writing a
 JSON5 parser which turns out, thanks to the use of :lname:`ECMAScript`
 Identifiers, to be far more tiresome than hoped.
 
 As an interesting aside, :lname:`ECMAScript` lets you use Unicode
-characters in Identifier names which is good, right.  Even more
+characters in Identifier names which is good, right?  Even more
 interestingly, it lets you use *Unicode Escape Sequences* in
 Identifier names: ``\u00337`` is the, otherwise illegal, Identifier
-``37``.  Illegal because an Identifier must start with a *broadly*
+``37``.  Illegal because an Identifier must start with (*broadly*) a
 "Letter" but can also start with a Unicode Escape Sequence.
 
 It also has a throwback to :lname:`JavaScript`'s UTF-16 roots in that
@@ -85,9 +93,12 @@ Above that you must use the `UTF-16
 <https://en.wikipedia.org/wiki/UTF-16>`_ high-surrogate + low
 surrogate two step shuffle.
 
+.. aside::
+
+    And, probably, for things not all that extreme.
+
 In the end, though, we have a passable, inefficient, JSON5 parser
-which, doubtless, fails *in extremis* and, probably, for things not
-all that extreme.
+which, doubtless, fails *in extremis*.
 
 The code is set up to be used standalone or as part of an extension to
 :lname:`Idio`.
@@ -98,10 +109,10 @@ limitations.
 Limits
 ------
 
-The JSON(5) format is a bit vague on limits, particularly, numbers.
+The JSON[5] format is a bit vague on limits, particularly, numbers.
 
 :socrates:`Should there be any limits?` Maybe?  It's meant to be a
-machine interchange format after all!
+machine data interchange format after all!
 
 There does appear to be tacit acceptance that in practice :lname:`C`
 might be a limiting factor.  This is lightly `addressed
@@ -121,9 +132,9 @@ unbounded sequence of decimal or hexadecimal digits and the decimal
 variant can have a signed exponent of an equally arbitrary number of
 digits.
 
-In practice, virtually everything is 64-bit bounded.  What should we
-make of the `withExponent example <https://spec.json5.org/#numbers>`_
-of ``123e-456``?
+In practice, though, my suspicion is virtually everything interacting
+with JSON is 64-bit bounded.  What should we make of the `withExponent
+example <https://spec.json5.org/#numbers>`_ of ``123e-456``?
 
 .. aside::
 
@@ -140,8 +151,34 @@ The JSON RFC implies the use of IEEE 754 binary64 double precision
 numbers even for integers with the effect that integers are bounded
 to, roughly, +/- 2\ :sup:`53`.
 
-:ref:`bignums` are a thing but are my bignums anything like your
-bignums?  How can we share information reliably?
+Of note, IEEE 754 binary64 supports slightly fewer (significant)
+decimal digits, 15-17, in its mantissa than a native :lname:`C`'s
+``int64_t``.
+
+Of course, :ref:`bignums` are a thing but are my bignums anything like
+your bignums?  We defined :lname:`Idio` to support arbitrary
+significant digits (albeit they get normalised to 18 frequently) and a
+32-bit exponent.  What do your bignums support, assuming you have any?
+How can we share information reliably?
+
+We're back to `wishy-washy
+<https://www.collinsdictionary.com/dictionary/english/wishy-washy>`_
+commentary from the RFC:
+
+    A JSON number such as 1E400 or 3.141592653589793238462643383279
+    may indicate potential interoperability problems, since it
+    suggests that the software that created it expects receiving
+    software to have greater capabilities for numeric magnitude and
+    precision than is widely available.
+
+.. sidebox::
+
+   My other favourite bugbear is that there is no version numbering
+   let alone options flagging.
+
+I can't help but think that the standard of a machine data interchange
+format ought to, maybe, define some limits.  Offer some options for
+extensibility, maybe?
 
 Floating Point Numbers
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -201,19 +238,38 @@ bound up collection of values.
 
 No tokens is a fail and any left over tokens is a fail, of course.
 
-The usual JSON(5) we see is an object, ``{ ... }``, although the
+.. sidebox::
+
+   ``NaN`` is *explicitly* not legal JSON and explicitly legal JSON5
+   for that very reason.
+
+The usual JSON[5] we see is an object, ``{ ... }``, although the
 shortest valid JSON5 could be a single digit decimal number, ``{}``,
 ``[]`` or ``""``/``''`` with ``NaN`` a close contender.
 
 Strings (and identifiers) are reasonably straight-forward although you
-need to be leery of the various escape sequences allowed.
+need to be leery of the various escape sequences allowed thus creating
+the more tiresome act of validating the input stream.
 
-:lname:`ECMAScript` Identifiers can have *UnicodeEscapeSequences* in
-them, ``\uHHHH``, whereas strings can have any of the more common
-*C-style*, ``\n``, *HexEscapeSequences*, ``\xHH`` and the same
-*UnicodeEscapeSequences* and, in addition, escaped
-*LineTerminatorSequences* as JSON5 users get to experience multi-line
-strings (albeit with the *LineContinuation* bodge).  *Woo!*
+:lname:`ECMAScript` Identifiers can have
+
+* *UnicodeEscapeSequences* in them, ``\uHHHH``
+
+  including the UTF-16 high-surrogate + low-surrogate pairs
+
+whereas strings can have any of the more common
+
+* *C-style*, ``\n``
+
+  including the ``\q`` for non-special code points meaning ``q``
+
+* *HexEscapeSequences*, ``\xHH``
+
+* the same *UnicodeEscapeSequences* as for Identifiers
+
+* and escaped *LineTerminatorSequences* as JSON5 users get to
+  experience multi-line strings (albeit with the *LineContinuation*
+  bodge).  *Woo!*
 
 What this means is that we have to reallocate identifiers and strings
 *again* to accommodate any escape sequences.  Technically, an escape
@@ -326,12 +382,13 @@ strings.
 
 .. aside::
 
-   Hopefully the web page a nice musical score glyph!  My source text
-   has the usual box with 01F and 3BC and :program:`xterm` is showing
-   a box with a question mark.
+   Hopefully the web page shows a nice musical score glyph!  My source
+   text has the usual box with 01F and 3BC and :program:`xterm` is
+   showing a box with a question mark.
 
-   My choice of X11 font, obviously, but I'm that human reading that
-   JSON.
+   That's the result of my choice of X11 font and utilities,
+   obviously, but I am that human reading that JSON as though it was
+   meant for me...
 
 Another string-issue is that we are unable to reproduce any of the
 original escapes from the input stream.  The `Example 2
@@ -355,8 +412,63 @@ numbers when we come to output them with the examples of ``-0xC0FFEE``
 and ``0xdecaf`` becoming the less obvious ``-12648430`` and ``912559``
 respectively.
 
-None of these side-effects should matter as JSON(5) is a machine data
+None of these side-effects should matter as JSON[5] is a machine data
 interchange format.  But humans like to read the output.
+
+From Idio
+---------
+
+With a mechanism to read JSON5 from an external UTF-8 source --
+presumably a file (descriptor) -- it shouldn't be too much effort to
+reuse the existing code to read JSON5 from an :lname:`Idio` string.
+
+Even if we need to reallocate the space (as neither the JSON5 code nor
+the :lname:`Idio` code know how long they other will maintain the
+memory allocation) at least the underlying multi-width "unicode
+string" format is the same so it is a quick copy.
+
+That means we should be able to say:
+
+.. sidebox::
+
+   Noting the annoying escaped double-quotes!
+
+.. code-block:: idio
+
+   v-in := json5/parse-string "
+   {
+     foo : \"bar\"
+   }
+   "
+
+Albeit what we really want to do is pass :lname:`Idio` hash tables
+etc.:
+
+.. code-block:: idio
+
+   v-out := json5/generate {
+     foo : "bar"
+   }
+
+The question is, what is :samp:`{v-out}`?  It's a string, the UTF-8
+representation of the JSON5 encoding of the :lname:`Idio` hash table
+(as a JSON5 object).
+
+What we are saying, here, though, is that there is no native JSON5
+type in :lname:`Idio`.  That's not to say that ``json5_value_t``
+etc. have disappeared it's that they are not accessible to
+:lname:`Idio`.  They were used, fleetingly, in translation, like a
+(normal) programming language's `Abstract Syntax Tree
+<https://en.wikipedia.org/wiki/Abstract_syntax_tree>`_.
+
+We read a JSON[5] input stream from an external source (file or
+string), have it validated and a local representation of the data
+returned.
+
+When we convert :lname:`Idio` values to JSON[5], we don't get some
+cascading JSON[5] structure, we just had that in the :lname:`Idio`
+value, we get the UTF-8 representation of the wire-ready JSON[5]
+(output) stream.
 
 .. include:: ../../commit.rst
 

@@ -1,3 +1,4 @@
+.. _ABS: https://www.abs-lang.org
 .. _ALGOL: https://en.wikipedia.org/wiki/ALGOL
 .. _ANTLR: https://www.antlr.org/
 .. _ASCII: https://en.wikipedia.org/wiki/ASCII
@@ -14,6 +15,7 @@
 .. _Expect: https://core.tcl-lang.org/expect/index
 .. _FOSS: https://en.wikipedia.org/wiki/Free_and_open-source_software
 .. _FSF: https://www.fsf.org
+.. _GCC: https://gcc.gnu.org/
 .. _GMP: https://gmplib.org
 .. _GNU: https://www.gnu.org/
 .. _GPL: https://www.gnu.org/licenses/licenses.html
@@ -34,6 +36,7 @@
 .. _Maru: https://www.piumarta.com/software/maru/
 .. _Mash: http://mash-shell.org/
 .. _Murex: https://murex.rocks
+.. _NGS: https://ngs-lang.org/
 .. _Nushell: https://www.nushell.sh
 .. _Oil: https://www.oilshell.org
 .. _OpenJDK: http://openjdk.java.net/
@@ -41,6 +44,7 @@
 .. _PEP393: https://www.python.org/dev/peps/pep-0393/
 .. _Potion: https://github.com/perl11/potion.git
 .. _PowerShell: https://docs.microsoft.com/en-us/powershell/
+.. _QEMU: https://www.qemu.org/
 .. _Qish: http://www.starynkevitch.net/Basile/qishintro.html
 .. _RFC1918: https://tools.ietf.org/html/rfc1918
 .. _RFC8259: https://tools.ietf.org/html/rfc8259

@@ -10,8 +10,8 @@ Symbols
 =======
 
 Symbols are usually what you think of in other languages as
-identifiers, the references to values.  They are also in
-:lname:`Lisp`\ y languages first class values in their own right.
+identifiers, the references to values.  In :lname:`Lisp`\ y languages
+they are also first class values in their own right.
 
 In the first instance I think we're probably fairly comfortable with
 the idea that we use symbolic (ha!) names to represent values and that
@@ -30,8 +30,6 @@ it refers to a value:
 
 The ``"hello"`` part will have been recognised as the constructor for
 a string value and ``str`` will be used to refer to it.
-
-
 
 Symbols *themselves* don't refer to anything, they simply exist.
 Instead the evaluator will have created a table which uses the symbol
@@ -97,13 +95,16 @@ Implementation
    #define IDIO_SYMBOL_FLAG_GENSYM		(1<<0)
 
    typedef struct idio_symbol_s {
+       size_t blen;		/* bytes */
        char *s;			/* C string */
    } idio_symbol_t;
 
+   #define IDIO_SYMBOL_BLEN(S)	((S)->u.symbol.blen)
    #define IDIO_SYMBOL_S(S)	((S)->u.symbol.s)
    #define IDIO_SYMBOL_FLAGS(S)	((S)->tflags)
 
-``s`` is a ``char *`` much like :ref:`strings`.
+``s`` is a ``char *`` although unlike :ref:`strings` it is,
+essentially, the original UTF-8 :lname:`C` string.
 
 Symbols are "interned" which is a fancy way of saying that the
 symbol's name is looked up to see if it already exists and if so the
@@ -130,7 +131,7 @@ because we need three points of exposure.  Let's consider creating the
 :lname:`Idio` symbol ``:=`` which we are required to call
 ``idio_S_colon_eq`` in the :lname:`C` code base.  The :lname:`C`
 snippet ``colon_eq`` will be used by different :lname:`C` macros to
-brings things together.
+tie things together.
 
 #. we need to declare the :lname:`C` symbol in a header so everyone
    can use it:
@@ -165,8 +166,8 @@ brings things together.
       }
 
    which is a bit more complicated and creates the :lname:`Idio`
-   symbol ``:=`` and assigns the result to the :lname:`C` variable
-   ``idio_S_colon_eq``.
+   symbol ``:=``(from the :lname:`C` string ``":="``) and assigns the
+   result to the :lname:`C` variable ``idio_S_colon_eq``.
 
 Special Cases
 ^^^^^^^^^^^^^
@@ -219,6 +220,21 @@ If the conversion to a number fails it assumes the word is either a
 
 (The decision making in ``idio_read_word()`` probably needs more
 clarity.)
+
+Limits
+^^^^^^
+
+The *reader* imposes a limit of ``IDIO_WORD_MAX_LEN`` bytes, currently
+1024, on a symbol although that restriction does not exist elsewhere
+-- you can use ``string->symbol`` to create a very large symbol
+indeed, should you really want to.
+
+The reader is imposing that limit as if the source code contains that
+sort of a symbol then the chances are it isn't human constructed
+source code and something has gone wrong.
+
+Of course, that flies in the face of machine generated source code so
+it is something to be re-evaluated in due course.
 
 Separators
 ^^^^^^^^^^

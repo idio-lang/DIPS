@@ -33,8 +33,9 @@ impending `Epochalypse
 <https://www.linaro.org/blog/the-end-of-an-era/>`_ in January 2038.
 Except every modern Linux operating system doesn't have that problem
 as Arnd Bergmann and John Stultz plodded though and changed the
-interfaces to 64-bit (kicking the Epochalyse can down the road for a
-few hundred billion years...).
+interfaces to 64-bit (kicking the Epochalyse can down the road for `a
+few hundred billion years
+<https://en.wikipedia.org/wiki/Time_formatting_and_storage_bugs#Year_292,277,026,596_problem>`_...).
 
 And, another bugbear, how do I print a ``time_t`` out without
 upsetting the compiler on some system or another?
@@ -1217,7 +1218,7 @@ Files
 :program:`idio-c-api-gen` takes a nominal library name as an argument,
 say, ``libc``.  It then seeks out an :file:`.../ext/libc` directory
 where :file:`.../ext` is derived from possible directories called
-:file:`.../lib` in :envvar:`IDIOLIB`.
+:file:`.../lib/idio` in :envvar:`IDIOLIB`.
 
 It then looks for :file:`.../ext/libc/api/libc-api.c` and compiles it
 into :file:`.../ext/libc/api/libc-api.o` using the local

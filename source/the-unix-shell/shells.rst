@@ -114,6 +114,14 @@ to be a better POSIX shell for programmers.
 :ref-author:`Laurence Morgan`'s Murex_ shell (official release
 pending) is designed for DevOps productivity.
 
+:ref-author:`Ilya Sher`'s Next Generation Shell NGS_ (from 2013) where
+he's looking at the same annoyances as I do (poor data structures in
+the shell and a lack of system administration focus in general purpose
+languages).
+
+:ref-author:`Alessandro Nadalin`'s ABS_ programming language
+(from 2018) "bringing back the joy of shell scripting".
+
 There are a slew of shells featuring the idea of passing structured
 data through pipelines -- something made most famous by Microsoft's
 PowerShell_.
