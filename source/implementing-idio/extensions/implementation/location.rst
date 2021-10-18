@@ -312,11 +312,11 @@ All good.
 Double Trouble
 ^^^^^^^^^^^^^^
 
-But wait!  Suppose we now release another version :lname:`Idio`?  Or,
-more perniciously, another spin on the existing :samp:`{IDIO_VER}` if
-it takes the form :samp:`{major}.{minor}` like :lname:`Python`.  Here,
-I'm thinking in :lname:`Python` terms of a 3.9.7 release updated from
-the 3.9.6 we have installed but both bearing the same 3.9
+But wait!  Suppose we now release another version of :lname:`Idio`?
+Or, more perniciously, another spin on the existing :samp:`{IDIO_VER}`
+if it takes the form :samp:`{major}.{minor}` like :lname:`Python`.
+Here, I'm thinking in :lname:`Python` terms of a 3.9.7 release updated
+from the 3.9.6 we have installed but both bearing the same 3.9
 :samp:`{IDIO_VER}`.
 
 That's *bound* to change many of those :file:`latest` files to
@@ -344,7 +344,7 @@ the :file:`$libdir/idio/{IDIO_VER}` hierarchy -- or, at least, the
 only to use it without risk.
 
 :lname:`Python` gets away with that as almost everything is a symlink
-to the (only) one true :program:`python.3.9` executable.
+to the (solitary) one true :program:`python.3.9` executable.
 
 If you want to deploy a :file:`.../bin/idio` then you'll need to
 deploy a :file:`.../lib/idio/...` hierarchy.
@@ -370,8 +370,8 @@ reached the stage of installing new releases in separate hierarchies
 in :file:`/usr/local`, so, :file:`/usr/local/emacs-{ver}`, say, and
 updated startup scripts to `have a nosey
 <https://www.wordreference.com/es/translation.asp?tranword=have%20a%20nosey>`_
-and allow people to pick up the latest bits and others could stick
-with a stable release.
+and allow daring people to pick up the latest bits and the more
+risk/surprise-averse could stick with a stable release.
 
 In the modern age of packaged installs, people compiling software is a
 rarity and we are forced into the single instance :file:`/usr/bin`

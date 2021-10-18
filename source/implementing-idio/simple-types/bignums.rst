@@ -468,43 +468,42 @@ the :manpage:`printf(3)` ``e`` except prints full precision.
 Operations
 ==========
 
-:samp:`bignum? {value}`
+.. idio:function:: bignum? value
 
-      is :samp:`{value}` a bignum
+   is `value` a bignum
 
-:samp:`real? {bignum}`
+.. idio:function:: real? bignum
 
-      is bignum :samp:`{bignum}` a real (ie. not an integer)
+   is bignum `bignum` a real (ie. not an integer)
 
-:samp:`exact? {number}`
+.. idio:function:: exact? number
 
-      is number :samp:`{number}` an exact number (ie. an integer or
-      not inexact)
+   is number `number` an exact number (ie. an integer or not inexact)
 
-:samp:`inexact? {number}`
+.. idio:function:: inexact? number
 
-      is number :samp:`{number}` an inexact number (ie. not an integer
-      or is inexact)
+   is number `number` an inexact number (ie. not an integer or is
+   inexact)
 
-:samp:`exact->inexact {number}`
+.. idio:function:: exact->inexact number
 
-      an inexact version of :samp:`{number}` is returned
+   an inexact version of `number` is returned
 
-:samp:`inexact->exact {number}`
+.. idio:function:: inexact->exact number
 
-      an exact version of :samp:`{number}` is returned
+   an exact version of `number` is returned
 
-:samp:`mantissa {number}`
+.. idio:function:: mantissa number
 
-      the mantissa of :samp:`{number}` is returned
+   the mantissa of `number` is returned
 
-:samp:`exponent {number}`
+.. idio:function:: exponent number
 
-      the exponent of :samp:`{number}` is returned
+   the exponent of `number` is returned
 
-:samp:`bignum-dump {bignum}`
+.. idio:function:: bignum-dump bignum
 
-      display some of the internal structure of :samp:`{bignum}`
+   display some of the internal structure of `bignum`
 
 
 .. include:: ../../commit.rst

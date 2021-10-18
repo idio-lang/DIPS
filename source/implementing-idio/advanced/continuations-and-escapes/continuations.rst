@@ -198,7 +198,7 @@ plus the usual ``grey`` link for compound types:
        struct idio_s *stack;
        struct idio_s *frame;
        struct idio_s *env;
-       sigjmp_buf *jmp_buf;
+       sigjmp_buf jmp_buf;
        struct idio_s *module;
        struct idio_s *thr;
    } idio_continuation_t;

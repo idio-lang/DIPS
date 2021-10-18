@@ -345,108 +345,104 @@ At the moment we're stuck with full Unicode only.
 Operations
 ==========
 
-:samp:`bitset? {value}`
+.. idio:function:: bitset? value
 
-      is :samp:`{value}` a bitset
+   is `value` a bitset
 
-:samp:`make-bitset {size}`
+.. idio:function:: make-bitset size
 
-      construct a bitset of :samp:`{size}` bits
+   construct a bitset of `size` bits
 
-:samp:`bitset-size {bs}`
+.. idio:function:: bitset-size bs
 
-      return the size of bitset :samp:`{bs}`
+   return the size of bitset `bs`
 
-:samp:`bitset-set! {bs} {bit}`
+.. idio:function:: bitset-set! bs bit
 
-      set the bit indexed by :samp:`{bit} in bitset :samp:`{bs}`
+   set the bit indexed by `bit in bitset `bs`
 
-:samp:`bitset-clear! {bs} {bit}`
+.. idio:function:: bitset-clear! bs bit
 
-      clear the bit indexed by :samp:`{bit} in bitset :samp:`{bs}`
+   clear the bit indexed by `bit in bitset `bs`
 
-:samp:`bitset-ref {bs} {bit}`
+.. idio:function:: bitset-ref bs bit
 
-      return the bit indexed by :samp:`{bit} in bitset :samp:`{bs}`
+   return the bit indexed by `bit in bitset `bs`
 
-:samp:`copy-bitset {bs}`
+.. idio:function:: copy-bitset bs
 
-      return a copy of bitset :samp:`{bs}`
+   return a copy of bitset `bs`
 
-:samp:`merge-bitset [{bs} ...]`
+.. idio:function:: merge-bitset [bs ...]
 
-      return a bitset that is the bitwise Inclusive OR of the supplied
-      bitsets
+   return a bitset that is the bitwise Inclusive OR of the supplied
+   bitsets
 
-      If the bitsets are a different size then a
-      ``^rt-bitset-size-mismatch-error`` condition will be raised.
+   If the bitsets are a different size then a
+   ``^rt-bitset-size-mismatch-error`` condition will be raised.
 
-      If no bitsets are supplied the result is ``#n``.
+   If no bitsets are supplied the result is ``#n``.
 
-      .. note::
+   .. note::
 
-	 This is ``ior-bitset``...
+      This is ``ior-bitset``...
 
-:samp:`and-bitset [{bs} ...]`
+.. idio:function:: and-bitset [bs ...]
 
-      return a bitset that is the bitwise AND of the supplied bitsets
+   return a bitset that is the bitwise AND of the supplied bitsets
 
-      If the bitsets are a different size then a
-      ``^rt-bitset-size-mismatch-error`` condition will be raised.
+   If the bitsets are a different size then a
+   ``^rt-bitset-size-mismatch-error`` condition will be raised.
 
-      If no bitsets are supplied the result is ``#n``.
+   If no bitsets are supplied the result is ``#n``.
 
-:samp:`ior-bitset [{bs} ...]`
+.. idio:function:: ior-bitset [bs ...]
 
-      return a bitset that is the bitwise Inclusive OR of the supplied
-      bitsets
+   return a bitset that is the bitwise Inclusive OR of the supplied
+   bitsets
 
-      If the bitsets are a different size then a
-      ``^rt-bitset-size-mismatch-error`` condition will be raised.
+   If the bitsets are a different size then a
+   ``^rt-bitset-size-mismatch-error`` condition will be raised.
 
-      If no bitsets are supplied the result is ``#n``.
+   If no bitsets are supplied the result is ``#n``.
 
-:samp:`xor-bitset [{bs} ...]`
+.. idio:function:: xor-bitset [bs ...]
 
-      return a bitset that is the bitwise Exclusive OR of the supplied
-      bitsets
+   return a bitset that is the bitwise Exclusive OR of the supplied
+   bitsets
 
-      If the bitsets are a different size then a
-      ``^rt-bitset-size-mismatch-error`` condition will be raised.
+   If the bitsets are a different size then a
+   ``^rt-bitset-size-mismatch-error`` condition will be raised.
 
-      If no bitsets are supplied the result is ``#n``.
+   If no bitsets are supplied the result is ``#n``.
 
-:samp:`not-bitset {bs}`
+.. idio:function:: not-bitset bs
 
-      return a bitset that is the bitwise complement the bitset
-      :samp:`{bs}`
+   return a bitset that is the bitwise complement the bitset `bs`
 
-:samp:`subtract-bitset [{bs} ...]`
+.. idio:function:: subtract-bitset [bs ...]
 
-      return a bitset that is the result of removing the bits set in
-      subsequent bitsets from the first
+   return a bitset that is the result of removing the bits set in
+   subsequent bitsets from the first
 
-      If the bitsets are a different size then a
-      ``^rt-bitset-size-mismatch-error`` condition will be raised.
+   If the bitsets are a different size then a
+   ``^rt-bitset-size-mismatch-error`` condition will be raised.
 
-      If no bitsets are supplied the result is ``#n``.
+   If no bitsets are supplied the result is ``#n``.
 
-:samp:`equal-bitset? [{bs} ...]`
+.. idio:function:: equal-bitset? [bs ...]
 
-      return ``#t`` if all the supplied bitsets are bitwise identical,
-      ``#f`` otherwise
+   return ``#t`` if all the supplied bitsets are bitwise identical,
+   ``#f`` otherwise
 
-      If no bitsets are supplied the result is ``#t``.  (Should that
-      be the case?)
+   If no bitsets are supplied the result is ``#t``.  (Should that be
+   the case?)
 
-:samp:`bitset-for-each-set {bs} {func}`
+.. idio:function:: bitset-for-each-set bs func
 
-      invoke :samp:`{func}` on each bit in bitset :samp:`{bs}` that is
-      set
+   invoke `func` on each bit in bitset `bs` that is set
 
-      The argument to :samp:`{func}` will be the index of the set bit
-
-
+   The argument to `func` will be the index of the set bit
 
 
 .. include:: ../../commit.rst

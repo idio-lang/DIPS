@@ -744,11 +744,13 @@ There are a couple of notes:
       ``\u...``, , up to 4 hex digits representing a Unicode code point
       ``\U...``, , up to 8 hex digits representing a Unicode code point
 
+   Any other escaped character results in that character.
+
    For ``\x``, ``\u`` and ``\U`` the code will stop consuming code
    points if it sees one of the usual delimiters or a code point that
    is not a hex digit: ``"\Ua9 2021"`` silently stops at the SPACE
    character giving ``"© 2021"`` and, correspondingly,
-   ``"\u00a92021"`` gives ``"©2021"`` as only 4 hex digits are
+   ``"\u00a92021"`` gives ``"©2021"`` as a maximum of 4 hex digits are
    consumed by ``\u``.
 
    ``\x`` is unrestricted (other than between 0x0 and 0xff) and ``\u``
@@ -1125,189 +1127,186 @@ Operations
 Characters
 ----------
 
-:samp:`unicode? {value}`
+.. idio:function:: unicode? value
 
-      is :samp:`{value}` a Unicode code point
+   is `value` a Unicode code point
 
-:samp:`unicode->plane {cp}`
+.. idio:function:: unicode->plane cp
 
-      return the Unicode plane of code point :samp:`{cp}`
+   return the Unicode plane of code point `cp`
 
-      The result is a fixnum.
+   The result is a fixnum.
 
-:samp:`unicode->plane-cp {cp}`
+.. idio:function:: unicode->plane-cp cp
 
-      return the lower 16-bits of the code point :samp:`{cp}`
+   return the lower 16-bits of the code point `cp`
 
-:samp:`unicode->integer {cp}`
+.. idio:function:: unicode->integer cp
 
-      convert code point :samp:`{cp}` to a fixnum
+   convert code point `cp` to a fixnum
 
-:samp:`unicode=? {cp1} {cp2} [...]`
+.. idio:function:: unicode=? cp1 cp2 [...]
 
-      compare code points for equality
+   compare code points for equality
 
-      A minimum of two code points are required.
+   A minimum of two code points are required.
 
 
 Strings
 -------
 
-:samp:`string? {value}`
+.. idio:function:: string? value
 
-      is :samp:`{value}` a string (or substring)
+   is `value` a string (or substring)
 
-:samp:`make-string {size} [{fill}]`
+.. idio:function:: make-string size [fill]
 
-      create a string of length :samp:`{size}` filled with
-      :samp:`{fill}` characters or U+0020 (SPACE)
+   create a string of length `size` filled with `fill` characters or
+   U+0020 (SPACE)
 
 .. _`string->list`:
 
-:samp:`string->list {string}`
+.. idio:function:: string->list string
 
-      return a list of the Unicode code points in :samp:`{string}`
+   return a list of the Unicode code points in `string`
 
-      See also :ref:`list->string <list->string>`.
+   See also :ref:`list->string <list->string>`.
 
 .. _`string->symbol`:
 
-:samp:`string->symbol {string}`
+.. idio:function:: string->symbol string
 
-      return a symbol constructed from the UTF-8 Unicode code points
-      in :samp:`{string}`
+   return a symbol constructed from the UTF-8 Unicode code points in
+   `string`
 
-      See also :ref:`symbol->string <symbol->string>`.
+   See also :ref:`symbol->string <symbol->string>`.
    
 .. _`append-string`:
 
-:samp:`append-string [{string} ...]`
+.. idio:function:: append-string [string ...]
 
-      return a string constructed by appending the string arguments
-      together
+   return a string constructed by appending the string arguments
+   together
 
-      If no strings are supplied the result is a zero-length string,
-      cf. ``""``.
+   If no strings are supplied the result is a zero-length string,
+   cf. ``""``.
    
-:samp:`concatenate-string {list}`
+.. idio:function:: concatenate-string list
 
-      return a string constructed by appending the strings in
-      :samp:`{list}` together
+   return a string constructed by appending the strings in `list`
+   together
 
-      If no strings are supplied the result is a zero-length string,
-      cf. ``""``.
+   If no strings are supplied the result is a zero-length string,
+   cf. ``""``.
    
-:samp:`copy-string {string}`
+.. idio:function:: copy-string string
 
-      return a copy of string :samp:`{string}`
+   return a copy of string `string`
    
-:samp:`string-length {string}`
+.. idio:function:: string-length string
 
-      return the length of string :samp:`{string}`
+   return the length of string `string`
    
-:samp:`string-ref {string} {index}`
+.. idio:function:: string-ref string index
 
-      return the Unicode code point at index :samp:`{index}` of string
-      :samp:`{string}`
+   return the Unicode code point at index `index` of string `string`
 
-      Indexes start at zero.
+   Indexes start at zero.
 
-:samp:`string-set! {string} {index} {cp}`
+.. idio:function:: string-set! string index cp
 
-      set the Unicode code point at index :samp:`{index}` of string
-      :samp:`{string}` to be the Unicode code point :samp:`{cp}`
+   set the Unicode code point at index `index` of string `string` to
+   be the Unicode code point `cp`
 
-      Indexes start at zero.
+   Indexes start at zero.
 
-      If the number of bytes required to store :samp:`{cp}` is greater
-      than the per-code point width of :samp:`{string}` a
-      ``^string-error`` condition will be raised.
+   If the number of bytes required to store `cp` is greater than the
+   per-code point width of `string` a ``^string-error`` condition will
+   be raised.
 
-:samp:`string-fill! {string} {fill}`
+.. idio:function:: string-fill! string fill
 
-      set all indexes of string :samp:`{string}` to be the Unicode
-      code point :samp:`{fill}`
+   set all indexes of string `string` to be the Unicode code point
+   `fill`
 
-      If the number of bytes required to store :samp:`{fill}` is
-      greater than the per-code point width of :samp:`{string}` a
-      ``^string-error`` condition will be raised.
+   If the number of bytes required to store `fill` is greater than the
+   per-code point width of `string` a ``^string-error`` condition will
+   be raised.
 
-:samp:`substring {string} {pos-first} {pos-next}`
+.. idio:function:: substring string pos-first pos-next
 
-      return a substring of string :samp:`{string}` starting at index
-      :samp:`{pos-first}` and ending *before* :samp:`{pos-next}`.
+   return a substring of string `string` starting at index `pos-first`
+   and ending *before* `pos-next`.
 
-      Indexes start at zero.
+   Indexes start at zero.
 
-      If :samp:`{pos-first}` and :samp:`{pos-next}` are inconsistent a
-      ``^string-error`` condition will be raised.
+   If `pos-first` and `pos-next` are inconsistent a ``^string-error``
+   condition will be raised.
 
-:samp:`string<=? {s1} {s2} [...]`
+.. idio:function:: string<=? s1 s2 [...]
 
-:samp:`string<? {s1} {s2} [...]`
+.. idio:function:: string<? s1 s2 [...]
 
-:samp:`string=? {s1} {s2} [...]`
+.. idio:function:: string=? s1 s2 [...]
 
-:samp:`string>=? {s1} {s2} [...]`
+.. idio:function:: string>=? s1 s2 [...]
 
-:samp:`string>? {s1} {s2} [...]`
+.. idio:function:: string>? s1 s2 [...]
 
-      .. warning::
+   .. warning::
 
-	 Historic code for ASCII/Latin-1 :lname:`Scheme` strings
-	 badgered into working at short notice.
+      Historic code for ASCII/Latin-1 :lname:`Scheme` strings badgered
+      into working at short notice.
 
-	 These need to be replaced with something more Unicode-aware.
+      These need to be replaced with something more Unicode-aware.
 
-      perform :manpage:`strncmp(3)` comparisons of the UTF-8
-      representations of the string arguments
+   Perform :manpage:`strncmp(3)` comparisons of the UTF-8
+   representations of the string arguments
 
-:samp:`string-ci<=? {s1} {s2} [...]`
+.. idio:function:: string-ci<=? s1 s2 [...]
 
-:samp:`string-ci<? {s1} {s2} [...]`
+.. idio:function:: string-ci<? s1 s2 [...]
 
-:samp:`string-ci=? {s1} {s2} [...]`
+.. idio:function:: string-ci=? s1 s2 [...]
 
-:samp:`string-ci>=? {s1} {s2} [...]`
+.. idio:function:: string-ci>=? s1 s2 [...]
 
-:samp:`string-ci>? {s1} {s2} [...]`
+.. idio:function:: string-ci>? s1 s2 [...]
 
-      .. warning::
+   .. warning::
 
-	 Historic code for ASCII/Latin-1 :lname:`Scheme` strings
-	 badgered into working at short notice.
+      Historic code for ASCII/Latin-1 :lname:`Scheme` strings badgered
+      into working at short notice.
 
-	 These need to be replaced with something more Unicode-aware.
+      These need to be replaced with something more Unicode-aware.
 
-      perform :manpage:`strncasecmp(3)` comparisons of the UTF-8
-      representations of the string arguments
+   Perform :manpage:`strncasecmp(3)` comparisons of the UTF-8
+   representations of the string arguments
 
 .. _`split-string`:
 
-:samp:`split-string {string} [{delim}]`
+.. idio:function:: split-string string [delim]
 
-      Split string :samp:`{string}` into a list of string delimited by
-      the code points in the string :samp:`{delim}` which itself
-      defaults to :var:`IFS`.
+   Split string `string` into a list of string delimited by the code
+   points in the string `delim` which itself defaults to :var:`IFS`.
 
-      ``split-string`` acts like the shell's or :program:`awk`'s
-      word-splitting by ``IFS`` in that multiple adjacent instances of
-      delimiter characters only provoke one "split."
+   ``split-string`` acts like the shell's or :program:`awk`'s
+   word-splitting by ``IFS`` in that multiple adjacent instances of
+   delimiter characters only provoke one "split."
 
-:samp:`split-string-exactly {string} [{delim}]`
+.. idio:function:: split-string-exactly string [delim]
 
-      Split string :samp:`{string}` into a list of string delimited by
-      the code points in the string :samp:`{delim}` which itself
-      defaults to :var:`IFS`.
+   Split string `string` into a list of string delimited by the code
+   points in the string `delim` which itself defaults to :var:`IFS`.
 
-      ``split-string-exactly`` is meant to act more like a regular
-      expression matching system.
+   ``split-string-exactly`` is meant to act more like a regular
+   expression matching system.
 
-      It was originally required to split the contents of the Unicode
-      Character Database file :file:`utils/Unicode/UnicodeData.txt` --
-      which has multiple ``;``-separated fields, often with no value
-      in a field -- to help generate the code base for regular
-      expression handling.
+   It was originally required to split the contents of the Unicode
+   Character Database file :file:`utils/Unicode/UnicodeData.txt` --
+   which has multiple ``;``-separated fields, often with no value in a
+   field -- to help generate the code base for regular expression
+   handling.
 
 .. _`fields`:
 
@@ -1315,7 +1314,7 @@ Strings
 
    A variation on :ref:`split-string <split-string>` with a view to
    more :program:`awk`-like line splitting functionality, ``fields``
-   splits string :samp:`{string}` into an *array* of strings delimited
+   splits string `string` into an *array* of strings delimited
    by the code points in :var:`IFS` with the first element of the
    array being the original string.
 
@@ -1341,26 +1340,25 @@ Strings
 
 .. function:: join-string delim list
 
-      construct a string from the strings in :samp:`{list}` with the
-      string :samp:`{delim}` placed in between each pair of strings
+   construct a string from the strings in `list` with the string
+   `delim` placed in between each pair of strings
 
-      :samp:`{list}` is a, uh, list, here, unlike, say,
-      :ref:`append-string <append-string>` as it follows the
-      :lname:`Scheme` form (albeit with arguments shifted about)
-      which takes another parameter indicating the style in
-      which the delimiter should be applied, such as: before or
-      after every argument, infix (the default) and a strict
-      infix for complaining about no arguments.
+   `list` is a, uh, list, here, unlike, say, :ref:`append-string
+   <append-string>` as it follows the :lname:`Scheme` form (albeit
+   with arguments shifted about) which takes another parameter
+   indicating the style in which the delimiter should be applied, such
+   as: before or after every argument, infix (the default) and a
+   strict infix for complaining about no arguments.
 
 .. _`strip-string`:
 
-:samp:`strip-string {str} {discard} [{ends}]`
+.. idio:function:: strip-string str discard [ends]
 
-      return a string where the characters in :samp:`{discard}` have
-      been removed from the :samp:`{ends}` of :samp:`{str}`
+   return a string where the characters in `discard` have been removed
+   from the `ends` of `str`
 
-      :samp:`{ends}` can be one of ``'left``, ``'right``, ``'both`` or
-      ``'none`` and defaults to ``'right``.
+   `ends` can be one of ``'left``, ``'right``, ``'both`` or ``'none``
+   and defaults to ``'right``.
 
 .. include:: ../../commit.rst
 

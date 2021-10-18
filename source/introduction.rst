@@ -514,26 +514,34 @@ be honest.
 A broad range without being too specific:
 
 .. csv-table:: Test Systems
-   :header: "ISA", "OS", "bits", "notes"
+   :header: kernel, OS, ISA, bits, compiler
    :align: left
+   :widths: auto
 
-   "x86-64", "Fedora 34", 64
-   "x86-64", "Ubuntu 18", 64
-   "x86-64", "Debian 10", 64 / 32
-   "x86-64", "CentOS 7", 64
-   "x86-64", "CentOS 6", 64 / 32
-   "x86-64", "OpenIndiana Hipster", 64
-   "x86-64", "OpenIndiana a151", 64 / 32
-   "x86-64", "FreeBSD 10", 32
-   "x86-64", "Mac OS 10.15.5", 64, 10.15.6 breaks virtualisation software
-   "i386", "Mac OS 10.5.8", 32
-   "ARMv7", "Raspbian 9", 32
-   "aarch64", "Raspbian (Debian 10)", 64
-   "aarch64", "Fedora 34", 64
-   "aarch64", "Ubuntu 20", 64
-   "x86-64", "Windows 10 via WSL", 64
+   Linux, Fedora 34, x86-64, 64, gcc 11
+   Linux, Ubuntu 18, x86-64, 64, gcc 8
+   Linux, Debian 10, x86-64, 64, gcc 8
+   Linux, CentOS 7, x86-64, 64, gcc
+   Linux, CentOS 6, x86-64, 64, gcc 4
+   SunOS, OpenIndiana Hipster, x86-64, 64, gcc 9
+   SunOS, OpenIndiana a151, x86-64, 64, gcc 4
+   BSD, FreeBSD 13, x86-64, 64, clang 11
+   BSD, OpenBSD 6.9, x86-64, 64, clang 10
+   Darwin, Mac OS 11.6, x86-64, 64, clang 12
+   Darwin, Mac OS 10.15.7, x86-64, 64, clang 11
 
-   "x86-64", "Solaris 10", 32, WIP
+   Linux, Raspbian (Debian 10),  aarch64, 64, gcc 8
+   Linux, Fedora 34, aarch64, 64, gcc 11
+   Linux, Ubuntu 20, aarch64, 64, gcc 9
+
+   Linux, Debian 10, x86-64, 32, gcc 8
+   Linux, CentOS 6, x86-64, 32, gcc 4
+   SunOS, OpenIndiana a151, x86-64, 32, gcc 4
+   Darwin, Mac OS 10.5.8, i386, 32, gcc 4
+
+   Linux, Raspbian 9, ARMv7, 32, gcc 6
+
+   Linux, Ubuntu 18 via WSL1, x86-64, 64, gcc 7
 
 .. rst-class:: smaller
 

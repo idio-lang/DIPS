@@ -327,81 +327,79 @@ Operations
 Structure Types
 ---------------
 
-:samp:`make-struct-type {name} {parent} {fields}`
+.. idio:function:: make-struct-type name parent fields
 
-      create a structure *type* called :samp:`{name}` with inheriting
-      from the :samp:`{parent}` structure type and adding
-      :samp:`{fields}`
+   create a structure *type* called `name` with inheriting from the
+   `parent` structure type and adding `fields`
 
-:samp:`struct-type? {value}`
+.. idio:function:: struct-type? value
 
-      Is :samp:`{value}` a structure *type*
+   Is `value` a structure *type*
 
-:samp:`struct-type-name {st}`
+.. idio:function:: struct-type-name st
 
-      return the structure type's name from :samp:`{st}`
+   return the structure type's name from `st`
 
-:samp:`struct-type-parent {st}`
+.. idio:function:: struct-type-parent st
 
-      return the structure type's parent from :samp:`{st}`
+   return the structure type's parent from `st`
 
-:samp:`struct-type-fields {st}`
+.. idio:function:: struct-type-fields st
 
-      return the structure type's fields from :samp:`{st}`
+   return the structure type's fields from `st`
 
-:samp:`struct-type-isa {st} {type}`
+.. idio:function:: struct-type-isa st type
 
-      return ``#f`` unless the structure type of :samp:`{st}` is
-      :samp:`{type}` in which case return ``#t``
+   return ``#f`` unless the structure type of `st` is `type` in which
+   case return ``#t``
 
-:samp:`struct-type-isa {st} {type}`
+.. idio:function:: struct-type-isa st type
 
-      return ``#f`` unless the structure type of :samp:`{st}` is
-      :samp:`{type}` in which case return ``#t``
+   return ``#f`` unless the structure type of `st` is `type` in which
+   case return ``#t``
 
 Structure Instances
 -------------------
 
-:samp:`make-struct-instance {st} {values}`
+.. idio:function:: make-struct-instance st values
 
-      create a structure *instance* of structure type :samp:`{st}`
-      with values :samp:`{values}`
+   create a structure *instance* of structure type `st` with values
+   `values`
 
-:samp:`struct-instance? {value}`
+.. idio:function:: struct-instance? value
 
-      Is :samp:`{value}` a structure *instance*
+   Is `value` a structure *instance*
 
-:samp:`struct-instance-type {si}`
+.. idio:function:: struct-instance-type si
 
-      return the structure instance's structure type from :samp:`{si}`
+   return the structure instance's structure type from `si`
 
-:samp:`struct-instance-fields {si}`
+.. idio:function:: struct-instance-fields si
 
-      return the structure instance's fields from :samp:`{si}`
+   return the structure instance's fields from `si`
 
-      This is returning the values of the structure instance.  I guess
-      the name could be better...
+   This is returning the values of the structure instance.  I guess
+   the name could be better...
 
-:samp:`struct-instance-ref {si} {field}`
+.. idio:function:: struct-instance-ref si field
 
-      return the value of :samp:`{field}` from structure instance
-      :samp:`{si}`
+   return the value of `field` from structure instance `si`
 
-      If :samp:`{field}` is not a field of the type of :samp:`{si}`
-      then a ``^runtime-error`` condition will be raised.
+   If `field` is not a field of the type of `si` then a
+   ``^runtime-error`` condition will be raised.
 
-:samp:`struct-instance-set! {si} {field} {value}`
+.. idio:function:: struct-instance-set! si field value
 
-      set the value of field :samp:`{field}` in structure instance
-      :samp:`{si}` to be :samp:`{value}`
+   set the value of field `field` in structure instance `si` to be
+   `value`
 
-      If :samp:`{field}` is not a field of the type of :samp:`{si}`
-      then a ``^runtime-error`` condition will be raised.
+   If `field` is not a field of the type of `si` then a
+   ``^runtime-error`` condition will be raised.
 
-:samp:`struct-instance-isa {si} {st}`
+.. idio:function:: struct-instance-isa si st
 
-      return ``#f`` unless the structure instance of :samp:`{si}` is
-      :samp:`{st}` in which case return ``#t``
+   return ``#f`` unless the structure instance of `si` is `st` in
+   which case return ``#t``
 
 
 .. include:: ../../commit.rst

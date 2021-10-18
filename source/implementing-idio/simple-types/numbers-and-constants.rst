@@ -396,90 +396,89 @@ Operations
 Numbers
 -------
 
-:samp:`fixnum? {value}`
+.. idio:function:: fixnum? value
 
-      is :samp:`{value}` a fixnum
+   is `value` a fixnum
 
-:samp:`integer? {value}`
+.. idio:function:: integer? value
 
-      is :samp:`{value}` a fixnum or an integer bignum
+   is `value` a fixnum or an integer bignum
 
-:samp:`number? {value}`
+.. idio:function:: number? value
 
-      is :samp:`{value}` a fixnum or a bignum
+   is `value` a fixnum or a bignum
 
-:samp:`floor {number}`
+.. idio:function:: floor number
 
-      the `floor
-      <https://en.wikipedia.org/wiki/Floor_and_ceiling_functions>`_ of
-      a number is the integral value less than or equal to the number
+   the `floor
+   <https://en.wikipedia.org/wiki/Floor_and_ceiling_functions>`_ of a
+   number is the integral value less than or equal to the number
 
-:samp:`remainder {number}`
+.. idio:function:: remainder number
 
-      the remainder of a number is the value minus the floor of the
-      number
+   the remainder of a number is the value minus the floor of the
+   number
 
-:samp:`quotient {a} {b}`
+.. idio:function:: quotient a b
 
-      the quotient of :samp:`{a}` and :samp:`{b}` is :samp:`{a} / {b}`
+   the quotient of `a` and `b` is `a / b`
 
-:samp:`le {n} [...]`
+.. idio:function:: le n [...]
       
-:samp:`lt {n} [...]`
+.. idio:function:: lt n [...]
 
-:samp:`eq {n} [...]`
+.. idio:function:: eq n [...]
       
-:samp:`ge {n} [...]`
+.. idio:function:: ge n [...]
       
-:samp:`gt {n} [...]`
+.. idio:function:: gt n [...]
 
-      perform numeric comparisons between the arguments (a minimum of
-      one) and return ``#f`` if any adjacent pair of arguments fails
-      the comparison
+   perform numeric comparisons between the arguments (a minimum of
+   one) and return ``#f`` if any adjacent pair of arguments fails the
+   comparison
 
-      :samp:`lt {n1} {n2} {n3} {n4}` is equivalent to:
+   `lt n1 n2 n3 n4` is equivalent to:
 
-      .. code-block:: idio
+   .. code-block:: idio
 
-	 (and (lt n1 n2)
-	      (lt n2 n3)
-	      (lt n3 n4))
+      (and (lt n1 n2)
+           (lt n2 n3)
+           (lt n3 n4))
 
-      The default result is ``#t``.
+   The default result is ``#t``.
 
-      Notice that the function names are alphabetic rather than the
-      traditional arithmetic symbols, ``<=``, ``<``, ``==``, ``>=``
-      and ``>``.  This is to maintain consistency and avoid semantic
-      clashes with our (preferred) use of angle brackets for IO
-      redirection.
+   Notice that the function names are alphabetic rather than the
+   traditional arithmetic symbols, ``<=``, ``<``, ``==``, ``>=`` and
+   ``>``.  This is to maintain consistency and avoid semantic clashes
+   with our (preferred) use of angle brackets for IO redirection.
 
-      You may recall that :lname:`Bash`'s ``[[`` builtin command uses
-      the same operators: ``-le``, ``-lt``, ``-eq``, ``-ge`` and
-      ``-gt``.
+   You may recall that :lname:`Bash`'s ``[[`` builtin command uses the
+   same operators: ``-le``, ``-lt``, ``-eq``, ``-ge`` and ``-gt``.
 
-      ``eq``, this numeric comparison, adds to the naming confusion
-      with ``eq?``, ``eqv?`` and ``equal?``.
+   ``eq``, this numeric comparison, adds to the naming confusion with
+   ``eq?``, ``eqv?`` and ``equal?``.
 
-:samp:`+ {n} [...]`
+.. idio:function:: + n [...]
       
-:samp:`- {n} [...]`
+.. idio:function:: - n [...]
 
-:samp:`* {n} [...]`
+.. idio:function:: * n [...]
       
-:samp:`/ {n} [...]`
+.. idio:function:: / n [...]
 
-      perform the usual arithmetic functions of add, subtract,
-      multiply and divide
+   perform the usual arithmetic functions of add, subtract, multiply
+   and divide
 
-:samp:`integer->char {integer}`
+.. idio:function:: integer->char integer
 
-      [deprecated]
+   [deprecated]
 
-      convert an integer to a character -- limited to the range of fixnums
+   convert an integer to a character -- limited to the range of
+   fixnums
 
-:samp:`integer->unicode {integer}`
+.. idio:function:: integer->unicode integer
 
-      convert an integer to a Unicode code point      
+   convert an integer to a Unicode code point
 
 
 Constants

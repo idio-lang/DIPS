@@ -230,9 +230,9 @@ all the standalone code needs but it is of no use in :lname:`Idio` as
 
 Clearly, what we want is for an :lname:`Idio` value to be serialised
 as a UTF8 stream.  :lname:`Idio` values can be quite rich -- a closure
-can be they key or value of a hash table, say -- so the generator
-needs to be slightly leery about what is valid JSON5 as it walks over
-the :lname:`Idio` value.
+can be the key or value of a hash table, say -- so the generator needs
+to be slightly leery about what is valid JSON5 as it walks over the
+:lname:`Idio` value.
 
 In fact, we can be a little bit more generous and offer a JSON (rather
 than JSON5) generator as well which limits the set of valid values
@@ -241,12 +241,12 @@ further.
 Errors
 ^^^^^^
 
-The final part missing is error handling.  In the standalone code, the
+The final missing part is error handling.  In the standalone code, the
 ``json5_error_printf ()`` function prints the message and calls ``exit
 (1)`` which suffices for its use case.
 
 In our case we want to replace those with raising conditions but that
-raising a thorny problem itself.  After lots of iterations I finally
+raises a thorny problem itself.  After lots of iterations I finally
 had the :lname:`C` code invoke the :lname:`Idio` function
 ``condition-report`` to normalize the way conditions are, um,
 reported.

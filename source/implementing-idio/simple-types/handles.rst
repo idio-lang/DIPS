@@ -797,163 +797,159 @@ behooves the user to choose values wisely.  Normally, you would
 receive such a value from a call known to provide one and pass it
 around opaquely.
 
-:samp:`open-file-from-fd {fd} [{name} [{mode}]]`
+.. idio:function:: open-file-from-fd fd [name [mode]]
 
-      construct a file handle from :samp:`{fd}` using the optional
-      :samp:`{name}` instead of the default :samp:`/dev/fd/{fd}` and
-      the optional mode :samp:`{mode}` instead of ``re``
+   construct a file handle from `fd` using the optional `name` instead
+   of the default `/dev/fd/fd` and the optional mode `mode` instead of
+   ``re``
 
-:samp:`open-input-file-from-fd {fd} [{name}]`
+.. idio:function:: open-input-file-from-fd fd [name]
 
-      construct a file handle from :samp:`{fd}` using the optional
-      :samp:`{name}` instead of the default :samp:`/dev/fd/{fd}` and
-      the optional mode :samp:`{mode}` instead of ``re``
+   construct a file handle from `fd` using the optional `name` instead
+   of the default `/dev/fd/fd` and the optional mode `mode` instead of
+   ``re``
 
-:samp:`open-output-file-from-fd {fd} [{name}]`
+.. idio:function:: open-output-file-from-fd fd [name]
 
-      construct a file handle from :samp:`{fd}` using the optional
-      :samp:`{name}` instead of the default :samp:`/dev/fd/{fd}` and
-      the optional mode :samp:`{mode}` instead of ``we``
+   construct a file handle from `fd` using the optional `name` instead
+   of the default `/dev/fd/fd` and the optional mode `mode` instead of
+   ``we``
 
-:samp:`open-input-pipe {fd} [{name}]`
+.. idio:function:: open-input-pipe fd [name]
 
-      construct a pipe handle from :samp:`{fd}` using the optional
-      :samp:`{name}` instead of the default :samp:`/dev/fd/{fd}` and
-      the optional mode :samp:`{mode}` instead of ``re``
+   construct a pipe handle from `fd` using the optional `name` instead
+   of the default `/dev/fd/fd` and the optional mode `mode` instead of
+   ``re``
 
-:samp:`open-output-pipe {fd} [{name}]`
+.. idio:function:: open-output-pipe fd [name]
 
-      construct a pipe handle from :samp:`{fd}` using the optional
-      :samp:`{name}` instead of the default :samp:`/dev/fd/{fd}` and
-      the optional mode :samp:`{mode}` instead of ``we``
+   construct a pipe handle from `fd` using the optional `name` instead
+   of the default `/dev/fd/fd` and the optional mode `mode` instead of
+   ``we``
 
-:samp:`open-file {name} {mode}`
+.. idio:function:: open-file name mode
 
-      construct a file handle by opening the file :samp:`{name}` and
-      the mode :samp:`{mode}`
+   construct a file handle by opening the file `name` and the mode
+   `mode`
 
-      ``open-file`` has to handle the resource contention issue
-      mentioned previously.
+   ``open-file`` has to handle the resource contention issue mentioned
+   previously.
 
-      If the :manpage:`fopen(3)` call fails with ``EMFILE`` (a process
-      limit) or ``ENFILE`` (a system-wide limit) indicating the lack
-      of available file descriptors then it has to forcibly invoke the
-      garbage collector and try again.
+   If the :manpage:`fopen(3)` call fails with ``EMFILE`` (a process
+   limit) or ``ENFILE`` (a system-wide limit) indicating the lack of
+   available file descriptors then it has to forcibly invoke the
+   garbage collector and try again.
 
-      For reasons that escape me, it tries that twice....
+   For reasons that escape me, it tries that twice....
 
-:samp:`open-input-file {name}`
+.. idio:function:: open-input-file name
 
-      construct a file handle by opening the file :samp:`{name}` with
-      the mode ``re``
+   construct a file handle by opening the file `name` with the mode
+   ``re``
 
-:samp:`open-output-file {name}`
+.. idio:function:: open-output-file name
 
-      construct a file handle by opening the file :samp:`{name}` with
-      the mode ``we``
+   construct a file handle by opening the file `name` with the mode
+   ``we``
 
-:samp:`file-handle? {value}`
+.. idio:function:: file-handle? value
 
-      is :samp:`{value}` a file handle
+   is `value` a file handle
 
-:samp:`input-file-handle? {value}`
+.. idio:function:: input-file-handle? value
 
-      is :samp:`{value}` a file handle capable of being read from
+   is `value` a file handle capable of being read from
 
-      Obviously this is input file handles but also files opened for
-      writing with the "+" mode flag: "w+", "a+".
+   Obviously this is input file handles but also files opened for
+   writing with the "+" mode flag: "w+", "a+".
 
-:samp:`output-file-handle? {value}`
+.. idio:function:: output-file-handle? value
 
-      is :samp:`{value}` a file handle capable of being written to
+   is `value` a file handle capable of being written to
 
-      Obviously this is output file handles but also files opened for
-      reading with the "+" mode flag: "r+".
+   Obviously this is output file handles but also files opened for
+   reading with the "+" mode flag: "r+".
 
-:samp:`file-handle-fd {fh}`
+.. idio:function:: file-handle-fd fh
 
-      return the file descriptor associated with file handle
-      :samp:`{fh}`
+   return the file descriptor associated with file handle `fh`
 
-:samp:`fd-handle? {value}`
+.. idio:function:: fd-handle? value
 
-      is :samp:`{value}` a fd handle
+   is `value` a fd handle
 
-:samp:`input-fd-handle? {value}`
+.. idio:function:: input-fd-handle? value
 
-      is :samp:`{value}` a fd handle capable of being read from
+   is `value` a fd handle capable of being read from
 
-      Obviously this is input fd handles but also fds opened for
-      writing with the "+" mode flag: "w+", "a+".
+   Obviously this is input fd handles but also fds opened for writing
+   with the "+" mode flag: "w+", "a+".
 
-:samp:`output-fd-handle? {value}`
+.. idio:function:: output-fd-handle? value
 
-      is :samp:`{value}` a fd handle capable of being written to
+   is `value` a fd handle capable of being written to
 
-      Obviously this is output fd handles but also fds opened for
-      reading with the "+" mode flag: "r+".
+   Obviously this is output fd handles but also fds opened for reading
+   with the "+" mode flag: "r+".
 
-:samp:`fd-handle-fd {fh}`
+.. idio:function:: fd-handle-fd fh
 
-      return the file descriptor associated with fd handle
-      :samp:`{fh}`
+   return the file descriptor associated with fd handle `fh`
 
-:samp:`pipe-handle? {value}`
+.. idio:function:: pipe-handle? value
 
-      is :samp:`{value}` a pipe handle
+   is `value` a pipe handle
 
-:samp:`input-pipe-handle? {value}`
+.. idio:function:: input-pipe-handle? value
 
-      is :samp:`{value}` a pipe handle capable of being read from
+   is `value` a pipe handle capable of being read from
 
-      The "+" mode flag is ignored for a pipe.
+   The "+" mode flag is ignored for a pipe.
 
-:samp:`output-pipe-handle? {value}`
+.. idio:function:: output-pipe-handle? value
 
-      is :samp:`{value}` a pipe handle capable of being written to
+   is `value` a pipe handle capable of being written to
 
-      The "+" mode flag is ignored for a pipe.
+   The "+" mode flag is ignored for a pipe.
 
-:samp:`pipe-handle-fd {ph}`
+.. idio:function:: pipe-handle-fd ph
 
-      return the file descriptor associated with pipe handle
-      :samp:`{ph}`
+   return the file descriptor associated with pipe handle `ph`
 
-:samp:`close-fd-handle-on-exec {fh}`
+.. idio:function:: close-fd-handle-on-exec fh
 
-      call :manpage:`fcntl(3)` on the underlying :lname:`C` file
-      descriptor in fd handle :samp:`{fh}` with ``F_SETFD`` and
-      ``FD_CLOEXEC`` arguments.
+   call :manpage:`fcntl(3)` on the underlying :lname:`C` file
+   descriptor in fd handle `fh` with ``F_SETFD`` and ``FD_CLOEXEC``
+   arguments.
 
 .. rst-class:: center
 
 ---
 
-:samp:`find-lib {filename}`
+.. idio:function:: find-lib filename
 
-      search :envvar:`IDIOLIB` for :samp:`{filename}` using a set of
-      possible filename extensions
+   search :envvar:`IDIOLIB` for `filename` using a set of possible
+   filename extensions
 
-:samp:`load {filename}`
+.. idio:function:: load filename
 
-      search :envvar:`IDIOLIB` for :samp:`{filename}` using a set of
-      possible filename extensions and then load it in "expression by
-      expression."
+   search :envvar:`IDIOLIB` for `filename` using a set of possible
+   filename extensions and then load it in "expression by expression."
 
 .. rst-class:: center
 
 ---
 
-:samp:`file-exists? {filename}`
+.. idio:function:: file-exists? filename
 
-      does :samp:`{filename}` exist
+   does `filename` exist
 
-      Technically, the test is a call to :manpage:`access(2)` with the
-      ``R_OK`` flag.
+   Technically, the test is a call to :manpage:`access(2)` with the
+   ``R_OK`` flag.
       
-:samp:`delete-file {filename}`
+.. idio:function:: delete-file filename
 
-      :manpage:`remove(3)` :samp:`{filename}`
+   :manpage:`remove(3)` `filename`
       
 
 String Handles
@@ -961,33 +957,32 @@ String Handles
 
 See :file:`src/string-handle.c`.
 
-:samp:`open-input-string {string}`
+.. idio:function:: open-input-string string
 
-      construct an input string handle from the string
-      :samp:`{string}`
+   construct an input string handle from the string `string`
 
-:samp:`open-output-string`
+.. idio:function:: open-output-string
 
-      construct an output string handle
+   construct an output string handle
 
-:samp:`string-handle? {value}`
+.. idio:function:: string-handle? value
 
-      is :samp:`{value}` a string handle
+   is `value` a string handle
 
-:samp:`input-string-handle? {value}`
+.. idio:function:: input-string-handle? value
 
-      is :samp:`{value}` an input string handle
+   is `value` an input string handle
 
-:samp:`output-string-handle? {value}`
+.. idio:function:: output-string-handle? value
 
-      is :samp:`{value}` an output string handle
+   is `value` an output string handle
 
 .. _get-output-string:
 
-:samp:`get-output-string {sh}`
+.. idio:function:: get-output-string sh
 
-      return a string constructed from the contents of the output
-      string handle :samp:`{sh}`
+   return a string constructed from the contents of the output string
+   handle `sh`
 
 
 Handles
@@ -995,228 +990,215 @@ Handles
 
 See :file:`src/handle.c`.
 
-:samp:`handle? {value}`
+.. idio:function:: handle? value
 
-      is :samp:`{value}` a handle
+   is `value` a handle
 
-:samp:`input-handle? {value}`
+.. idio:function:: input-handle? value
 
-      is :samp:`{value}` an input handle
+   is `value` an input handle
 
-:samp:`output-handle? {value}`
+.. idio:function:: output-handle? value
 
-      is :samp:`{value}` an output handle
+   is `value` an output handle
 
-:samp:`ready? {handle}`
+.. idio:function:: ready? handle
 
-      is handle :samp:`{handle}` ready, ie. not at end-of-file
+   is handle `handle` ready, ie. not at end-of-file
 
-:samp:`eof? {handle}`
+.. idio:function:: eof? handle
 
-      has handle :samp:`{handle}` seen end-of-file
+   has handle `handle` seen end-of-file
 
-:samp:`peek-char {handle}`
+.. idio:function:: peek-char handle
 
-      return the Unicode code point of the next character in handle
-      :samp:`{handle}` without moving the position in the handle
-      forward
+   return the Unicode code point of the next character in handle
+   `handle` without moving the position in the handle forward
 
-:samp:`puts {value} [{handle}]`
+.. idio:function:: puts value [handle]
 
-      invoke the ``puts`` method associated with handle
-      :samp:`{handle}`, if supplied or the *current output handle*
-      otherwise, with :samp:`{value}`
+   invoke the ``puts`` method associated with handle `handle`, if
+   supplied or the *current output handle* otherwise, with `value`
 
-      ``puts`` will use the *printed* conversion of :samp:`{value}`
-      rather than the *displayed* version
+   ``puts`` will use the *printed* conversion of `value` rather than
+   the *displayed* version
 
-:samp:`flush-handle {handle}`
+.. idio:function:: flush-handle handle
 
-      invoke the ``flush`` method associated with handle :samp:`{handle}`
+   invoke the ``flush`` method associated with handle `handle`
 
 .. _seek-handle:
 
-:samp:`seek-handle {handle} {pos} [{whence}]`
+.. idio:function:: seek-handle handle pos [whence]
 
-      invoke the ``seek`` method associated with handle
-      :samp:`{handle}` with :samp:`{pos}` and :samp:`{whence}`, if
-      supplied or ``'set`` otherwise
+   invoke the ``seek`` method associated with handle `handle` with
+   `pos` and `whence`, if supplied or ``'set`` otherwise
 
-      :samp:`{whence}` can be one of the *symbols* ``set``, ``end`` or
-      ``cur``.
+   `whence` can be one of the *symbols* ``set``, ``end`` or ``cur``.
 
-      See :ref:`handle-pos <handle-pos>` for the equivalent of a
-      ``tell-handle``.
+   See :ref:`handle-pos <handle-pos>` for the equivalent of a
+   ``tell-handle``.
 
-      Invoking ``seek-handle`` on a pipe handle will generate a
-      ^rt-parameter-value-error.
+   Invoking ``seek-handle`` on a pipe handle will generate a
+   :ref:`^rt-parameter-value-error`.
 
-:samp:`rewind-handle {handle}`
+.. idio:function:: rewind-handle handle
 
-      invoke the ``seek`` method associated with handle
-      :samp:`{handle}` with a *position* of zero and *whence* of
-      ``set``.
+   invoke the ``seek`` method associated with handle `handle` with a
+   *position* of zero and *whence* of ``set``.
 
-:samp:`close-handle {handle}`
+.. idio:function:: close-handle handle
 
-      invoke the ``close`` method associated with handle
-      :samp:`{handle}`
+   invoke the ``close`` method associated with handle `handle`
 
-:samp:`close-input-handle {handle}`
+.. idio:function:: close-input-handle handle
 
-      invoke the ``close`` method associated with input handle
-      :samp:`{handle}`
+   invoke the ``close`` method associated with input handle `handle`
 
-:samp:`close-output-handle {handle}`
+.. idio:function:: close-output-handle handle
 
-      invoke the ``close`` method associated with output handle
-      :samp:`{handle}`
+   invoke the ``close`` method associated with output handle `handle`
 
-:samp:`closed-handle? {handle}`
+.. idio:function:: closed-handle? handle
 
-      return ``#t`` if the handle :samp:`{handle}` has been closed and
-      ``#f`` otherwise
+   return ``#t`` if the handle `handle` has been closed and ``#f``
+   otherwise
 
-:samp:`eof-object? {value}`
+.. idio:function:: eof-object? value
 
-      return ``#t`` if the value :samp:`{value}` is the end-of-file
-      value
+   return ``#t`` if the value `value` is the end-of-file value
 
-:samp:`handle-line [{handle}]`
+.. idio:function:: handle-line [handle]
 
-      return the current line number in handle :samp:`{handle}` if
-      supplied otherwise the current input handle
+   return the current line number in handle `handle` if supplied
+   otherwise the current input handle
 
-      The line number can be invalidated by a :ref:`seek-handle
-      <seek-handle>` other than to position zero.
+   The line number can be invalidated by a :ref:`seek-handle
+   <seek-handle>` other than to position zero.
 
 .. _handle-pos:
 
-:samp:`handle-pos [{handle}]`
+.. idio:function:: handle-pos [handle]
 
-      return the current position in handle :samp:`{handle}` if
-      supplied otherwise the current input handle
+   return the current position in handle `handle` if supplied
+   otherwise the current input handle
 
-:samp:`handle-location {handle}`
+.. idio:function:: handle-location handle
 
-      return a description of the location handle :samp:`{handle}`
-      consisting of the handle's name, line number and position
+   return a description of the location handle `handle` consisting of
+   the handle's name, line number and position
 
-:samp:`load-handle {handle}`
+.. idio:function:: load-handle handle
 
-      load from handle :samp:`{handle}` "expression by expression."
-
-.. rst-class:: center
-
----
-
-:samp:`current-input-handle`
-
-      return the current input handle
-
-:samp:`current-output-handle`
-
-      return the current output handle
-
-:samp:`current-error-handle`
-
-      return the current error handle
-
-:samp:`set-input-handle! {handle}`
-
-      set the current input handle to handle :samp:`{handle}`
-
-:samp:`set-output-handle! {handle}`
-
-      set the current output handle to handle :samp:`{handle}`
-
-:samp:`set-error-handle! {handle}`
-
-      set the current error handle to handle :samp:`{handle}`
+   load from handle `handle` "expression by expression."
 
 .. rst-class:: center
 
 ---
 
-:samp:`read [{handle}]`
+.. idio:function:: current-input-handle
 
-      invoke the reader with handle :samp:`{handle}` if supplied
-      otherwise the current input handle
+   return the current input handle
 
-:samp:`read-expr [{handle}]`
+.. idio:function:: current-output-handle
 
-      invoke the expression reader with handle :samp:`{handle}` if
-      supplied otherwise the current input handle
+   return the current output handle
 
-:samp:`read-line [{handle}]`
+.. idio:function:: current-error-handle
 
-      return the next canonical line of text (up to a newline) as a
-      string from handle :samp:`{handle}` if supplied otherwise the
-      current input handle
+   return the current error handle
 
-:samp:`read-lines [{handle}]`
+.. idio:function:: set-input-handle! handle
 
-      return the remaining lines of text as a string from handle
-      :samp:`{handle}` if supplied otherwise the current input handle
+   set the current input handle to handle `handle`
 
-:samp:`read-char [{handle}]`
+.. idio:function:: set-output-handle! handle
 
-      return the UTF-8 character as a Unicode code point from handle
-      :samp:`{handle}` if supplied otherwise the current input handle
+   set the current output handle to handle `handle`
+
+.. idio:function:: set-error-handle! handle
+
+   set the current error handle to handle `handle`
+
+.. rst-class:: center
+
+---
+
+.. idio:function:: read [handle]
+
+   invoke the reader with handle `handle` if supplied otherwise the
+   current input handle
+
+.. idio:function:: read-expr [handle]
+
+   invoke the expression reader with handle `handle` if supplied
+   otherwise the current input handle
+
+.. idio:function:: read-line [handle]
+
+   return the next canonical line of text (up to a newline) as a
+   string from handle `handle` if supplied otherwise the current input
+   handle
+
+.. idio:function:: read-lines [handle]
+
+   return the remaining lines of text as a string from handle `handle`
+   if supplied otherwise the current input handle
+
+.. idio:function:: read-char [handle]
+
+   return the UTF-8 character as a Unicode code point from handle
+   `handle` if supplied otherwise the current input handle
 
 .. _write:
 
-:samp:`write {value} [{handle}]`
+.. idio:function:: write value [handle]
 
-      invoke the ``puts`` method associated with handle
-      :samp:`{handle}` if supplied otherwise the current input handle
-      with :samp:`{value}`
+   invoke the ``puts`` method associated with handle `handle` if
+   supplied otherwise the current input handle with `value`
 
-      ``write`` will use the *printed* conversion of :samp:`{value}`
-      rather than the *displayed* version.  See :ref:`display
-      <display>` below.
+   ``write`` will use the *printed* conversion of `value` rather than
+   the *displayed* version.  See :ref:`display <display>` below.
 
-:samp:`write-char {cp} [{handle}]`
+.. idio:function:: write-char cp [handle]
 
-      invoke the ``putc`` method associated with handle
-      :samp:`{handle}` if supplied otherwise the current input handle
-      with Unicode code point :samp:`{cp}`
+   invoke the ``putc`` method associated with handle `handle` if
+   supplied otherwise the current input handle with Unicode code point
+   `cp`
 
-      .. error::
+   .. error::
 	 
-	 ``putc`` doesn't generate UTF-8
+      ``putc`` doesn't generate UTF-8
 
-:samp:`newline [{handle}]`
+.. idio:function:: newline [handle]
 
-      invoke the ``putc`` method associated with handle
-      :samp:`{handle}` if supplied otherwise the current input handle
-      with Unicode code point U+000A (LINE FEED)
+   invoke the ``putc`` method associated with handle `handle` if
+   supplied otherwise the current input handle with Unicode code point
+   U+000A (LINE FEED)
 
 .. _display:
 
-:samp:`display {value} [{handle}]`
+.. idio:function:: display value [handle]
 
-      invoke the ``puts`` method associated with handle
-      :samp:`{handle}` if supplied otherwise the current input handle
-      with :samp:`{value}`
+   invoke the ``puts`` method associated with handle `handle` if
+   supplied otherwise the current input handle with `value`
 
-      ``display`` will use the *displayed* conversion of
-      :samp:`{value}` rather than the *printed* version.  See
-      :ref:`write <write>` above.
+   ``display`` will use the *displayed* conversion of `value` rather
+   than the *printed* version.  See :ref:`write <write>` above.
 
-      A function ``display*`` (and sibling functions ``edisplay`` and
-      ``edisplay*``) have been written to display multiple values
-      separated by a space and with a trailing newline (to the current
-      error handle).  These are largely deprecated in favour of
-      :ref:`printf <printf>` (and :ref:`eprintf <eprintf>`)
+   A function ``display*`` (and sibling functions ``edisplay`` and
+   ``edisplay*``) have been written to display multiple values
+   separated by a space and with a trailing newline (to the current
+   error handle).  These are largely deprecated in favour of
+   :ref:`printf <printf>` (and :ref:`eprintf <eprintf>`)
 
-:samp:`%printf {handle} {format} [{args}]`
+.. idio:function:: %printf handle format [args]
 
-      [deprecated in favour of :ref:`printf <printf>`]
+   [deprecated in favour of :ref:`printf <printf>`]
 
-      rudimentary support for :manpage:`printf(3)` and can only handle
-      ``%[flags][width][.precision]s`` for strings (with all
-      :lname:`Idio` values being converted to strings).
+   rudimentary support for :manpage:`printf(3)` and can only handle
+   :samp:`%[{flags}][{width}][.{prec}]s` for strings (with all
+   :lname:`Idio` values being converted to strings).
 
 .. rst-class:: center
 
@@ -1226,174 +1208,169 @@ In :file:`lib/common.idio` there are some extra utility functions.
 
 .. _`%format`:
 
-:samp:`%format {type} {format} [{args}]`
+.. idio:function:: %format type format [args]
 
-      This ``%format`` function (in :file:`lib/common.idio`) makes a
-      much better attempt at the vagaries of :manpage:`printf(3)` by
-      utilising some dynamic variables to convey the print conversion
-      *format* and *precision* to other parts of the system
+   This ``%format`` function (in :file:`lib/common.idio`) makes a much
+   better attempt at the vagaries of :manpage:`printf(3)` by utilising
+   some dynamic variables to convey the print conversion *format* and
+   *precision* to other parts of the system
 
-      You would not normally invoke ``%format`` directly but rather
-      use :ref:`format <format>` or one of the *printf* variants,
-      below.
+   You would not normally invoke ``%format`` directly but rather use
+   :ref:`format <format>` or one of the *printf* variants, below.
 
-      :samp:`{type}` is one of the *symbols*:
+   `type` is one of the *symbols*:
 
-      * ``args`` in which case a ``%`` character in the format string
-        starts an escape sequence which has the general form
-        :samp:`%[{flags}][{width}][.{prec}]{K}` where :samp:`{K}` is a
-        :manpage:`printf(3)`-ish format character with arguments in
-        the parameter list ``args``
+   * ``'args`` in which case a ``%`` character in the format string
+     starts an escape sequence which has the general form
+     :samp:`%[{flags}][{width}][.{prec}]{K}` where :samp:`K` is a
+     :manpage:`printf(3)`-ish format character with arguments in the
+     parameter list `args`
 
-	So, like a normal *printf*.  The idea being that we can print,
-	say, :lname:`Idio` integers as decimal (fixnums or bignums) or
-	hexadecimal, octal and binary (fixnums).
+     So, like a normal *printf*.  The idea being that we can print,
+     say, :lname:`Idio` integers as decimal (fixnums or bignums) or
+     hexadecimal, octal and binary (fixnums).
 
-	``%s`` should work for any :lname:`Idio` type.
+     ``%s`` should work for any :lname:`Idio` type.
 
-      * ``keyed`` in which case a ``%`` character in the format string
-        starts an escape sequence which has the general form
-        :samp:`%[{flags}][{width}][.{prec}]{K}` where :samp:`{K}` is a
-        single Unicode code point (satisfying ``unicode-alphabetic?``)
-        which is expected to be a key in the optional hash table --
-        unless it is another ``%`` character.  The value associated
-        with the key will be printed according to the specification.
+   * ``'keyed`` in which case a ``%`` character in the format string
+     starts an escape sequence which has the general form
+     :samp:`%[{flags}][{width}][.{prec}]{K}` where :samp:`K` is a
+     single Unicode code point (satisfying ``Alphabetic?``) which is
+     expected to be a key in the optional hash table -- unless it is
+     another ``%`` character.  The value associated with the key will
+     be printed according to the specification.
 
-      * ``timeformat`` which is essentially the same as ``keyed``
-        except we avoid a double application of any precision
+   * ``'timeformat`` which is essentially the same as ``'keyed``
+     except we avoid a double application of any precision
 
-	This is to support the ``time`` function's
-	:envvar:`TIMEFORMAT` format string which is of the form:
-	``"Real %.3R\nUser %.3U\nSyst %.3S\n"`` where ``%R``, ``%U``
-	and ``%S`` are now the consumed real time, user time and
-	system time.
+     This is to support the ``time`` function's :var:`TIMEFORMAT`
+     format string which is of the form: ``"Real %.3R\nUser %.3U\nSyst
+     %.3S\n"`` where ``%R``, ``%U`` and ``%S`` are now the consumed
+     real time, user time and system time.
 
-      If :samp:`{K}` is a ``%`` character then a ``%`` is printed
-      according to the specification.
+     If :samp:`K` is a ``%`` character then a ``%`` is printed
+     according to the specification.
 
-      The possible flags are:
+     The possible flags are:
 
-      .. csv-table:: ``%format`` supported flags
-	 :widths: auto
-	 :align: left
+     .. csv-table:: ``%format`` supported flags
+	:widths: auto
+	:align: left
 
-	 ``-``, U+002D (HYPHEN-MINUS), left align the output within :samp:`{width}` if applicable
-	 :literal:`\ `, U+0020 (SPACE), use ``#\{space}`` as the left padding character
-	 ``0``, U+0030 (DIGIT ZERO), use ``#\0`` as the left padding character
+	``-``, U+002D (HYPHEN-MINUS), left align the output within `width` if applicable
+	:literal:`\ `, U+0020 (SPACE), use ``#\{space}`` as the left padding character
+	``0``, U+0030 (DIGIT ZERO), use ``#\0`` (zero) as the left padding character
 
-      The default padding character is ``#\{space}``.
+     The default padding character is ``#\{space}``.
 
-      .. rst-class:: center
+     .. rst-class:: center
 
-      \*
+     \*
 
-      As the start of some work to make the printer more dynamic, you
-      can redefine how a struct instance or a :lname:`C` pointer is
-      printed.  By default, the format is :samp:`#<SI {typename}
-      {fields}>` where :samp:`{fields}` is a space-separated list of
-      :samp:`{fieldname}:{value}`.
+     As the start of some work to make the printer more dynamic, you
+     can redefine how a struct instance or a :lname:`C` pointer is
+     printed.  By default, the format is `#<SI typename fields>` where
+     `fields` is a space-separated list of `fieldname:value`.
 
-      As an alternative, you can register a "printer" against a struct
-      type and it will be called when an instance of that type is
-      printed.  The printer should return a string.
+     As an alternative, you can register a "printer" against a struct
+     type and it will be called when an instance of that type is
+     printed.  The printer should return a string.
 
-      By way of a simple example:
+     By way of a simple example:
 
-      .. code-block:: idio
+     .. code-block:: idio
 
-	 define-struct point x y
+	define-struct point x y
 
-	 P := make-point 1 2
+	P := make-point 1 2
 
-	 printf "%s\n" P	; #<SI point x:1 y:2>
+	printf "%s\n" P	; #<SI point x:1 y:2>
 
-	 define (point-as-string p seen) {
-	   if (point? p) {
-	     r := (open-output-string)
-	     hprintf r "#<SI point"
-	     hprintf r " x is %d" p.x
-	     hprintf r " and y is %d" p.y
-	     hprintf r ">"
-	     get-output-string r
-	   } #n
-	 }
+	define (point-as-string p seen) 
+	  if (point? p) {
+	    r := (open-output-string)
+	    hprintf r "#<SI point"
+	    hprintf r " x is %d" p.x
+	    hprintf r " and y is %d" p.y
+	    hprintf r ">"
+	    get-output-string r
+	   #n
+	}
 
-	 %%add-as-string point point-as-string
+	%%add-as-string point point-as-string
 
-	 printf "%s\n" P	; #<SI point x is 1 and y is 2>
+	printf "%s\n" P	; #<SI point x is 1 and y is 2>
 
-      The :samp:`{seen}` parameter to the printer function can be used
-      for any purpose.  The obvious use is to record values as they
-      are seen and pass :samp:`{seen}` onto similar printer thus
-      preventing circular loops.
+     The `seen` parameter to the printer function can be used for any
+     purpose.  The obvious use is to record values as they are seen
+     and pass `seen` onto similar printer thus preventing circular
+     loops.
 
-      In this case, suppose :samp:`{x}` should be another ``point`` or
-      ``#n`` (rather than an integer as we seem to be using it as).
-      Instead of calling :samp:`p.x` we might call
-      :samp:`(point-as-string x {updated-seen})`.  To avoid loops we
-      can add some checks and updates:
+     In this case, suppose `x` should be another ``point`` or ``#n``
+     (rather than an integer as we seem to be using it as).  Instead
+     of calling `p.x` we might call `(point-as-string x
+     updated-seen)`.  To avoid loops we can add some checks and
+     updates:
 
-      .. code-block:: idio
+     .. code-block:: idio
 
-	 define (point-as-string p seen) {
-	   if (point? p) {
-	     if (assq p seen) {
-	       "@"
-	     } {
-	       r := (open-output-string)
-	       hprintf r "#<SI point"
-	       hprintf r " x is %s" (point-as-string x (pair (list p) seen))
-	       hprintf r " and y is %d" p.y
-	       hprintf r ">"
-	       get-output-string r
-	     }
-	   } #n
-	 }
+	define (point-as-string p seen) 
+	  if (point? p) {
+	    if (assq p seen) {
+	      "@"
 
-      An example is in ``state-as-string`` in
-      :file:`lib/SRFI-115.idio` where the struct has an ID which can
-      be used to identify where the circular loop starts (or ends?)
-      rather than just returning ``"@"`` as we do.
+	      r := (open-output-string)
+	      hprintf r "#<SI point"
+	      hprintf r " x is %s" (point-as-string x (pair (list p) seen))
+	      hprintf r " and y is %d" p.y
+	      hprintf r ">"
+	      get-output-string r
+
+	  } #n
+	}
+
+     An example is in ``state-as-string`` in
+     :file:`lib/SRFI-115.idio` where the struct has an ID which can
+     be used to identify where the circular loop starts (or ends?)
+     rather than just returning ``"@"`` as we do.
 
 .. _format:
 
-:samp:`format {format} [{args}]`
+.. idio:function:: format format [args]
 
-      An invocation of :samp:`%format 'args {format} [{args}]`.
+   An invocation of `%format 'args format [args]`.
 
 .. _hprintf:
 
-:samp:`hprintf {handle} {format} [{args}]`
+.. idio:function:: hprintf handle format [args]
 
-      For the ``h`` in ``hprintf`` think of the leading ``f`` in
-      ``fprintf`` in :lname:`C` -- this is the generic "print to
-      *handle*" variant.
+   For the ``h`` in ``hprintf`` think of the leading ``f`` in
+   ``fprintf`` in :lname:`C` -- this is the generic "print to
+   *handle*" variant.
 
-      In practice it calls :ref:`display <display>` with the result of
-      :samp:`format {format} [{args}]`.
+   In practice it calls :ref:`display <display>` with the result of
+   `format format [args]`.
 
 .. _printf:
 
-:samp:`printf {format} [{args}]`
+.. idio:function:: printf format [args]
 
-      A call to :ref:`hprintf <hprintf>` with the *current output
-      handle*.
+   A call to :ref:`hprintf <hprintf>` with the *current output
+   handle*.
 
 .. _eprintf:
 
-:samp:`eprintf {format} [{args}]`
+.. idio:function:: eprintf format [args]
 
-      A call to :ref:`hprintf <hprintf>` with the *current error
-      handle*.
+   A call to :ref:`hprintf <hprintf>` with the *current error handle*.
 
 .. _sprintf:
 
-:samp:`sprintf {format} [{args}]`
+.. idio:function:: sprintf format [args]
 
-      A call to :ref:`hprintf <hprintf>` with an output string handle.
-      The result is a call to :ref:`get-output-string
-      <get-output-string>` on that output string handle.
-
+   A call to :ref:`hprintf <hprintf>` with an output string handle.
+   The result is a call to :ref:`get-output-string
+   <get-output-string>` on that output string handle.
 
 
 .. include:: ../../commit.rst

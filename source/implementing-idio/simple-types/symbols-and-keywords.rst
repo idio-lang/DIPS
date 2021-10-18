@@ -310,30 +310,29 @@ workable.
 Operations
 ==========
 
-:samp:`gensym [{prefix}]`
+.. idio:function:: gensym [prefix]
 
-      generate a new *unique* symbol using :samp:`{prefix}` if
-      supplied or ``g`` followed by ``/``
+   generate a new *unique* symbol using `prefix` if supplied or ``g``
+   followed by ``/``
 
-      Such *gensyms* are not guaranteed to be unique if saved.
+   Such *gensyms* are not guaranteed to be unique if saved.
 
-:samp:`symbol? {value}`
+.. idio:function:: symbol? value
 
-      is :samp:`{value}` a symbol
+   is `value` a symbol
 
 .. _`symbol->string`:
 
-:samp:`symbol->string {symbol}`
+.. idio:function:: symbol->string symbol
 
-      return a string constructed from the UTF-8 Unicode code points
-      in :samp:`{symbol}`
+   return a string constructed from the UTF-8 Unicode code points in
+   `symbol`
 
-      See also :ref:`string->symbol <string->symbol>`.
+   See also :ref:`string->symbol <string->symbol>`.
    
-:samp:`symbols`
+.. idio:function:: symbols
 
-      return a list of all symbols
-
+   return a list of all symbols
 
 
 .. _keywords:
@@ -382,42 +381,41 @@ out and "keyword" written in in crayon.
 Operations
 ==========
 
-:samp:`make-keyword {s}`
+.. idio:function:: make-keyword s
 
-      make a keyword from the *symbol* or *string* :samp:`{s}`
+   make a keyword from the *symbol* or *string* `s`
 
-:samp:`keyword? {value}`
+.. idio:function:: keyword? value
 
-      is :samp:`{value}` a keyword
+   is `value` a keyword
 
 .. _`keyword->string`:
 
-:samp:`keyword->string {keyword}`
+.. idio:function:: keyword->string keyword
 
-      return a string constructed from the UTF-8 Unicode code points
-      in :samp:`{keyword}`
+   return a string constructed from the UTF-8 Unicode code points in
+   `keyword`
 
-:samp:`keywords`
+.. idio:function:: keywords
 
-      return a list of all keywords
+   return a list of all keywords
 
-:samp:`make-keyword-table [{size}]`
+.. idio:function:: make-keyword-table [size]
 
-      used for constructing property tables
+   used for constructing property tables
 
-:samp:`keyword-ref {kt} {keyword} [{default}]`
+.. idio:function:: keyword-ref kt keyword [default]
 
-      return the value associated with keyword :samp:`{keyword}` from
-      the keyword table :samp:`{kt}` or :samp:`{default}` if supplied
+   return the value associated with keyword `keyword` from the keyword
+   table `kt` or `default` if supplied
 
-      If :samp:`{keyword}` is not defined in :samp:`{kt}` and
-      :samp:`{default}` is not supplied then an
-      ``^rt-hash-key-not-found-error`` condition will be raised.
+   If `keyword` is not defined in `kt` and `default` is not supplied
+   then an ``^rt-hash-key-not-found-error`` condition will be raised.
 
-:samp:`keyword-set! {kt} {keyword} {value}`
+.. idio:function:: keyword-set! kt keyword value
 
-      set the value associated with keyword :samp:`{keyword}` in
-      the keyword table :samp:`{kt}` to :samp:`{value}`
+   set the value associated with keyword `keyword` in the keyword
+   table `kt` to `value`
 
 
 .. include:: ../../commit.rst

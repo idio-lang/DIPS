@@ -157,88 +157,85 @@ Several list-oriented functions have the benefit of not being named
 after the value-type they manipulate.  The benefits of being the
 primary data structure, I guess.
 
-:samp:`pair {h} {t}`
+.. idio:function:: pair h t
 
-      construct a pair from :samp:`{h}` and :samp:`{t}`
+   construct a pair from `h` and `t`
 
-:samp:`pair? {value}`
+.. idio:function:: pair? value
 
-      is :samp:`{value}` a pair
+   is `value` a pair
 
-:samp:`ph {p}`
+.. idio:function:: ph p
 
-      return the head of pair :samp:`{p}`
+   return the head of pair `p`
 
-:samp:`pt {p}`
+.. idio:function:: pt p
 
-      return the tail of pair :samp:`{p}`
+   return the tail of pair `p`
 
-:samp:`set-ph! {p} {value}`
+.. idio:function:: set-ph! p value
 
-      set the head of pair :samp:`{p}` to :samp:`{value}`
+   set the head of pair `p` to `value`
 
-:samp:`set-pt! {p} {value}`
+.. idio:function:: set-pt! p value
 
-      set the tail of pair :samp:`{p}` to :samp:`{value}`
+   set the tail of pair `p` to `value`
 
-:samp:`reverse {list}`
+.. idio:function:: reverse list
 
-      return the list :samp:`{list}` reversed
+   return the list `list` reversed
 
-      This is very commonly used when a list is constructed in reverse
-      order when walking down an argument list and the corrected
-      reversed list is required.
+   This is very commonly used when a list is constructed in reverse
+   order when walking down an argument list and the corrected reversed
+   list is required.
 
-      There is a special case for when processing improper lists,
-      eg. ``(1 2 & 3)``, to accommodate which the underlying
-      :lname:`C` function for list reversal, ``idio_list_reverse()``,
-      indirects through ``idio_improper_list_reverse()``.
+   There is a special case for when processing improper lists,
+   eg. ``(1 2 & 3)``, to accommodate which the underlying :lname:`C`
+   function for list reversal, ``idio_list_reverse()``, indirects
+   through ``idio_improper_list_reverse()``.
 
-      You cannot reverse an improper list in :lname:`Idio`.
+   You cannot reverse an improper list in :lname:`Idio`.
 
-:samp:`length {list}`
+.. idio:function:: length list
 
-      return the number of pairs in list :samp:`{list}`
+   return the number of pairs in list `list`
 
-      This does not accommodate improper lists.
+   This does not accommodate improper lists.
 
-:samp:`list [{args}]`
+.. idio:function:: list [args]
 
-      construct a list from :samp:`{args}`
+   construct a list from `args`
 
-:samp:`append {a} {b}`
+.. idio:function:: append a b
 
-      construct a list from list :samp:`{a}` and list :samp:`{b}` such
-      that the resultant list is a copy of list :samp:`{a}` except the
-      final pair's tail is a reference to list :samp:`{b}`.
+   construct a list from list `a` and list `b` such that the resultant
+   list is a copy of list `a` except the final pair's tail is a
+   reference to list `b`.
 
-      Debatably, this should be a copy of list :samp:`{b}` too.
+   Debatably, this should be a copy of list `b` too.
 
 .. _`list->array`:
 
-:samp:`list->array {list}`
+.. idio:function:: list->array list
 
-      return an array constructed from the elements of list
-      :samp:`{list}`
+   return an array constructed from the elements of list `list`
 
-      See also :ref:`array->list <array->list>`.
+   See also :ref:`array->list <array->list>`.
 
 .. _`list->string`:
 
-:samp:`list->string {list}`
+.. idio:function:: list->string list
 
-      return a string constructed from the Unicode code points in
-      :samp:`{list}`
+   return a string constructed from the Unicode code points in `list`
 
-      See also :ref:`string->list <string->list>`.
+   See also :ref:`string->list <string->list>`.
 
-:samp:`nth {list} {n} [{default}]`
+.. idio:function:: nth list n [default]
 
-      return the :samp:`{n}`\ :sup:`th` element of list :samp:`{list}`
-      starting at one
+   return the `n`\ :sup:`th` element of list `list` starting at one
 
-      If there is no such element then :samp:`{default}` is returned
-      if supplied otherwise ``#n``.
+   If there is no such element then `default` is returned if supplied
+   otherwise ``#n``.
 
 .. include:: ../../commit.rst
 

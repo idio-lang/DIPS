@@ -250,173 +250,166 @@ Operations
 Above and beyond the normal hash table accessors there is a
 :lname:`Scheme`-ish functional feel.
 
-:samp:`hash? {value}`
+.. idio:function:: hash? value
 
-      is :samp:`{value}` a hash table?
+   is `value` a hash table?
 
-:samp:`make-hash [{equiv-func} [{hash-func} [{size}]]]`
+.. idio:function:: make-hash [equiv-func [hash-func [size]]]
 
-      :samp:`{equiv-func}` defines the equivalence function when
-      comparing elements in the hash table and can be one of the
-      following:
+   `equiv-func` defines the equivalence function when comparing
+   elements in the hash table and can be one of the following:
 
-      #. one of the *symbols*:
+   #. one of the *symbols*:
 
-	 - ``eq?`` meaning use the :lname:`C` implementation of ``eq?``
+      - ``eq?`` meaning use the :lname:`C` implementation of ``eq?``
 
-	 - ``eqv?`` meaning use the :lname:`C` implementation of
-           ``eqv?``
+      - ``eqv?`` meaning use the :lname:`C` implementation of ``eqv?``
 
-	 - ``equal?`` meaning use the :lname:`C` implementation of
-           ``equal?``
+      - ``equal?`` meaning use the :lname:`C` implementation of
+        ``equal?``
 
-      #. ``#n`` meaning use the :lname:`C` implementation of
-         ``equal?`` (cf. the symbol ``equal?`` above)
+   #. ``#n`` meaning use the :lname:`C` implementation of ``equal?``
+      (cf. the symbol ``equal?`` above)
 
-	 ``make-hash #n`` and ``make-hash 'equal?`` are equivalent.
+      ``make-hash #n`` and ``make-hash 'equal?`` are equivalent.
 
-      #. an :lname:`Idio` function which should be binary (ie. takes
-         two arguments) and returns ``#f`` or some other value
+   #. an :lname:`Idio` function which should be binary (ie. takes two
+      arguments) and returns ``#f`` or some other value
 
-      :samp:`{hash-func}` defines the hashing function for placing
-      elements in the hash table and can be one of the following:
+   `hash-func` defines the hashing function for placing elements in
+   the hash table and can be one of the following:
 
-      * ``#n`` meaning use the :lname:`C` default hashing function
+   * ``#n`` meaning use the :lname:`C` default hashing function
 
-      * an :lname:`Idio` function which should be unary (ie. takes one
-        argument) and returns an integer
+   * an :lname:`Idio` function which should be unary (ie. takes one
+     argument) and returns an integer
 
-      :samp:`{size}` gives :lname:`Idio` a hint as to the size of the
-      allocated internal array.  The actual size is likely to be some
-      function of the smallest :samp:`2**n - 1` that is greater than
-      or equal to :samp:`{size}`.
+   `size` gives :lname:`Idio` a hint as to the size of the allocated
+   internal array.  The actual size is likely to be some function of
+   the smallest `2**n - 1` that is greater than or equal to `size`.
 
-      The ``eqv?`` equivalence function is nearly useless, on
-      reflection.  The problem is not that ``eqv?`` doesn't work but
-      rather that whilst ``1`` and ``1.0`` are equivalent according to
-      ``eqv?`` they will be hashed differently because they are
-      different types, meaning they will most likely land in different
-      buckets and therefore there is unlikely to be anything to be
-      ``eqv?`` against in the found chain.
+   The ``eqv?`` equivalence function is nearly useless, on reflection.
+   The problem is not that ``eqv?`` doesn't work but rather that
+   whilst ``1`` and ``1.0`` are equivalent according to ``eqv?`` they
+   will be hashed differently because they are different types,
+   meaning they will most likely land in different buckets and
+   therefore there is unlikely to be anything to be ``eqv?`` against
+   in the found chain.
 
-      I'm leaving it in because 1) I can and b) someone might derive a
-      hashing function where two numbers that would be ``eqv?``
-      generate the same hash value.
+   I'm leaving it in because 1) I can and b) someone might derive a
+   hashing function where two numbers that would be ``eqv?`` generate
+   the same hash value.
 
-:samp:`hash-equivalence-function {hash}`
+.. idio:function:: hash-equivalence-function hash
 
-      return the equivalence function being used for the hash table
-      :samp:`{hash}`
+   return the equivalence function being used for the hash table
+   `hash`
 
-:samp:`hash-hash-function {hash}`
+.. idio:function:: hash-hash-function hash
 
-      return the hashing function being used for the hash table
-      :samp:`{hash}`
+   return the hashing function being used for the hash table `hash`
 
-      This returns ``#n`` for the :lname:`C` default hashing function.
+   This returns ``#n`` for the :lname:`C` default hashing function.
 
-:samp:`hash-size {hash}`
+.. idio:function:: hash-size hash
 
-      return the number of elements in hash :samp:`{hash}`
+   return the number of elements in hash `hash`
 
-      There is no function to return the actual allocated size though
-      :ref:`idio-dump <idio-dump>` might disclose it.
+   There is no function to return the actual allocated size though
+   :ref:`idio-dump <idio-dump>` might disclose it.
 
 .. _hash-ref:
 
-:samp:`hash-ref {hash} {key} [{default}]`
+.. idio:function:: hash-ref hash key [default]
 
-      return the value at key :samp:`{key}` of hash :samp:`{hash}` or
-      :samp:`{default}` if it is not present
+   return the value at key `key` of hash `hash` or `default` if it is
+   not present
 
-      If no :samp:`{default}` is supplied then if :samp:`{key}` is not
-      present the ``^rt-hash-key-not-found`` condition will be raised.
+   If no `default` is supplied then if `key` is not present the
+   ``^rt-hash-key-not-found`` condition will be raised.
 
-:samp:`hash-set! {hash} {key} {value}`
+.. idio:function:: hash-set! hash key value
 
-      set the key :samp:`{key}` of hash :samp:`{hash}` to
-      :samp:`{value}`
+   set the key `key` of hash `hash` to `value`
 
-:samp:`hash-delete! {hash} {key}`
+.. idio:function:: hash-delete! hash key
 
-      delete the key :samp:`{key}` from hash :samp:`{hash}`
+   delete the key `key` from hash `hash`
 
-:samp:`hash-exists? {hash} {key}`
+.. idio:function:: hash-exists? hash key
 
-      return ``#t`` if the key :samp:`{key}` exists in hash
-      :samp:`{hash}` or ``#f`` otherwise
+   return ``#t`` if the key `key` exists in hash `hash` or ``#f``
+   otherwise
 
-:samp:`hash-keys {hash}`
+.. idio:function:: hash-keys hash
 
-      return a list of the keys of :samp:`{hash}`
+   return a list of the keys of `hash`
 
-:samp:`hash-values {hash}`
+.. idio:function:: hash-values hash
 
-      return a list of the values of :samp:`{hash}`
+   return a list of the values of `hash`
 
-:samp:`alist->hash {assoc-list}`
+.. idio:function:: alist->hash assoc-list
 
-      return a hash table constructed from the entries in the
-      :term:`association list` :samp:`{assoc-list}`
+   return a hash table constructed from the entries in the
+   :term:`association list` `assoc-list`
 
-:samp:`hash-update! {hash} {key} {func} [{default}]`
+.. idio:function:: hash-update! hash key func [default]
 
-      set the key :samp:`{key}` of hash :samp:`{hash}` to the result
-      of calling :samp:`{func}` on the *existing value* associated
-      with :samp:`{key}` in :samp:`{hash}`
+   set the key `key` of hash `hash` to the result of calling `func` on
+   the *existing value* associated with `key` in `hash`
 
-      :samp:`{func}` should be a unary function (takes 1 argument!)
+   `func` should be a unary function (takes 1 argument!)
 
-      :samp:`{default}` serves the same purpose as for :ref:`hash-ref
+   `default` serves the same purpose as for :ref:`hash-ref
       <hash-ref>`
 
-      It is approximately
+   It is approximately:
 
-      :samp:`hash-set! {hash} {key} ({func} (hash-ref {hash} {key}
-      [{default}]))`
+   .. code-block:: idio
 
-:samp:`hash-walk {hash} {func}`
+      hash-set! hash key (func (hash-ref hash key [default]))
 
-      :samp:`{hash}` will be iterated over in some order and
-      :samp:`{func}` will be called with each "key value" tuple
+.. idio:function:: hash-walk hash func
 
-      :samp:`{func}` should be a binary function (takes 2 arguments!)
+   `hash` will be iterated over in some order and `func` will be
+   called with each "key value" tuple
 
-      :samp:`{func}` may modify or otherwise perturb :samp:`{hash}`
+   `func` should be a binary function (takes 2 arguments!)
 
-:samp:`hash-fold {hash} {func} {val}`
+   `func` may modify or otherwise perturb `hash`
 
-      :samp:`{hash}` will be iterated over in some order and
-      :samp:`{func}` will be called with each "key value *val*" tuple
+.. idio:function:: hash-fold hash func val
 
-      :samp:`{func}` should be a ternary function (takes 3 arguments!)
+   `hash` will be iterated over in some order and `func` will be
+   called with each "key value *val*" tuple
 
-      The result of calling the function is the new :samp:`{val}` for
-      the next iteration.
+   `func` should be a ternary function (takes 3 arguments!)
 
-      :samp:`{func}` may modify or otherwise perturb :samp:`{hash}`
+   The result of calling the function is the new `val` for the next
+   iteration.
 
-      The return value is the result of the final call to
-      :samp:`{func}`.
+   `func` may modify or otherwise perturb `hash`
 
-:samp:`copy-hash {hash} [{depth}]`
+   The return value is the result of the final call to `func`.
 
-      copy hash :samp:`{hash}`
+.. idio:function:: copy-hash hash [depth]
 
-      :samp:`{depth}` can be the symbol ``'deep`` or ``'shallow``
-      where ``'deep`` will recursively copy the elements of
-      :samp:`{hash}` whereas ``'shallow`` will just reference the same
-      values as in :samp:`{hash}`
+   copy hash `hash`
 
-:samp:`merge-hash! {hash1} {hash2}`
+   `depth` can be the symbol ``'deep`` or ``'shallow`` where ``'deep``
+   will recursively copy the elements of `hash` whereas ``'shallow``
+   will just reference the same values as in `hash`
 
-      this is a destructive merge of the key-value tuples of
-      :samp:`{hash2}` into :samp:`{hash1}`
+.. idio:function:: merge-hash! hash1 hash2
+
+   this is a destructive merge of the key-value tuples of `hash2` into
+   `hash1`
 
 Conditions
 ----------
 
-``^rt-hash-error-key-not-found``
+.. idio:condition:: ``^rt-hash-error-key-not-found``
 
 
 .. include:: ../../commit.rst

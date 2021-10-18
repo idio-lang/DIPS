@@ -252,120 +252,114 @@ Conditions
 Operations
 ==========
 
-:samp:`array? {value}`
+.. idio:function:: array? value
 
-      is :samp:`{value}` an array
+   is `value` an array
 
-:samp:`array [{args}]`
+.. idio:function:: array [args]
 
-      construct an array from the arguments :samp:`{args}`
+   construct an array from the arguments `args`
 
-      The initial used size will be the length of :samp:`{args}`.
+   The initial used size will be the length of `args`.
 
-:samp:`make-array {size} [{default}]`
+.. idio:function:: make-array size [default]
 
-      construct an array of :samp:`{size}` elements setting each to
-      the default value :samp:`{default}` if supplied otherwise ``#f``
+   construct an array of `size` elements setting each to the default
+   value `default` if supplied otherwise ``#f``
 
-:samp:`copy-array {array} [{depth} [{extra}]]`
+.. idio:function:: copy-array array [depth [extra]]
 
-      return a copy array of :samp:`{array}`
+   return a copy array of `array`
 
-      :samp:`{depth}` can be the *symbol*:
+   `depth` can be the *symbol*:
 
-      * ``shallow`` meaning each element in the new array is simply a
-        reference to the element in the original array
+   * ``shallow`` meaning each element in the new array is simply a
+     reference to the element in the original array
 
-      * ``deep`` meaning that each element in the new array is a
-        (recursive) copy of the element in the original array
+   * ``deep`` meaning that each element in the new array is a
+     (recursive) copy of the element in the original array
 
-      :samp:`{extra}` indicates by how many more elements the array's
-      *allocation* should be grown -- presumably in preparation for
-      some impending use.  This avoids the risk of the new array
-      doubling in size if the growth is known in advance.  The initial
-      in-use size will be the same size as the original array
-      :samp:`{array}`.
+   `extra` indicates by how many more elements the array's
+   *allocation* should be grown -- presumably in preparation for some
+   impending use.  This avoids the risk of the new array doubling in
+   size if the growth is known in advance.  The initial in-use size
+   will be the same size as the original array `array`.
 
-:samp:`array-fill! {array} {fill}`
+.. idio:function:: array-fill! array fill
 
-      set every currently in-use element of array :samp:`{array}` to
-      :samp:`{fill}`
+   set every currently in-use element of array `array` to `fill`
 
-:samp:`array-length {array}`
+.. idio:function:: array-length array
 
-      return the number of in-use elements of array :samp:`{array}`
+   return the number of in-use elements of array `array`
 
-      Technically this returns the index of the highest in-use element
-      plus one.
+   Technically this returns the index of the highest in-use element
+   plus one.
 
-:samp:`array-ref {array} {index}`
+.. idio:function:: array-ref array index
 
-      return the value at index :samp:`{index}` of array
-      :samp:`{array}`
+   return the value at index `index` of array `array`
 
-      :samp:`{index}` must be an integer and within the bounds of the
-      used elements of the array.
+   `index` must be an integer and within the bounds of the used
+   elements of the array.
 
-      :samp:`{index}` can be negative in which case the calculated
-      index is :samp:`{array-length} + {index}`.
+   `index` can be negative in which case the calculated index is
+   `array-length + index`.
 
-:samp:`array-set! {array} {index} {value}`
+.. idio:function:: array-set! array index value
 
-      set the value at index :samp:`{index}` of array :samp:`{array}`
-      to :samp:`{value}`
+   set the value at index `index` of array `array` to `value`
 
-      :samp:`{index}` must be an integer and within the bounds of the
-      used elements of the array.
+   `index` must be an integer and within the bounds of the used
+   elements of the array.
 
-      :samp:`{index}` can be negative in which case the calculated
-      index is :samp:`{array-length} + {index}`.
+   `index` can be negative in which case the calculated index is
+   `array-length + index`.
 
 .. _`array-push`:
 
-:samp:`array-push! {array} {value}`
+.. idio:function:: array-push! array value
 
-      add value :samp:`{value}` onto the *end* of array
-      :samp:`{array}`
+   add value `value` onto the *end* of array `array`
 
-      This is a means to grow the size of the array.
+   This is a means to grow the size of the array.
 
 .. _`array-pop`:
 
-:samp:`array-pop! {array}`
+.. idio:function:: array-pop! array
 
-      return the value :samp:`{value}` at the *end* of array
-      :samp:`{array}` and decrease the size of the array by one.
+   return the value `value` at the *end* of array `array` and decrease
+   the size of the array by one.
 
-      This is a means to shrink the in-use size of the array.  An
-      array's *allocated* size is not current reduced.
+   This is a means to shrink the in-use size of the array.  An array's
+   *allocated* size is not current reduced.
 
 .. _`array-unshift`:
 
-:samp:`array-unshift! {array} {value}`
+.. idio:function:: array-unshift! array value
 
-      add value :samp:`{value}` onto the *start* of array
-      :samp:`{array}` -- all the other values are shifted up by one
-      index.
+   add value `value` onto the *start* of array `array` -- all the
+   other values are shifted up by one index.
 
-      This is a means to grow the size of the array.
+   This is a means to grow the size of the array.
 
 .. _`array-shift`:
 
-:samp:`array-shift! {array}`
+.. idio:function:: array-shift! array
 
-      return the value :samp:`{value}` at the *start* of array
-      :samp:`{array}` and decrease the size of the array by one.
+   return the value `value` at the *start* of array `array` and
+   decrease the size of the array by one.
 
-      This is a means to shrink the in-use size of the array.  An
-      array's *allocated* size is not current reduced.
+   This is a means to shrink the in-use size of the array.  An array's
+   *allocated* size is not current reduced.
 
 .. _array->list:
 
-:samp:`array->list {array}`
+.. idio:function:: array->list array
 
-      return the elements of array :samp:`{array}` as a list.
+   return the elements of array `array` as a list.
 
-      See also :ref:`list->array <list->array>`.
+   See also :ref:`list->array <list->array>`.
 
 
 .. include:: ../../commit.rst
