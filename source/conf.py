@@ -85,6 +85,7 @@ html_theme_options = {
     # (which we comment out below) but we re-use in the header
     'extra_nav_links': {
         'Home': '/',
+        'Guide': '/docs/guide/',
         'Reference': '/docs/ref/',
         'DIPS': '/docs/DIPS/',
     },
@@ -94,6 +95,7 @@ html_sidebars = {
     '**': [
         'about.html',
         # 'navigation.html',
+        'localtoc.html',
         'relations.html',
         'searchbox.html',
         'donate.html',

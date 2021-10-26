@@ -7,7 +7,7 @@ from sphinx.util.docutils import SphinxDirective
 # the git-oriented features are derived from Daniel Watkins'
 # sphinx-git code
 
-from datetime import datetime
+from datetime import datetime, timezone
 from git import Repo
 
 ##############################
@@ -40,7 +40,7 @@ class AsideDirective(SphinxDirective):
         self.state.nested_parse(self.content, self.content_offset, aside_node)
 
         return [targetnode, aside_node]
-    
+
 ##############################
 
 class sidebox(nodes.General, nodes.Element):
@@ -114,8 +114,8 @@ class GitCommitDirective (SphinxDirective):
         self.sha_length = self.options.get ('sha_length',
                                             self.default_sha_length)
 
-        now = datetime.now()
-        text = "Last built on {0} at {1} from ".format (now.strftime ("%Y/%m/%d"), now.strftime ("%H:%M:%S"))
+        now = datetime.now(timezone.utc)
+        text = "Last built at {0} from ".format (now.strftime ("%Y-%m-%dT%H:%M:%SZ%z"))
         if 'commit' in self.options:
             text += "{0}".format (self.commit.hexsha[:self.sha_length])
         if 'branch' in self.options and self.branch_name is not None:
@@ -138,15 +138,15 @@ def setup(app):
     app.add_directive("aside", AsideDirective)
     app.add_directive("sidebox", SideboxDirective)
     app.add_directive("gitcommit", GitCommitDirective)
-    
+
     app.add_node(aside,
                  html=(visit_aside_html, depart_aside_html),
                  text=(visit_aside_text, depart_aside_text))
-    
+
     app.add_node(sidebox,
                  html=(visit_sidebox_html, depart_sidebox_html),
                  text=(visit_sidebox_text, depart_sidebox_text))
-    
+
     app.add_node(gitcommit,
                  html=(visit_gitcommit_html, depart_gitcommit_html),
                  text=(visit_gitcommit_text, depart_gitcommit_text))
