@@ -244,11 +244,7 @@ The other constant types are (``ccc``):
 
 * (``010``) intermediate code tokens -- *stuff* -- we'll get there!
 
-* (``011``) characters -- historic :lname:`Scheme`-style characters
-  which were essentially ASCII_/ISO8859_ or :lname:`C`-style bytes,
-  now deprecated
-
-* (``100``) Unicode code points -- of course!
+* (``011``) Unicode code points -- of course!
 
 There are some macros for the above but they've become slightly
 involved as I've abstracted out the number of bits and the shifts and

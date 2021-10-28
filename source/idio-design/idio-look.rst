@@ -1544,7 +1544,7 @@ A triple semicolon, ``;;;`` is usually indented at column 0.
 S-exp
 -----
 
-You can usually comment out an entire s-exp with ``#;`` including
+You can usually comment out an entire s-exp with ``#;``, including
 multi-line s-exps:
 
 .. code-block:: scheme
@@ -1556,7 +1556,7 @@ multi-line s-exps:
 
 should avoid ``a`` changing value.
 
-I'm not sure is all :lname:`Scheme` implementations support this.
+I'm not sure if all :lname:`Scheme` implementations support this.
 
 Multi-line
 ----------
