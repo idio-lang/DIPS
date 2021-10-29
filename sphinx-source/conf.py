@@ -18,9 +18,9 @@ sys.path.append(os.path.abspath('./_ext'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Idio'
+project = 'DIPS'
 now = datetime.datetime.now()
-copyright = '{0}, Ian Fitchet'.format (now.year)
+copyright = '2020-{0}, Ian Fitchet'.format (now.year)
 author = 'Ian Fitchet'
 
 # The full version, including alpha/beta/rc tags
@@ -33,6 +33,8 @@ release = '0.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.todo',
+    'sphinxcontrib.bibtex',
     'sphinx.ext.graphviz',
     'sphinx.ext.intersphinx',
     'sphinx_git',
@@ -49,6 +51,10 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+todo_include_todos = True
+
+bibtex_bibfiles = ['refs.bib']
+
 intersphinx_mapping = {
     'ref': ('https://idio-lang.org/docs/ref', None),
 }
@@ -64,7 +70,7 @@ html_theme = 'idio-theme'
 
 html_theme_path = ['.']
 
-html_short_title = 'Idio'
+html_short_title = 'DIPS'
 
 # Alabaster theme options
 html_theme_options = {
@@ -78,7 +84,7 @@ html_theme_options = {
     # https://github.com/{github_user}/{github_repo}
     'github_button': True,
     'github_user': 'idio-lang',
-    'github_repo': 'sphinx-source',
+    'github_repo': 'DIPS',
 
     # Normally these would be used in the sidebar navigation.html
     # (which we comment out below) but we re-use in the header
