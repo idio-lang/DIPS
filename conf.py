@@ -95,6 +95,7 @@ html_theme_options = {
         'Getting': '/get.html',
         'Roadmap': '/roadmap.html',
         'DIPS': '/docs/DIPS/',
+        'Support': '/support.html',
     },
 }
 
