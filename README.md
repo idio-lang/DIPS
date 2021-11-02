@@ -10,7 +10,7 @@ talent for any problems I now have.
 I take a look at the shell, where it came from, some of the historic
 players and note the surprisingly busy marketplace for new shells.  I
 keep forgetting to add new shells to my list so apologies to you if
-I've missed you off my list.
+I've missed you off.
 
 I then look at *Scheme* which has provided me with the inspiration for
 a solution.  Inspired-by-Scheme has taken me down some paths that are
@@ -44,7 +44,8 @@ I then get into the nitty-gritty:
   VM
 
   As is the way of these things, once you're up and running, there's
-  nothing to stop you re-writing the evaluator in your language.
+  nothing to stop you re-writing the evaluator in your language, the
+  *meta-circular evaluator*.
 
 * hiding in the background of that is a need for a *Garbage Collector*
 
