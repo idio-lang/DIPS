@@ -17,6 +17,7 @@ Bringing a shell to life.
    pipelines
    async-commands
    process-substitution
+   logical
    libc
 
 .. include:: ../../commit.rst

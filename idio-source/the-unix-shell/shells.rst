@@ -148,6 +148,11 @@ Stepping away from regular shells, :ref-author:`Olin Shivers`' Scsh_
 is a shell embedded in :lname:`Scheme` together with a syscall library
 for systems programming.
 
+Following the idea of a programming language with shell-like syntax,
+there's :ref-author:`Anthony Scopatz`'s `Xonsh <https://xon.sh>`_
+(from 2015) which implements a shell in Python and/or Python in the
+shell.
+
 There are even papers being written about `The Once and Future Shell
 <https://angelhof.github.io/files/papers/shell-2021-hotos.pdf>`_.
 

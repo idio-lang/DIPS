@@ -54,6 +54,107 @@ straight-forward it is and then read the code for ``fork-command`` in
 That's for a simple foreground or background command.  When it comes
 to pipelines there is a long row and a lot of ducks.
 
+Processes
+---------
+
+There's more than meets the eye, here.
+
+From the perspective of the pipeline generating code, being a
+template, it doesn't know what the meaning of any of the sub-processes
+are:
+
+.. parsed-literal::
+
+   rhubarb rhubarb | custard custard
+
+It doesn't know if any of that is non-external command :lname:`Idio`
+code, say, ``printf``, or is an actual external command, say,
+``echo``, or a block of code that mixes external and non-external
+commands together.  It's just *stuff*.
+
+All that the pipeline operator can do is arrange for the whole
+"sub-process joined with a pipe to sub-process" malarkey to be set up
+and have the appropriate sub-process command expanded in situ.
+
+The only extra we're going to add is that after the expansion of the
+command we'll add an ``exit 0`` otherwise the sub-process will carry
+on running what the main process was about to do.  That's will get
+messy very quickly!
+
+* generate pipe 1
+
+* fork 1
+
+  * child process 1
+
+    * input inherited from parent
+
+    * output into pipe 1
+
+    * expand command, ``rhubard rhubard``
+
+    * add ``exit 0``
+
+* fork 2
+
+  * child process 2
+
+    * input from pipe 1
+
+    * output inherited from parent
+
+    * expand command, ``custard custard``
+
+    * add ``exit 0``
+
+As all of that was codified in a template then when it is run the
+actual sub-process commands, ``rhubard rhubard`` and ``custard
+custard``, will each appear in their own child process with their I/O
+redirected through a joining :manpage:`pipe(2)`.
+
+Commands
+^^^^^^^^
+
+What if ``rhubard rhubard`` or ``custard custard`` was an external
+command or a block that included an external command?
+
+Here, when the VM sees a symbol (or string) in functional position it
+will call on the :lname:`C` code to run a child process, just as if
+you had typed ``ls -l`` at the command prompt.
+
+The only difference is that this child process is a child of one of
+the child processes of the pipeline.  Sub-process 1.1 or 2.1, say.
+
+exit-on-error
+^^^^^^^^^^^^^
+
+All of the above is good apart from handling errors.  If, say,
+``rhubard rhubard`` was an external command then if it fails we really
+want the left hand side of the *pipeline* to fail (preferably in the
+same way) even though the process that has failed is a *child* of one
+of the sub-processes of the pipeline.
+
+Hence we have the exit-on-error mechanism whereby the default
+behaviour is for :lname:`Idio` to exit in the same that the errant
+sub-process did.
+
+So, if ``rhubard rhubard`` exits non-zero, or is killed, then we want
+child process 1 to react to that by exiting in the same way.
+
+Winding back upwards, if child process 1, of the *pipeline*, exits
+non-zero, or is killed, then the parent :lname:`Idio` process, the one
+that launched the pipeline through a template, will be signalled and
+it can handle the situation appropriately.
+
+If ``rhubard rhubard`` runs normally to completion and exits zero then
+we'll hit the deliberately added ``exit 0`` statement which stops the
+child process continuing back into the main code and, of course, means
+that the parent :lname:`Idio` process, that launched the pipeline,
+will see the left hand side exit zero and all is well.
+
+There'll be a small qualification, here, when we have to handle
+:ref:`logical expressions <logical expressions>`.
+
 pgrp-pipe
 ---------
 
