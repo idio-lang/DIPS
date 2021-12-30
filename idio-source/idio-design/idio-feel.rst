@@ -174,13 +174,13 @@ The traditional :lname:`Scheme` reader input form for characters is:
    #\ħ
 
 will create instances of the (now Unicode) characters, ``A``, ``b``,
-``1`` and ``ħ`` U+0127 (LATIN SMALL LETTER H WITH STROKE).
+``1`` and ``ħ`` (U+0127 (LATIN SMALL LETTER H WITH STROKE)).
 
 For Unicode code points in general we get into a bit of a mess.  The
-:samp:`#\\{something}` format will always work (assuming that
-:samp:`{something}` is valid UTF-8) but the person viewing the source
-code might not see anything useful.  In fact, I'm assuming you can see
-the correct glyph for ``ħ`` and not some substitute "box character."
+``#\X`` format will always work (assuming that ``X`` is valid UTF-8)
+but the person viewing the source code might not see anything useful.
+In fact, I'm assuming you can see the correct glyph for ``ħ`` and not
+some substitute "box character."
 
 .. aside::
 
@@ -188,16 +188,16 @@ the correct glyph for ``ħ`` and not some substitute "box character."
    range!
 
 The problem lies in your viewer's (text editor, web viewer) ability to
-draw the corresponding code point's glyph.  I don't know if you have
+draw the corresponding code point's `glyph`.  I don't know if you have
 appropriate support for displaying glyphs outside of the "usual" ASCII
-ranges.  My editors and fonts (I'm largely using *DejaVu Sans*) don't
-do a very good job outside of the Unicode BMP plane (the first 65,536
-codepoints) and I wouldn't know if they did a decent job *within* that
-code plane.
+ranges.  My editors and fonts (I'm largely using *DejaVu Sans* and
+X11) don't do a very good job outside of the Unicode BMP plane (the
+first 65,536 codepoints) and I wouldn't know if they did a decent job
+*within* that code plane.
 
-So, by and large, we're probably better off using the #U+127 format
-for "exotic" characters in order that we give other users an outside
-chance of figuring out what we're up to.
+So, by and large, we're probably better off using the ``#U+127``
+format for "exotic" characters in order that we give other users an
+outside chance of figuring out what we're up to.
 
 Exotic Base Types
 ^^^^^^^^^^^^^^^^^
@@ -299,10 +299,10 @@ encoded as UTF-8) but after that it's all a bit free.
 
 So, taking an example, I want a file called ``© 2021``.  We're already
 in trouble with the first character!  Should that be the ISO8859-1_
-character number A9?  Hmm, if someone is using the ISO-8859-2
-encoding, a listing is likely to *show* them a Š, Unicode's U+0160
+character number 0xA9?  Hmm, if someone is using the ISO-8859-2
+encoding, a listing is likely to *show* them a ``Š``, Unicode's U+0160
 (LATIN CAPITAL LETTER S WITH CARON).  Any UTF-8 decoding will get an
-error.  This called `Mojibake
+error.  This character encoding mixup is called `Mojibake
 <https://en.wikipedia.org/wiki/Mojibake>`_.
 
 Mind you, the problems of interpreting/displaying bytes for files in
@@ -320,14 +320,14 @@ string, ``"©"``, will have assumed UTF-8 in the source which, when
 recreated/deconstructed into UTF-8 is a two byte sequence, 0xC2 0xA9.
 
 Well, as it happens, our :ref:`c-api` lets us create arbitrary
-:lname:`C` base types with the :samp:`C/integer-> {n} C/char` function
+:lname:`C` base types with the :samp:`C/integer-> {n} char` function
 albeit we probably don't want to create filenames character by
 character.
 
 If we want to use :lname:`Idio` strings as the basis for filenames
 (hint: we do), we also have the problem of "wide" characters in
 Unicode-based strings, ie. those where the Unicode code point is more
-than 0xff.  We can, of course, simply use the UTF-8 encoding as the
+than 0xFF.  We can, of course, simply use the UTF-8 encoding as the
 filename but then we're mixing up encodings (remember, the filesystem
 has none) with the danger of retrieving a filename from the filesystem
 which has an invalid UTF-8 encoding, like the 0xA9 in our ISO 8859-1
@@ -395,10 +395,10 @@ force a UTF-8 interpretation of 0xA9 which we can see with
    0000007
    #t
 
-Notice the 0xC2 0xA9 before the 0x20/SPACE, the UTF-8 encoding of 0xA9
+Notice the ``c2 a9`` (before the ``20``) the UTF-8 encoding of 0xA9
 itself?
 
-However, we can use a simpler interface:
+However, we can use a simpler (printing) interface:
 
 .. code-block:: idio-console
 
@@ -418,7 +418,7 @@ output:
    0000007
    #t
 
-This time we can see the raw 0xA9 before the 0x20/SPACE.  In other
+This time we can see the raw ``a9`` (before the ``20``).  In other
 words this is a problem for *the terminal* inputting what it thought
 was UTF-8 source.  Looks pretty similar to the problem of
 :lname:`Idio` failing to decode a UTF-8 input stream before and
@@ -712,17 +712,19 @@ which is trivially transformed into:
    split-string str
 
 Hardly rocket science albeit ``split-string`` is defaulting to using
-:var:`IFS` as the delimiter.  Here we might write our own to get the
-first letters of each word:
+:var:`IFS` as the delimiter.  Here we might write a function to get
+the first letters of each word:
 
 .. code-block:: idio
 
    str := "hello world"
+
    define (foo s) {
      map (function (w) {
 	    w.0
      }) s.split-string
    }
+
    printf "%s\n" str.foo		; (#\h #\w)
    printf "%s\n" str.foo.2		; w
 
@@ -1344,16 +1346,17 @@ The answer is... that depends.  What the :lname:`Idio` engine will do
 is look to see if the symbol exists in the current module (which
 presupposes that we can change the current module) and use such a
 symbol if it exists.  Next it will try each of the imported modules'
-exported names lists looking for the symbol.  Finally it will
-explicitly try the ``Idio`` module (the default module, if you like,
-which "exports" everything) and the ``*primitives*`` module (where I
-put all the, er, primitives for reasons I can't quite recall and which
-also "exports" everything).
+exported names lists looking for the symbol.
+
+Note, here, that by default, every module imports the ``job-control``
+and ``Idio`` modules.  ``job-control`` because that handles ``|`` and
+various I/O redirection that everyone expects in a shell and ``Idio``
+because that's where most functions are defined.
 
 So, the chances are you're going to get the ``libc`` module's ``read``
-function as the reader's ``read`` function is actually in the
-``*primitives*`` module and would therefore only be found as a
-fallback if we hadn't imported ``libc``.
+function as the reader's ``read`` function is actually in the ``Idio``
+module and would therefore only be found as a fallback if we hadn't
+imported ``libc``.
 
 :socrates:`What if I want the other one?` You can explicitly ask for
 it with:
@@ -1364,7 +1367,7 @@ it with:
 
    *module*/read ...
 
-so, ``*primitives*/read`` in this case.
+so, ``Idio/read`` in this case.
 
 You can't ask for names that aren't exported.  That would be wrong.
 

@@ -40,7 +40,7 @@ source files (one would have been enough!):
 
 * :file:`json5-api.c`
 
-  Which, like :file:`src/lib-api.c` provides :lname:`Idio` primitives
+  Which, like :file:`src/lib-api.c`, provides :lname:`Idio` primitives
   for the underlying JSON5 library functions.
 
 The core JSON5 library files, :file:`json5-token.[ch]` etc. are

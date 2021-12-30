@@ -518,7 +518,7 @@ A broad range without being too specific:
    :align: left
    :widths: auto
 
-   Linux, Fedora 34, x86-64, 64, gcc 11
+   Linux, Fedora 35, x86-64, 64, gcc 11
    Linux, Ubuntu 18, x86-64, 64, gcc 8
    Linux, Debian 10, x86-64, 64, gcc 8
    Linux, CentOS 7, x86-64, 64, gcc
@@ -531,7 +531,7 @@ A broad range without being too specific:
    Darwin, Mac OS 10.15.7, x86-64, 64, clang 11
 
    Linux, Raspbian (Debian 10),  aarch64, 64, gcc 8
-   Linux, Fedora 34, aarch64, 64, gcc 11
+   Linux, Fedora 35, aarch64, 64, gcc 11
    Linux, Ubuntu 20, aarch64, 64, gcc 9
 
    Linux, Debian 10, x86-64, 32, gcc 8

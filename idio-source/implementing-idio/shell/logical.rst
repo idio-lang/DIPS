@@ -349,12 +349,49 @@ that changes the kind of code the code-generator generates.
 A function call as the last expression in a function results in a tail
 call.  That's the deal.
 
+It so happens you can work around the tail call issue *in this case*
+by using a temporary variable and returning it:
+
+.. code-block:: idio
+
+   define (foo) {
+     r := (and (true)
+               (false))
+     r
+   }
+
+but it becomes anomalous -- and therefore a feature! -- that you need
+to use a temporary variable to suppress raising rcses for external
+commands in tail call scenarios.
+
 Details
 """""""
 
-We do have an implementation detail to handle, here, in that we need
-to pass the tail-call-ness of the expression to the code generator so
-that it can apply the suppression if required.
+We do have a couple of implementation details to handle, here.
+
+Firstly, we need to pass the tail-call-ness of the expression to the
+code generator so that it can apply the suppression if required.
+
+Secondly, the evaluator was following in the style of
+:ref-title:`LiSP` where a special case was taken for single-expression
+sequences, that is to say:
+
+.. code-block:: idio
+
+   and (foo)
+
+   or (bar)
+
+are identical to simply evaluating the expression itself:
+
+.. code-block:: idio
+
+   (foo)
+
+   (bar)
+
+However, in order that we can apply the suppress/pop -rcse operations,
+we need even single-expression sequences go through the motions.
 
 Not a huge change.
 

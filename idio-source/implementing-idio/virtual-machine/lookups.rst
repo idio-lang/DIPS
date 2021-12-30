@@ -53,8 +53,8 @@ Modules
 Modules in the context of variable lookups are going to act as a form
 of lookup restrictions.  You can see what is in the module's "top
 level" and what is in the exports of it's imported modules (noting
-that everybody imports from the ``Idio`` and ``*primitives*`` modules
-and all of their variables are exported automatically).
+that everybody imports from the ``Idio`` module and all of its
+variables are exported automatically).
 
 That means that (cross-importing aside) variable ``n`` in module
 ``m1`` is different to variable ``n`` in module ``m2``.  Exactly what

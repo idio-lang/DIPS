@@ -366,9 +366,9 @@ another macro to add it into the :lname:`Idio` engine.
 ---
 
 There are, of course, a few variations on the theme.  Normally,
-primitives are added to the ``*primitives*`` module and implicitly
-exported from that module.  However, we might want to add a primitive
-to another module.
+primitives are added to the ``Idio`` module and implicitly exported
+from that module.  However, we might want to add a primitive to
+another module.
 
 :samp:`libc` is a module wrappering a number of :lname:`libc` system
 calls where the result is useful as an :lname:`Idio` value (and thus
@@ -376,7 +376,7 @@ requires some data representation transmutation).  :lname:`libc`'s
 systems call names frequently clash with "normal" :lname:`Idio` usage
 -- ``read`` is our canonical example.  So, here, we want to add the
 primitive to a different module (:samp:`libc` rather than
-:samp:`*primitives*`).
+:samp:`Idio`).
 
 Separately, we might want to export that primitive from the module.
 Indeed, all of the primitives in :samp:`libc` are exported.  By

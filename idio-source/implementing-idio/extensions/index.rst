@@ -12,7 +12,7 @@ extend the functionality of :lname:`Idio`.
 
 Just to be clearer, it should be able to extend the functionality
 *without* having to alter :lname:`Idio`.  That's a bit more subtle.
-If nothing else, flipping the staement on its head, it means that
+If nothing else, flipping the statement on its head, it means that
 :lname:`Idio` needs to have the mechanisms to extend itself.
 
 In the first instance, we can write an :lname:`Idio` library file,
