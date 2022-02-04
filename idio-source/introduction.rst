@@ -519,16 +519,17 @@ A broad range without being too specific:
    :widths: auto
 
    Linux, Fedora 35, x86-64, 64, gcc 11
+   Linux, openSUSE Leap 15, x86-64, 64, gcc 7
    Linux, Ubuntu 18, x86-64, 64, gcc 8
    Linux, Debian 10, x86-64, 64, gcc 8
-   Linux, CentOS 7, x86-64, 64, gcc
-   Linux, CentOS 6, x86-64, 64, gcc 4
+   Linux, CentOS Stream/8/7/6, x86-64, 64, gcc
    SunOS, OpenIndiana Hipster, x86-64, 64, gcc 9
    SunOS, OpenIndiana a151, x86-64, 64, gcc 4
    BSD, FreeBSD 13, x86-64, 64, clang 11
    BSD, OpenBSD 6.9, x86-64, 64, clang 10
-   Darwin, Mac OS 11.6, x86-64, 64, clang 12
-   Darwin, Mac OS 10.15.7, x86-64, 64, clang 11
+   BSD, NetBSD 9.2, x86-64, 64, gcc 7
+   Darwin, macOS 12.1, x86-64, 64, clang 12
+   Darwin, macOS 10.15.7, x86-64, 64, clang 11
 
    Linux, Raspbian (Debian 10),  aarch64, 64, gcc 8
    Linux, Fedora 35, aarch64, 64, gcc 11
@@ -537,6 +538,7 @@ A broad range without being too specific:
    Linux, Debian 10, x86-64, 32, gcc 8
    Linux, CentOS 6, x86-64, 32, gcc 4
    SunOS, OpenIndiana a151, x86-64, 32, gcc 4
+   BSD, NetBSD 9.2, x86-64, 32, gcc 7
    Darwin, Mac OS 10.5.8, i386, 32, gcc 4
 
    Linux, Raspbian 9, ARMv7, 32, gcc 6

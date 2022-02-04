@@ -103,12 +103,12 @@ define a structure type using a parent type that hasn't been defined
 yet.)
 
 However, where we can inherit, then, for both the structure type and
-the structure instance the array of fields (names or values) is the
-collection of all inherited fields.  So, the structure type for
-``^rt-hash-key-not-found-error`` will have four field names in its
-structure, the combination of the three it has inherited plus the one
-defined for itself.  Correspondingly, an instance of that type will
-have four values.
+the structure instance the array of fields (symbols or values
+respectively) is the collection of all inherited fields.  So, the
+structure type for ``^rt-hash-key-not-found-error`` will have four
+field names in its structure, the combination of the three it has
+inherited plus the one defined for itself.  Correspondingly, an
+instance of that type will have four values.
 
 Implementation
 ==============
@@ -123,7 +123,7 @@ For structure *types*:
        struct idio_s *name;			/* a symbol */
        struct idio_s *parent;			/* a struct-type */
        size_t size;				/* number of fields *including parents* */
-       struct idio_s* *fields;			/* an array of strings */
+       struct idio_s* *fields;			/* an array of symbols */
    } idio_struct_type_t;
 
    #define IDIO_STRUCT_TYPE_GREY(ST)		((ST)->u.struct_type->grey)
@@ -140,7 +140,7 @@ Where, using the examples above:
 
 * ``size`` is 2 or 0
 
-* ``fields`` is a :lname:`C` array of :lname:`Idio` strings as we will
+* ``fields`` is a :lname:`C` array of :lname:`Idio` symbols as we will
   (ultimately) index into them with an integer
 
 For structure *instances*:
@@ -151,7 +151,7 @@ For structure *instances*:
    typedef struct idio_struct_instance_s {
        struct idio_s *grey;
        struct idio_s *type;			/* a struct-type */
-       struct idio_s* *fields;			/* an array */
+       struct idio_s* *fields;			/* an array of values */
    } idio_struct_instance_t;
 
    #define IDIO_STRUCT_INSTANCE_GREY(SI)	((SI)->u.struct_instance.grey)

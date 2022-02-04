@@ -975,8 +975,9 @@ happen auto-magically?
 
 Well, suppose we associate with the ``C_pointer`` in the ``IDIO``
 value we're about to return some useful type information.  What's
-useful?  Hmm, how about a couple of things: a string, ``"struct
-stat"`` (useful for reporting) and a reference to ``struct-stat-ref``?
+useful?  Hmm, how about a couple of things: a string,
+``"libc/struct-stat"`` (useful for reporting) and a reference to
+``struct-stat-ref``?
 
 In the latter case, we don't need to also add ``struct-stat-set!`` as
 we can use our trusty :ref:`setters` mechanism to do the right thing.
@@ -1000,7 +1001,7 @@ expand that into a list:
 .. code-block:: c
 
     IDIO fgvi = IDIO_EXPORT_MODULE_PRIMITIVE (idio_libc_module, libc_struct_stat_ref);
-    IDIO_C_STRUCT_IDENT_DEF ("struct stat", libc_struct_stat, fgvi);
+    IDIO_C_STRUCT_IDENT_DEF ("libc/struct-stat", libc_struct_stat, fgvi);
     IDIO_EXPORT_MODULE_PRIMITIVE (idio_libc_module, libc_struct_stat_set);
 
 Here, we take advantage of the fact that
@@ -1028,7 +1029,7 @@ Now we can revisit ``struct-stat-ref`` and perform the check:
 
        IDIO_USER_C_TYPE_ASSERT (pointer, stat);
        if (idio_CSI_libc_struct_stat != IDIO_C_TYPE_POINTER_PTYPE (stat)) {
-	   idio_error_param_value ("stat", "should be a struct stat", IDIO_C_FUNC_LOCATION ());
+	   idio_error_param_value ("stat", "should be a libc/struct-stat", IDIO_C_FUNC_LOCATION ());
 
 	   return idio_S_notreached;
        }
@@ -1240,7 +1241,7 @@ generating output in :file:`.../ext/libc/gen`:
     **It will be incorrect!**
 
     It is impossible to infer the correct handling of any errors.  The
-    sample code is for the most common for of system errors.
+    sample code is for the most common form of system errors.
 
     It is also not possible to identify when, commonly, a :lname:`C`
     pointer in the API is meant to be allocated by the caller.

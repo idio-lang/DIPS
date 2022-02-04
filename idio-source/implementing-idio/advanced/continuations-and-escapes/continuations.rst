@@ -438,8 +438,9 @@ elegant multi-faceted implementation (the original can be any of the
 Delimited continuations tend to be described in terms of two pairs of
 operators: ``prompt``/``control`` and ``reset``/``shift`` which differ
 in some quite subtle ways.  They also capture a slightly obtuse
-continuation, that between the ``prompt`` and ``control`` (or
-``reset`` and ``shift``).
+continuation, the remainder of the ``prompt`` block after the
+``control`` block (or the remainder of the ``reset`` block after the
+``shift`` block).
 
 .. sidebox::
 
@@ -463,8 +464,39 @@ start-of-continuation with :samp:`prompt {body}` (or :samp:`reset
 end-of-continuation with :samp:`control {k} {body}` (or :samp:`shift
 {k} {body}`).
 
-The delimited continuation is the bit of code between
-``prompt``/``reset`` and ``control``/``shift`` so for:
+The delimited continuation is the code inside ``prompt``/``reset`` and
+after ``control``/``shift`` -- which isn't immediately obvious:
+
+.. parsed-literal::
+
+   prompt {
+     *prologue*
+     control k {
+       *control body*
+     }
+     *epilogue*
+   }
+
+From which the :samp:`{epilogue}` is the delimited continuation,
+invocable as :samp:`k {v}` within :samp:`{control body}`.
+
+The overall premise is that ``prompt`` runs :samp:`{prologue}` and
+then the ``control`` block -- and... that's it.  The result of
+``prompt`` is whatever ``control`` returns as the ``control`` block is
+the last expression run in ``prompt``.
+
+If there wasn't a ``control`` block in the ``prompt`` block then
+``prompt`` would run :samp:`{prologue}` and :samp:`{epilogue}`.  It is
+the presence of ``control`` that creates the weird behaviour.
+
+The delimited continuation, :samp:`{epilogue}` or ``k``, may or may
+not be run inside ``control``.  It may or may not be run multiple
+times inside the ``control`` block but :samp:`{epilogue}` is **not**
+run simply because it is inside the ``prompt`` block.  It is up to the
+``control`` block to decide if it wants to utilize the delimited
+continuation.
+
+So for:
 
 .. code-block:: idio
 
@@ -474,12 +506,36 @@ The delimited continuation is the bit of code between
      })
    }
 
-we get the continuation :samp:`1 + {[]}`.  The value passed will be
-whatever the invocation of the continuation in ``control``'s body
-passes.  In this case it is :samp:`{k} 3` meaning the delimited
-continuation is invoked with :samp:`1 + 3`.  It will return that value
-back into ``control``'s body which, in this case, promptly[sic]
-returns it.
+we get the continuation :samp:`1 + {[]}`.  That might not be
+immediately obvious because of the infix operators.  Consider:
+
+.. code-block:: idio
+
+   prompt {
+     + 1 (control k {
+       k 3
+     })
+   }
+
+Here, the ``control`` block is an argument -- and the *second*
+argument -- to the ``+`` function.  As argument processing is
+performed before the main function of an expression is invoked
+(*duh!*) then the continuation of the ``control`` block is the call to
+``+``.
+
+Of interest, the first argument, ``1``, is processed first --
+sub-expressions in :lname:`Idio` are processed left to right -- and so
+is only evaluated once.  If we replaced ``1`` with a function call,
+say, ``(return-1)``, which printed out what it was doing before
+returning ``1``, it would only print out what it was doing once
+because calling the delimited continuation, the continuation of the
+second argument, happens after the first argument was processed.
+
+The value passed will be whatever the invocation of the continuation
+in ``control``'s body passes.  In this case it is :samp:`{k} 3`
+meaning the delimited continuation is invoked with :samp:`1 + 3`.  It
+will return that value back into ``control``'s body which, in this
+case, promptly[sic] returns it.
 
 *Not* invoking the continuation in the body of ``control`` means
 ``prompt`` will return whatever ``control`` returns (as the
@@ -514,36 +570,16 @@ will, in combination, print ``(k 3) is 4`` then return ``9``.
 \*
 
 There is a subtlety, here, when using such trivial examples in that
-the continuation is the smallest possible transactable expression as
-per the original wording in :ref:`continuations`.
-
-So a more involved scenario:
-
-.. code-block:: idio
-
-   prompt {
-     display "Hi Mum!\n"
-     1 + (control k {
-       printf "(k 3) is %s\n" (k 3)
-       9
-     })
-   }
-
-Does **not** give you a continuation of:
+the continuation is rather precisely defined.  What if we want a
+continuation of:
 
 .. code-block:: idio
 
      display "Hi Mum!\n"
      1 + []
 
-but is just the simplest transaction :samp:`1 + {[]}`.  The
-``display`` (and all code leading up to the actual continuation) will
-get run once, `early doors
-<https://en.wiktionary.org/wiki/early_doors>`_.
-
-This will come back to bite us so let's consider a quick fix.  We,
-essentially, want to encompass all the expressions leading up to the
-start of the ``control`` expression.
+We, essentially, want to encompass all the expressions leading up to
+the start of what would have been the ``control`` expression.
 
 The usual :lname:`Scheme`\ ly approach is to wrap such a group of
 expressions into a thunk to be evaluated "later".  We can see that in
