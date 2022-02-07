@@ -33,6 +33,7 @@ straight in.
    idio-GC
    simple-types/index
    compound-types/index
+   r0.1/index
    shell/index
    advanced/index
    extensions/index
