@@ -823,7 +823,7 @@ same vtable):
    Gen 632:
      0: typename                  -    0 lookups: 0x4c3a88 uses 0B st1
      1: struct-instance->string   -    1 lookups: 0x4c8593 uses 0B
-     2: members                   -    0 lookups: 0x4c3bad uses 0B
+     2: members                   -    0 lookups: 0x4c3bad uses 0B (a b)
 
    Gen 632:
      0: typename                  -    0 lookups: 0x4c3a88 uses 0B struct-type
@@ -834,7 +834,7 @@ same vtable):
    #<unspec>
 
 which shows us that the ``struct-instance->string`` vtable method has
-been called once.  We can print ``si1`` again:
+been looked up once.  We can print ``si1`` again:
 
 .. code-block:: idio-console
 
@@ -845,17 +845,18 @@ been called once.  We can print ``si1`` again:
    Gen 632:
      0: struct-instance->string   -    2 lookups: 0x4c8593 uses 0B
      1: typename                  -    0 lookups: 0x4c3a88 uses 0B st1
-     2: members                   -    0 lookups: 0x4c3bad uses 0B
+     2: members                   -    0 lookups: 0x4c3bad uses 0B (a b)
    ...
 
 which shows that the ``struct-instance->string`` vtable method has
-been called twice *and* been bubbled up to the first slot as it's the
-most looked up and so should be found quicker next time.
+been looked up twice *and* been bubbled up to the first slot as it's
+the most looked up and so should be found quicker next time.
 
-The ``->string`` method hasn't been called at all, though, even though
-``st1`` was printed.  Why is that?  Ah, careful!  This is a report of
-the number of vtable method lookups not a report on the number of
-times the underlying :lname:`C` function has been called directly.
+The ``->string`` method hasn't been looked up at all, though, even
+though ``st1`` was printed.  Why is that?  Ah, careful!  This is a
+report of the number of vtable method lookups not a report on the
+number of times the underlying :lname:`C` function has been called
+directly.
 
 We can force a lookup of the vtable method for ``st1`` by calling
 :ref:`format <format>`:
@@ -869,7 +870,7 @@ We can force a lookup of the vtable method for ``st1`` by calling
    Gen 632:
      0: struct-instance->string   -    2 lookups: 0x4c8593 uses 0B
      1: typename                  -    0 lookups: 0x4c3a88 uses 0B st1
-     2: members                   -    0 lookups: 0x4c3bad uses 0B
+     2: members                   -    0 lookups: 0x4c3bad uses 0B (a b)
      3: ->string                  i    1 lookups: 0x4baa1b uses 0B
      4: ->display-string          i    1 lookups: 0x4baa1b uses 0B
 
@@ -909,10 +910,14 @@ If we print ``st1`` again:
    Gen 632:
      0: struct-instance->string   -    2 lookups: 0x4c8593 uses 0B
      1: typename                  -    0 lookups: 0x4c3a88 uses 0B st1
-     2: members                   -    0 lookups: 0x4c3bad uses 0B
+     2: members                   -    0 lookups: 0x4c3bad uses 0B (a b)
      3: ->display-string          i    2 lookups: 0x4baa1b uses 0B
      4: ->string                  i    1 lookups: 0x4baa1b uses 0B
    ...
+
+.. aside::
+
+   Reader, I did print it three more times and it did reach the top!
 
 we can see the (faked) ``->display-string`` vtable method bubbling up
 the table.  Another three prints and it should reach the top.
