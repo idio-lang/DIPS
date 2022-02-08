@@ -689,6 +689,24 @@ The printing of any given type can now migrate into the
 :file:`src/{X}.c` source file that handles most of the type's other
 behaviour.
 
+struct-instance
+"""""""""""""""
+
+There's another slight dance with struct-instances, again!  All the
+vtable methods are defined on the struct-type but we need to
+differentiate between the stock printers for struct-instances and
+struct-types.
+
+When we come to using the ``->string`` vtable method for a
+struct-instance we will be given the ``->string`` vtable method which
+is obviously(?) set up to print a struct-type.
+
+Here, the method must check if the supplied value is a struct-instance
+and call the ``idio_struct_instance_as_C_string()`` function directly.
+
+*That* function can check for a bespoke printer (a
+``struct-instance->string`` vtable method).
+
 Defining Printers
 ^^^^^^^^^^^^^^^^^
 
@@ -750,6 +768,154 @@ takes ``o`` and ``f`` parameters:
 where we have ``m_name`` defaulting to ``idio_S_2string`` but swapped
 for ``idio_S_struct_instance_2string`` for when ``o`` is a
 struct-instance or struct-type.
+
+struct-instance Example
+"""""""""""""""""""""""
+
+Let's create a simple struct-type, ``st1``, with fields ``a`` and
+``b``.  We'll then create an instance of that struct-type, ``si1``.
+
+.. code-block:: idio-console
+
+   Idio> define-struct st1 a b
+   #<CLOS set-st1-b! @120971/0x2/Idio>
+   Idio> si1 := make-st1 1 2
+   #<SI st1 a:1 b:2>
+
+Just for reference, we'll use the default printers:
+
+.. code-block:: idio-console
+
+   Idio> st1
+   #<ST st1 #n a b>
+   Idio> si1
+   #<SI st1 a:1 b:2>
+
+Now, we'll define a printer for ``st1`` which changes the way an
+*instance* of an ``st1`` is printed:
+
+.. code-block:: idio-console
+
+   Idio> define (st1-printer v seen) {
+   sprintf "%s and %s" (st1-a v) (st1-b v)
+   }
+   #<CLOS st1-printer @121076/0x2/Idio>
+   Idio> add-as-string st1 st1-printer
+   #<unspec>
+   Idio> si1
+   1 and 2
+
+Finally, for reference, we can see we're still using the default
+printer for the struct-type:
+
+.. code-block:: idio-console
+
+   Idio> st1
+   #<ST st1 #n a b>
+
+We can dump out the vtable (for ``st1`` or ``si1``, they point to the
+same vtable):
+
+.. code-block:: idio-console
+
+   Idio> dump-vtable si1
+   The vtable for this struct-instance is:
+   Gen 632:
+     0: typename                  -    0 lookups: 0x4c3a88 uses 0B st1
+     1: struct-instance->string   -    1 lookups: 0x4c8593 uses 0B
+     2: members                   -    0 lookups: 0x4c3bad uses 0B
+
+   Gen 632:
+     0: typename                  -    0 lookups: 0x4c3a88 uses 0B struct-type
+     1: ->string                  -    0 lookups: 0x4baa1b uses 0B
+     2: struct-instance->string   -    0 lookups: 0x4ba553 uses 0B
+     3: value-index               -    0 lookups: 0x4c67ae uses 0B
+     4: set-value-index!          -    0 lookups: 0x4c6a6d uses 0B
+   #<unspec>
+
+which shows us that the ``struct-instance->string`` vtable method has
+been called once.  We can print ``si1`` again:
+
+.. code-block:: idio-console
+
+   Idio> si1
+   1 and 2
+   Idio> dump-vtable si1
+   The vtable for this struct-instance is:
+   Gen 632:
+     0: struct-instance->string   -    2 lookups: 0x4c8593 uses 0B
+     1: typename                  -    0 lookups: 0x4c3a88 uses 0B st1
+     2: members                   -    0 lookups: 0x4c3bad uses 0B
+   ...
+
+which shows that the ``struct-instance->string`` vtable method has
+been called twice *and* been bubbled up to the first slot as it's the
+most looked up and so should be found quicker next time.
+
+The ``->string`` method hasn't been called at all, though, even though
+``st1`` was printed.  Why is that?  Ah, careful!  This is a report of
+the number of vtable method lookups not a report on the number of
+times the underlying :lname:`C` function has been called directly.
+
+We can force a lookup of the vtable method for ``st1`` by calling
+:ref:`format <format>`:
+
+.. code-block:: idio-console
+
+   Idio> format "%s" st1
+   "#<ST st1 #n a b>"
+   Idio> dump-vtable st1
+   The vtable for this struct-type is:
+   Gen 632:
+     0: struct-instance->string   -    2 lookups: 0x4c8593 uses 0B
+     1: typename                  -    0 lookups: 0x4c3a88 uses 0B st1
+     2: members                   -    0 lookups: 0x4c3bad uses 0B
+     3: ->string                  i    1 lookups: 0x4baa1b uses 0B
+     4: ->display-string          i    1 lookups: 0x4baa1b uses 0B
+
+   Gen 632:
+     0: ->string                  -    1 lookups: 0x4baa1b uses 0B
+     1: typename                  -    0 lookups: 0x4c3a88 uses 0B struct-type
+     2: struct-instance->string   -    0 lookups: 0x4ba553 uses 0B
+     3: value-index               -    0 lookups: 0x4c67ae uses 0B
+     4: set-value-index!          -    0 lookups: 0x4c6a6d uses 0B
+   #<unspec>
+
+where a lot has happened.  Remember that ``format`` will ultimately
+call ``display-string`` which will run through the
+``->display-string`` "inherited" from ``->string`` malarkey described
+previously.  The result is that:
+
+* ``st1``'s vtable, the top one, has inherited the generic
+  ``->string`` vtable method from the generic ``struct-type`` vtable,
+  the bottom one, and given it an automatic first lookup
+
+  As a side-effect the act of looking up the struct-type's
+  ``->string`` vtable method has bumped its lookup count to 1.  The
+  two counts are separate.
+
+* ``display-string`` has quietly faked ``->display-string`` vtable
+  method (which *is* the same ``->string`` vtable method) and tacked
+  it onto the end of ``st1``'s vtable
+
+If we print ``st1`` again:
+
+.. code-block:: idio-console
+
+   Idio> format "%s" st1
+   "#<ST st1 #n a b>"
+   Idio> dump-vtable si1
+   The vtable for this struct-instance is:
+   Gen 632:
+     0: struct-instance->string   -    2 lookups: 0x4c8593 uses 0B
+     1: typename                  -    0 lookups: 0x4c3a88 uses 0B st1
+     2: members                   -    0 lookups: 0x4c3bad uses 0B
+     3: ->display-string          i    2 lookups: 0x4baa1b uses 0B
+     4: ->string                  i    1 lookups: 0x4baa1b uses 0B
+   ...
+
+we can see the (faked) ``->display-string`` vtable method bubbling up
+the table.  Another three prints and it should reach the top.
 
 .. include:: ../../commit.rst
 
