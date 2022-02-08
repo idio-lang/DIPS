@@ -574,6 +574,36 @@ that has none:
    default-condition-handler:[20075]:libc.idio:line 465:members:^rt-vtable-method-unbound-error:method 'members' is unbound: detail value is a fixnum: name members
    ...
 
+value-index
+^^^^^^^^^^^
+
+:ref:`value-index <value-index>`, aka. the dot-operator, can now be
+reduced to simply looking for the ``value-index`` vtable method
+(technically, it checks if the indexer `i` is a function, first).  It
+doesn't need to make a decision based on the :lname:`Idio`
+GC-collectable type, it simply looks for the vtable method.
+
+set-value-index!
+^^^^^^^^^^^^^^^^
+
+:ref:`set-value-index! <set-value-index!>` can be tweaked slightly to
+look for a setter regardless of type and otherwise look for a
+``set-value-index!`` vtable method.
+
+In r0.0, the standard indexable types, array, hash, string, etc.,
+actually called the :samp:`{X}-set!` function directly and only
+C/pointer types looked for a setter -- even though setters had been
+set for those standard types.
+
+.. aside::
+
+   *\*shrugs\**
+
+In r0.1, despite changing the algorithm to look for a setter first, I
+chose to remove the standard setters and make them all vtable methods.
+So, somewhat inefficiently, a previously sound setter is looked for
+and not found and then a vtable method is looked for and invoked.
+
 Printing
 --------
 
