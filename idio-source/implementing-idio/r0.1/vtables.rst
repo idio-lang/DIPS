@@ -104,7 +104,7 @@ Implementation
 Our implementation is reasonably simple.
 
 We'll have an ``idio_vtable_t`` which has an array of
-``idio_vtable_entry_t`` each mapping a method name (a symbol) to a
+``idio_vtable_entry_t`` each mapping a method name, a symbol, to a
 ``idio_vtable_method_t`` method (which has the :lname:`C`
 implementation function pointer and the arbitrary data).  The
 ``idio_vtable_t`` can have a parent which, for most of our types
@@ -126,10 +126,10 @@ idio_vtable_t
    };
 
 We've thrown in another field, ``gen`` for the generation.  Any time
-we modify a vtable's methods or parentage then the overall generation
-increments.  Whenever we look to use a vtable we'll check to see if
-this vtable is out of date in which case we'll validate our tree
-(bringing all tables in the hierarchy up to date).
+we modify any vtable's methods or parentage then the overall
+generation increments.  Whenever we look to use a vtable we'll check
+to see if this vtable is out of date in which case we'll validate our
+tree (bringing all tables in this tree of the hierarchy up to date).
 
 In the future, ``parent`` should be a list to accommodate multiple
 inheritance.  We *could* have made it an :lname:`Idio` list but then
@@ -157,7 +157,7 @@ parent method locally saving lookup time.
 We can also increment a usage counter whenever this method is looked
 up.  Post-lookup, the code can quietly "bubble-up" the method in the
 vtable's array of ``idio_vtable_entry_t``'s so that next time the most
-used methods are found sooner rather than later.
+looked for methods are found sooner rather than later.
 
 idio_vtable_method_t
 --------------------
@@ -185,10 +185,11 @@ can access ``data`` (and ``size``).
 
 The problem is that we don't know what arguments are going to be
 necessary for the implementation.  You can imagine that the ``type``
-method takes no (extra) arguments.  We know that the ``value-index``
-methods are going to take a :samp:`{member}` argument and a setter (if
-we defined such a vtable method and there wasn't a proper setter)
-would take :samp:`{member} {v}` arguments.
+method takes no (extra) arguments -- and probably has no need of
+:samp:`{value}`, either.  We know that the ``value-index`` methods are
+going to take a :samp:`{member}` argument and a `set-value-index!``
+method (if we defined such a vtable method and there wasn't a proper
+setter) would take :samp:`{member} {v}` arguments.
 
 Method Creation
 ^^^^^^^^^^^^^^^
@@ -817,7 +818,7 @@ Just for reference, we'll use the default printers:
 .. code-block:: idio-console
 
    Idio> st1
-   #<ST st1 #n a b>
+   #<ST st1 [] a b>
    Idio> si1
    #<SI st1 a:1 b:2>
 
@@ -841,7 +842,7 @@ printer for the struct-type:
 .. code-block:: idio-console
 
    Idio> st1
-   #<ST st1 #n a b>
+   #<ST st1 [] a b>
 
 We can dump out the vtable (for ``st1`` or ``si1``, they point to the
 same vtable):
@@ -894,7 +895,7 @@ We can force a lookup of the vtable method for ``st1`` by calling
 .. code-block:: idio-console
 
    Idio> format "%s" st1
-   "#<ST st1 #n a b>"
+   "#<ST st1 [] a b>"
    Idio> dump-vtable st1
    The vtable for this struct-type is:
    Gen 632:
@@ -934,7 +935,7 @@ If we print ``st1`` again:
 .. code-block:: idio-console
 
    Idio> format "%s" st1
-   "#<ST st1 #n a b>"
+   "#<ST st1 [] a b>"
    Idio> dump-vtable si1
    The vtable for this struct-instance is:
    Gen 632:

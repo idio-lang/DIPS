@@ -315,7 +315,7 @@ some value.
 
 The trick with macros is that the returned value must be something
 that can be immediately re-evaluated -- so the return value must be an
-atom or a list.  Macros, then, are code generators.
+atom or a list.  Macros, then, are *code generators*.
 
 A great example is the production of boilerplate code.  Given a
 ``name`` we might want to produce a host of related functions that do
@@ -516,15 +516,17 @@ macros....
 Macro Issues
 ^^^^^^^^^^^^
 
-.. sidebox:: Yes, I'm looking at myself.
+.. aside::
+
+   Yes, I'm looking at myself.
 
 The three primary problems with macros are:
 
-#. you forget its arguments are not evaluated -- so you can't *pass a
-   variable* you've calculated
+#. you forget its arguments are not evaluated -- so you can't pass a
+   *variable* you've calculated
 
-#. you forget it is run at compile time -- your variable *doesn't
-   exist* anyway
+#. you forget it is run at compile time -- your variable doesn't
+   *exist* anyway
 
 #. you're a dirty hacker
 
@@ -719,7 +721,11 @@ both of the function values have access to ``private`` (because they
 were created in the scope of ``private``).  No-one else has access to
 ``private`` other than through the interfaces, ``this`` and ``that``.
 
-This is about as complicated as it gets!  (Well, when I say that...)
+.. aside::
+
+   Well, when I say that...
+
+This is about as complicated as it gets!
 
 Ports
 =====
@@ -836,7 +842,7 @@ Error Handling
 :lname:`Lisp`\ s do things a little differently, here.  Rather than
 have "errors" or "exceptions" they have *conditions*.  Which have a
 sort of class hierarchy feel to them as the different types of
-conditions are (*looks for a better word but fails*) sub-classed from
+conditions are (*looks for a better word but fails*) sub-typed from
 one another.  *A* difference is that they are not restricted to errors
 but users can create their own condition type (hierarchies) and such a
 condition can be *signalled* (ie. raised) whenever the user deems that
@@ -919,7 +925,7 @@ to create backups.
 
 I, like many people, have written plenty of code to pro-actively
 (although often, post-actively) trim the set of backup files but in
-neither case is that code re-active.
+neither case is that code reactive.
 
 Whether that's the right way to approach problem solving is another
 question.
@@ -1049,7 +1055,7 @@ your program will clearly(?) be in a tight loop.  At the end of the
 chain is a NULL pointer (or some other sentinel value) which tells you
 to stop.
 
-(How you start and how you stop are another matter.)
+How you start and how you stop are another matter.
 
 In order to generate the chain, the way I like to think about it is
 you start with your end-of-chain sentinel value.  Each splodge of code
@@ -1089,7 +1095,7 @@ the same.  The code still accesses the same lexical and global
 variables, will call the same functions in due course, it's all
 hard-coded into the program.  It has the same prior *state* every time
 you (re-)call it.  *Meh!* Except not *quite* the same state if you
-have modified one of those variables in the meanwhile.
+have modified one of those (global) variables in the meanwhile.
 
 .. sidebox:: I can understand if you don't quite *grok* this.  It
              takes a while.

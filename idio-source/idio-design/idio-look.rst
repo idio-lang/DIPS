@@ -245,7 +245,9 @@ It's quite annoying for me where I habitually type ``make`` at the
 :lname:`Idio` prompt to have ``make`` printed back at me.  Not
 helpful.  I've taken to typing ``make -k`` a lot more....
 
-.. sidebox:: TBD
+.. sidebox::
+
+   TBD
 
 I don't *like* it.  I'm not sure what a better behaviour might be.
 
@@ -375,7 +377,9 @@ this into:
    (| (zcat file)
       (tar tf -))
 
-.. sidebox:: Always a good position.
+.. sidebox::
+
+   Always a good position.
 
 which is a simple list transformation requiring no knowledge of
 anything.
@@ -423,9 +427,11 @@ the reader, like:
 
    *rhubarb* *rhubarb* | *rhubarb* *rhubarb*
 
-.. aside:: I should be careful of referencing 1970s British TV comedy
-           for fear of attracting :ref-title:`The Phantom Raspberry
-           Blower of Old London Town`!
+.. aside::
+
+   I should be careful of referencing 1970s British TV comedy for fear
+   of attracting :ref-title:`The Phantom Raspberry Blower of Old
+   London Town`!
 
 and can be transformed into:
 
@@ -832,9 +838,10 @@ Obviously, you don't want to be asking for a dynamic variable in some
 random bit of code on the off-chance.  You're meant to know what
 you're doing!
 
-.. sidebox:: This evaluator trickery doesn't work quite as cleanly as
-             we'd like.  Dynamic variables effectively become top
-             level variables.
+.. sidebox::
+
+   This evaluator trickery doesn't work quite as cleanly as we'd like.
+   Dynamic variables effectively become top level variables.
 
 Digressing a little, there is a mechanism in the evaluator to keep
 track of variable names which can keep track of the lexical or dynamic
@@ -846,7 +853,9 @@ mechanism -- and all is good.
 
 Back to our variable initialisation.
 
-.. sidebox:: *Genius!*
+.. aside::
+
+   *Genius!*
 
 We have ``:=`` for lexical assignments, how about ``:~`` for dynamic
 variables?  ``~`` representing the maybe, maybe not dynamic nature of
@@ -861,12 +870,13 @@ with a dynamic nature.  They are different to dynamic variables in
 that whenever a program is executed it will have an environment
 created which is built from any extant "environment" variables.
 
-.. sidebox:: Look, it's just a little bit of technical debt that, when
-             we get round to it, we can apply the extra experience
-             we'll have picked up in the meanwhile to do a better
-             refactoring job.
+.. sidebox::
 
-	     What's not to like?
+   Look, it's just a little bit of technical debt that, when we get
+   round to it, we can apply the extra experience we'll have picked up
+   in the meanwhile to do a better refactoring job.
+
+   What's not to like?
 
 It could be implemented by tagging some dynamic variables as
 "environment" variables or it could be implemented as an entirely
@@ -890,7 +900,9 @@ executable.
 
 After this lexical block people can find the old value.
 
-.. sidebox::  *Stop it, please!*
+.. aside::
+
+   *Stop it, please!*
 
 I'm thinking ``:*`` here, with ``*`` signifying the stars, the
 *environment* surrounding us!
@@ -966,7 +978,9 @@ it to be read-only pass ``#n`` (aka. ``nil``) for the setter.  Pass
 ``#n`` for the getter for a write-only variable.  Passing ``#n`` for
 both should result in an error -- *don't be annoying!*
 
-.. sidebox:: *Oh, puh-lease!*
+.. aside::
+
+   *Oh, puh-lease!*
 
 As for the infix operation/function name, try ``:$`` for size!
 
@@ -1052,7 +1066,9 @@ lexical block is, well, just a lexical block.  That's legal although
 you might get complaints about this new variable ``a`` that has
 appeared.
 
-.. sidebox:: Haters gonna hate!
+.. aside::
+
+   Haters gonna hate!
 
 I like the ``{`` on the end of the line as it is, by and large, the
 way I write code anyway.  Others will, no doubt, be very angry.
@@ -1297,12 +1313,14 @@ any of the conditional forms in the shell-ish way:
    job 95645: (false): completed: (exit 1)
    "failed"
 
-.. sidebox:: For many many years I have had a :lname:`Bash`
-             ``PROMPT_COMMAND`` which has figured out the exit/killed
-             status and printed something useful.
+.. sidebox::
 
-	     I feel that if *I*'m writing a shell, everyone should get
-	     that useful behaviour.
+   For many many years I have had a :lname:`Bash` ``PROMPT_COMMAND``
+   which has figured out the exit/killed status and printed something
+   useful.
+
+   I feel that if *I*'m writing a shell, everyone should get that
+   useful behaviour.
 
 The ``job 95645: ...`` line is printed by the *Job Control* code
 separately to ``if`` being returned ``#f`` by the expression
@@ -1568,8 +1586,10 @@ blocks much easier.
 
 That's a good idea.
 
-.. sidebox:: I appreciate this isn't quite the paradigm Knuth is
-             suggesting but just let's roll with it.
+.. sidebox::
+
+   I appreciate this isn't quite the paradigm Knuth is suggesting but
+   just let's roll with it.
 
 But this is where I want to differ.  I like the idea of
 :ref-author:`Donald Knuth`'s `literate programming`_ although I'm

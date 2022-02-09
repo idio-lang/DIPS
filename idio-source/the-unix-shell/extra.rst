@@ -209,9 +209,6 @@ it takes an ``int`` and a ``struct rusage *`` as arguments.
 
 How annoying.
 
-So, :abbr:`WIP (Work In Progress)` and, in the meanwhile, continued
-hand-crafting.
-
 SWIG
 ----
 

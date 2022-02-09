@@ -639,8 +639,6 @@ initially in a subshell because we have ``fork``\ ed and are about to
 ``exec``.  So is ``( ... )`` syntactic sugar for ``fork`` and run this
 block of code?
 
-You can use this as a hint that subshells are still on the ToDo list!
-
 .. _`group command`:
 
 Group Command
@@ -651,8 +649,11 @@ used ``{ ... }`` other than as a function body -- and there to such an
 extent that I think I've only once written a function that *didn't*
 use ``{ ... }``.
 
-*shrugs* I don't see them as having a useful purpose in a programming
-language (which you expect to have normal lexical structure).
+It's unclear to me what other semantic behaviour a group command in
+:lname:`Bash` has.  Clearly(?), a device that runs a sequence of
+commands and returns the result of the last one run is a useful
+programming construct.  Is there anything more to it?  I haven't
+followed the code through.
 
 Let Expression
 ^^^^^^^^^^^^^^
@@ -698,8 +699,8 @@ be as well.
 For
 ^^^
 
-There's two variants of ``for``, the common iterator, ``for x in ...``
-and the :lname:`C`-like ``for (init; condition; step) ...``.
+There's two variants of ``for``: the common iterator, ``for x in
+...``; and the :lname:`C`-like ``for (init; condition; step) ...``.
 
 The former is used all the time.  People *like* iterating over things
 and programmers get quite angry when they can't.  The latter, I don't
@@ -835,7 +836,7 @@ big thing about being able to do tail-call recursion so, uh, that's
 what you do.
 
 Like many things ``while`` is syntactic sugar for what's really
-happening underneath the hood.  It still needs writing, though!
+happening underneath the hood.
 
 .. _co-process:
 
@@ -986,7 +987,7 @@ look more like:
 
 .. code-block:: sh
 
-   me_dir = getpwnam ("me").pw_dir
+   me_dir = (getpwnam "me").pw_dir
    path_prepend EVERYWHERE me_dir
 
 which is clearly more "work" but suggests we've more (systems
@@ -1289,7 +1290,7 @@ parameters and that:
 
 should work as expected without word splitting.
 
-.. sidebox:: I hate the Romans as much as anybody.
+.. aside:: I hate the Romans as much as anybody.
 
 I'm not a splitter.
 

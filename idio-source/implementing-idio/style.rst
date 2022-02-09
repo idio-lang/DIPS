@@ -472,27 +472,35 @@ The :lname:`C` code will be invoking :manpage:`siglongjmp(3)` but not
 everyone washing over the code will be able to spot that so
 *especially* where the code will never reach we need to clarify that.
 
-There is a special ``idio_S_notreached`` sentinel value otherwise a
-similar comment and a :lname:`C` sentinel value should be returned
-(unless the function is ``void``, of course).
+There is a special ``idio_S_notreached`` sentinel value for functions
+returning an ``IDIO`` value otherwise a similar comment and a
+:lname:`C` sentinel value should be returned (unless the function is
+``void``, of course).
 
 .. code-block:: c
 
-   if (...) {
-       idio_error_printf (...);
+   IDIO idio_foo (...)
+   {
+       if (...) {
+           idio_error_printf (...);
 
-       return idio_S_notreached;
+           return idio_S_notreached;
+       }
    }
 
-or
+or, for a function returning a regular :lname:`C` type, add a
+"notreached" comment and return a sentinel value:
 
 .. code-block:: c
 
-   if (...) {
-       idio_error_printf (...);
+   int idio_bar (...)
+   {
+       if (...) {
+           idio_error_printf (...);
 
-       /* notreached */
-       return -1;
+	   /* notreached */
+	   return -1;
+       }
    }
 
 

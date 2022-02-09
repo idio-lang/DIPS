@@ -33,17 +33,21 @@ ALGOL_ accustomed eyes -- Lisps are *L*\ ots of *I*\ rritating *S*\
 tupid *P*\ arentheses, as the old gag goes -- but it might be that it
 is too different in other ways.  We shall see.
 
-.. sidebox:: The language's name was :lname:`Schemer` but fell victim
-             to the original implementation's file system limits of
-             six character entries.
+.. sidebox::
+
+   The language's name was :lname:`Schemer` but fell victim to the
+   original implementation's file system limits of six character
+   entries.
 
 :lname:`Scheme` is *a* :lname:`Lisp` -- there are lots of
 :lname:`Lisp`\ s -- with a distinction that the core consists of half a
 dozen *forms* which, combined with :lname:`Scheme`'s use of
 :term:`homoiconicity`, allows you to build anything else.
 
-.. sidebox:: Whilst lines can be quite long in :lname:`Brainfuck` I
-             suspect this is one shout we won't see.
+.. aside::
+
+   Whilst lines can be quite long in :lname:`Brainfuck` I suspect this
+   is one shout we won't see.
 
 This ease of implementation allows for many shouts of "I've
 implemented :lname:`Scheme` in 50 lines of :lname:`Brainfuck`!" and
@@ -193,7 +197,9 @@ numbers, strings and so on.  The likes of:
   storing with the implication that there are going to be more than
   one.  Unless we only deal with (small) integers.
 
-  .. sidebox:: If only the clouds would keep still!
+  .. aside::
+
+     If only the clouds would keep still!
 
   :lname:`Scheme` also handles "large" numbers in the form of
   *bignums*.  So, if you fancy counting all the atoms in the
@@ -423,8 +429,10 @@ list and the number 1 by calling ``cadr`` and...  *Whoa!* ...the
 syntactic form of the language can be manipulated by the language
 itself.
 
-.. sidebox:: Wait, I think I can implement :lname:`Scheme` in 50 lines
-             of :lname:`Scheme`!
+.. aside::
+
+   Wait, I think I can implement :lname:`Scheme` in 50 lines of
+   :lname:`Scheme`!
 
 That's what they mean by :term:`homoiconic <homoiconicity>`.
 
@@ -659,17 +667,23 @@ and the implementing language.  In the pedagogical examples of SICP
 say) will be written in some existing :lname:`Scheme`,
 :lname:`Scheme`\ :sub:`1`, say.
 
-.. sidebox:: :lname:`Scheme`\ :sub:`2`, of course.  :socrates:`And
-             it?` Why, it's :lname:`Scheme`\ s all the way down.
+.. sidebox::
 
-OK, so what is :lname:`Scheme`\ :sub:`1`’s ``if`` written in?  Well,
-you'll have to go and look at the source code but you can imagine that
-you'll eventually find an implementation of :lname:`Scheme`\ :sub:`n`
-in :lname:`C` and therefore ``if`` will have been implemented using
-:lname:`C`’s ``if``.  :lname:`C`’s ``if`` is, in turn, (probably)
-implemented with a machine code instruction to test and branch, itself
-written in processor microcode and eventually into transistor NAND
-gates where, um, ...  *Look!* A squirrel!
+   :lname:`Scheme`\ :sub:`2`, of course.
+
+.. aside::
+
+   :socrates:`And it?` Why, it's :lname:`Scheme`\ s all the way down.
+
+OK, so what is :lname:`Scheme`\ :sub:`1`’s ``if`` written in?
+
+Well, you'll have to go and look at the source code but you can
+imagine that you'll eventually find an implementation of
+:lname:`Scheme`\ :sub:`n` in :lname:`C` and therefore ``if`` will have
+been implemented using :lname:`C`’s ``if``.  :lname:`C`’s ``if`` is,
+in turn, (probably) implemented with a machine code instruction to
+test and branch, itself written in processor microcode and eventually
+into transistor NAND gates where, um, ...  *Look!* A squirrel!
 
 In the meanwhile, glossing over the detail, most functions are
 *derived* forms and their arguments are evaluated before the function
@@ -699,7 +713,9 @@ You create primitive functions as a combination of:
 * plain old expediency and efficiency functions -- some things just
   want a fast, tight loop.
 
-.. sidebox:: Local forms, for local people!
+.. aside::
+
+   Local forms, for local people!
 
 Special forms sounds great for system-defined functions and people who
 want to hack away at the source code but what if **I** want one?
@@ -1417,8 +1433,8 @@ alternative:
      (c2 s2+)
      (c3 s3+))
 
-where, more than likely, each of the ``cX`` and ``sX+`` clauses are
-themselves lists:
+where, more than likely, each of the :samp:`c{n}` and :samp:`s{n}+`
+clauses are themselves lists:
 
 .. code-block:: scheme
 
@@ -1428,7 +1444,7 @@ themselves lists:
      ((string? exp)	(string-append "string-" exp)))
 
 ``cond`` is slightly different to ``if`` in that multiple expressions,
-the ``sX+``, are allowed if the condition is true.
+the :samp:`s{n}+`, are allowed if the condition is true.
 
 It has an ``else`` form, of course, and a very different creature, an
 ``=>`` clause:
@@ -1446,7 +1462,7 @@ It has an ``else`` form, of course, and a very different creature, an
              accumulating a list of matches, maybe I should think
              harder about my examples....
 
-For ``=>`` the ``cX`` expression is evaluated resulting in some
+For ``=>`` the :samp:`c{n}` expression is evaluated resulting in some
 :samp:`{value}`.  If the :samp:`{value}` is not false then ``func`` is
 applied to the :samp:`{value}`, ie.  :samp:`(func {value})`, or
 ``(func (string-match str "foo"))`` if and only if ``(string-match str
@@ -1462,10 +1478,10 @@ statements:
      ((o2+)	e2+)
      ((o3+)	e3+))
 
-where ``key`` is evaluated and then compared to each of the ``on+``
-objects with ``eqv?``.  If any object matches ``key`` then the
-expressions ``en+`` are evaluated in sequence with the result being
-that of the last expression.
+where ``key`` is evaluated and then compared to each of the
+:samp:`o{n}+` objects with ``eqv?``.  If any object matches ``key``
+then the expressions :samp:`e{n}+` are evaluated in sequence with the
+result being that of the last expression.
 
 Sequences
 ^^^^^^^^^
