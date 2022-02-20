@@ -23,7 +23,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. _`b?`:
 
-.. function:: b? pathname
+.. idio:function:: b? pathname
 
    Is ``pathname`` a block special device?
 
@@ -32,7 +32,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. _`c?`:
 
-.. function:: c? pathname
+.. idio:function:: c? pathname
 
    Is ``pathname`` a character special device?
 
@@ -41,7 +41,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. _`d?`:
 
-.. function:: d? pathname
+.. idio:function:: d? pathname
 
    Is ``pathname`` a directory?
 
@@ -50,7 +50,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. _`e?`:
 
-.. function:: e? pathname
+.. idio:function:: e? pathname
 
    Does ``pathname`` exist?
 
@@ -59,7 +59,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. _`f?`:
 
-.. function:: f? pathname
+.. idio:function:: f? pathname
 
    Is ``pathname`` a regular file?
 
@@ -68,7 +68,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. _`l?`:
 
-.. function:: l? pathname
+.. idio:function:: l? pathname
 
    Is ``pathname`` a symlink?
 
@@ -77,7 +77,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. _`p?`:
 
-.. function:: p? pathname
+.. idio:function:: p? pathname
 
    Is ``pathname`` a FIFO?
 
@@ -86,7 +86,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. _`r?`:
 
-.. function:: r? pathname
+.. idio:function:: r? pathname
 
    Does ``pathname`` satisfy :samp:`libc/access {pathname} libc/R_OK`?
 
@@ -95,7 +95,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. _`s?`:
 
-.. function:: s? pathname
+.. idio:function:: s? pathname
 
    Is ``pathname`` a socket?
 
@@ -104,7 +104,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. _`T?`:
 
-.. function:: T? fd
+.. idio:function:: T? fd
 
    Is ``fd`` a terminal?
 
@@ -113,7 +113,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. _`w?`:
 
-.. function:: w? pathname
+.. idio:function:: w? pathname
 
    Does ``pathname`` satisfy :samp:`libc/access {pathname} libc/W_OK`?
 
@@ -122,7 +122,7 @@ descriptors, eg. ``T?`` for terminals.
 
 .. _`x?`:
 
-.. function:: x? pathname
+.. idio:function:: x? pathname
 
    Does ``pathname`` satisfy :samp:`libc/access {pathname} libc/X_OK`?
 

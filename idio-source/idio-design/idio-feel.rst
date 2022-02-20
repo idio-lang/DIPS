@@ -505,7 +505,7 @@ You can access the array using negative indexes to index from the end.
 Following the :lname:`Scheme` model we would create and access arrays
 along the following lines:
 
-.. function:: make-array size [default]
+.. idio:function:: make-array size [default]
 
    :param size: initial array size
    :type size: integer
@@ -929,7 +929,7 @@ GNU's :ref-title:`libc` only supports :manpage:`qsort(3)` but we can
 fall back on our :lname:`Scheme` friends and SRFI-95_ gives use some
 useful sorting and merging functions, here:
 
-.. function:: sort sequence less? [key]
+.. idio:function:: sort sequence less? [key]
 
    :param sequence: initial array sequence
    :type sequence: array or list

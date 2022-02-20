@@ -62,6 +62,49 @@ but do not become "characters" *per se*.  It's a grey area and you can
 find plenty of discussion online as to what is and isn't a
 "character".
 
+Here's a example rebuttal of the naïve interpretation of "character"
+from :ref-author:`torstenvl` in
+https://news.ycombinator.com/item?id=30384223:
+
+    A 'character' meaning what? The first code point? The first
+    non-combining code point? The first non-combining code point along
+    with all associated combining code points? The first non-combining
+    code point along with all associated combining code points
+    modified to look like it would look in conjunction with
+    surrounding non-combining code points along with their associated
+    combining code points? The first displayable component of a code
+    point? What are the following?
+
+    - the second character of sœur (o or the ligature?)
+
+    - the second character of حبيبي (the canonical form ب or the
+      contextual form ﺒ ?)
+
+    - the third character of есть (Cyrillic t with or without soft
+      sign, which is always a separate code point and always displayed
+      to the right but changes the sound?)
+
+    - the first character of 실례합니다 (Korean phoneme or syllabic
+      grapheme?)
+
+    - the first character of ﷺ or ﷽ ?
+
+    The main issue isn't programming language support, it's ambiguity
+    in the concept of "character" and conventions about how languages
+    treat them. Imagine how the letter i would be treated if Unicode
+    were invented by a Turk. The fundamental issue here is that human
+    communication is deeply nuanced in a way that does not lend itself
+    well to systematic encoding or fast/naive algorithms on that
+    encoding. Even in the plain ASCII range it's impossible to know
+    how to render a word like "ANSCHLUSS" in lower case (or how many
+    'characters' such a word would have) without knowledge of the
+    language, country of origin, and time period in which the word was
+    written.
+
+.. rst-class:: center
+
+   ---
+
 Most texts fall back to calling code points characters in much the
 same way we call all 128 ASCII characters, er, characters even though
 most of the characters below 0x20 make no sense whatsoever as
@@ -129,9 +172,10 @@ This is not just an issue with squirrelly superscripted characters but
 also where `Punycode <https://en.wikipedia.org/wiki/Punycode>`_ is
 used in domain names to use non-ASCII characters with similar glyphs
 to ASCII characters to masquerade one domain as another.  The example
-in the `Homoglyph <https://en.wikipedia.org/wiki/Homoglyph>`_ page is
-the near identical expressions of a, U+0061 (LATIN SMALL LETTER A),
-and а, U+0430 (CYRILLIC SMALL LETTER A).
+in the Wikipedia `Homoglyph
+<https://en.wikipedia.org/wiki/Homoglyph>`_ page is the near identical
+expressions of a, U+0061 (LATIN SMALL LETTER A), and а, U+0430
+(CYRILLIC SMALL LETTER A).
 
 .. aside::
 
@@ -1310,7 +1354,7 @@ Strings
 
 .. _`fields`:
 
-.. function:: fields string
+.. idio:function:: fields string
 
    A variation on :ref:`split-string <split-string>` with a view to
    more :program:`awk`-like line splitting functionality, ``fields``
@@ -1338,7 +1382,7 @@ Strings
 
    
 
-.. function:: join-string delim list
+.. idio:function:: join-string delim list
 
    construct a string from the strings in `list` with the string
    `delim` placed in between each pair of strings

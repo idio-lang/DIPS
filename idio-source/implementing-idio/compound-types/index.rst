@@ -36,9 +36,9 @@ problem is that it is:
 
 .. _`value-index`:
 
-.. function:: o . i
+.. idio:function:: o . i
 
-.. function:: value-index o i
+.. idio:function:: value-index o i
 
    Here, in general, we want to get or set the :samp:`{i}`\ :sup:`th`
    element of :samp:`{o}`.  This means we can write more readable

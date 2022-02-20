@@ -387,7 +387,7 @@ names with :ref:`libc/sig-names <libc/sig-names>` or
 
 .. _`libc/sig-name`:
 
-.. function:: sig-name sig
+.. idio:function:: sig-name sig
 
    Return the short-form signal name, eg. "INT"
 
@@ -397,7 +397,7 @@ names with :ref:`libc/sig-names <libc/sig-names>` or
 
 .. _`libc/signal-name`:
 
-.. function:: signal-name sig
+.. idio:function:: signal-name sig
 
    Return the long-form signal name, eg. "SIGINT"
 
@@ -407,7 +407,7 @@ names with :ref:`libc/sig-names <libc/sig-names>` or
 
 .. _`libc/sig-names`:
 
-.. function:: sig-names
+.. idio:function:: sig-names
 
    Return a list of the signal number and the short-form signal names,
    eg. "INT", pairs.
@@ -420,7 +420,7 @@ names with :ref:`libc/sig-names <libc/sig-names>` or
 
 .. _`libc/signal-names`:
 
-.. function:: signal-names
+.. idio:function:: signal-names
 
    Return a list of the signal number and the long-form signal names,
    eg. "SIGINT", pairs.
@@ -458,7 +458,7 @@ You can get a list of all error numbers with error names with
 
 .. _`libc/errno-name`:
 
-.. function:: errno-name errno
+.. idio:function:: errno-name errno
 
    Return the error name, eg. "EPERM"
 
@@ -468,7 +468,7 @@ You can get a list of all error numbers with error names with
 
 .. _`libc/strerrno`:
 
-.. function:: strerrno errno
+.. idio:function:: strerrno errno
 
    Return the error name, eg. "EPERM"
 
@@ -478,7 +478,7 @@ You can get a list of all error numbers with error names with
 
 .. _`libc/errno-names`:
 
-.. function:: errno-names
+.. idio:function:: errno-names
 
    Return a list of the error number and the error name pairs.
 
@@ -508,7 +508,7 @@ You can get a list of all RLIMIT numbers with names with
 
 .. _`libc/rlimit-name`:
 
-.. function:: rlimit-name rlim
+.. idio:function:: rlimit-name rlim
 
    Return the rlimit name, eg. "RLIMIT_NOFILE"
 
@@ -518,7 +518,7 @@ You can get a list of all RLIMIT numbers with names with
 
 .. _`libc/rlimit-names`:
 
-.. function:: rlimit-names
+.. idio:function:: rlimit-names
 
    Return a list of the rlimit number and the rlimit name pairs.
 
@@ -561,7 +561,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/access`:
 
-.. function:: libc/access pathname mode
+.. idio:function:: libc/access pathname mode
 
    Call :manpage:`access(2)`.
 
@@ -574,7 +574,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/chdir`:
 
-.. function:: libc/chdir path
+.. idio:function:: libc/chdir path
 
    Call :manpage:`chdir(2)`.
 
@@ -585,7 +585,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/close`:
 
-.. function:: libc/close fd
+.. idio:function:: libc/close fd
 
    Call :manpage:`close(2)`.
 
@@ -596,7 +596,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/dup`:
 
-.. function:: libc/dup oldfd
+.. idio:function:: libc/dup oldfd
 
    Call :manpage:`dup(2)`.
 
@@ -607,7 +607,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/dup2`:
 
-.. function:: libc/dup2 oldfd newfd
+.. idio:function:: libc/dup2 oldfd newfd
 
    Call :manpage:`dup2(2)`.
 
@@ -620,7 +620,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/exit`:
 
-.. function:: libc/exit status
+.. idio:function:: libc/exit status
 
    Call :manpage:`exit(3)`.
 
@@ -637,7 +637,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/fcntl`:
 
-.. function:: libc/fcntl fd cmd [arg]
+.. idio:function:: libc/fcntl fd cmd [arg]
 
    Call :manpage:`fcntl(2)`.
 
@@ -682,7 +682,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/fork`:
 
-.. function:: libc/fork
+.. idio:function:: libc/fork
 
    Call :manpage:`fork(2)`.
 
@@ -691,7 +691,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/getcwd`:
 
-.. function:: libc/getcwd
+.. idio:function:: libc/getcwd
 
    Call :manpage:`getcwd(3)`.
 
@@ -700,7 +700,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/getpgpid`:
 
-.. function:: libc/getpgpid
+.. idio:function:: libc/getpgpid
 
    Call :manpage:`getpgpid(2)`.
 
@@ -709,7 +709,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/getpgrp`:
 
-.. function:: libc/getpgrp
+.. idio:function:: libc/getpgrp
 
    Call :manpage:`getpgrp(2)`.
 
@@ -718,7 +718,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/getpid`:
 
-.. function:: libc/getpid
+.. idio:function:: libc/getpid
 
    Call :manpage:`getpid(2)`.
 
@@ -727,7 +727,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/getrlimit`:
 
-.. function:: libc/getrlimit resource
+.. idio:function:: libc/getrlimit resource
 
    Call :manpage:`getrlimit(2)`.
 
@@ -738,7 +738,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/getrusage`:
 
-.. function:: libc/getrusage who
+.. idio:function:: libc/getrusage who
 
    Call :manpage:`getrusage(2)`.
 
@@ -749,7 +749,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/getsid`:
 
-.. function:: libc/getsid
+.. idio:function:: libc/getsid
 
    Call :manpage:`getsid(2)`.
 
@@ -758,7 +758,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/gettimeofday`:
 
-.. function:: libc/gettimeofday
+.. idio:function:: libc/gettimeofday
 
    Call :manpage:`gettimeofday(2)`.
 
@@ -767,7 +767,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/isatty`:
 
-.. function:: libc/isatty
+.. idio:function:: libc/isatty
 
    Call :manpage:`isatty(3)`.
 
@@ -783,7 +783,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/kill`:
 
-.. function:: libc/kill pid sig
+.. idio:function:: libc/kill pid sig
 
    Call :manpage:`kill(2)`.
 
@@ -796,7 +796,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/mkdir`:
 
-.. function:: libc/mkdir pathname mode
+.. idio:function:: libc/mkdir pathname mode
 
    Call :manpage:`mkdir(2)`.
 
@@ -814,7 +814,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/mkdtemp`:
 
-.. function:: libc/mkdtemp template
+.. idio:function:: libc/mkdtemp template
 
    Call :manpage:`mkdtemp(3)`.
 
@@ -826,7 +826,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/mkstemp`:
 
-.. function:: libc/mkstemp template
+.. idio:function:: libc/mkstemp template
 
    Call :manpage:`mkstemp(3)`.
 
@@ -844,7 +844,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/pipe`:
 
-.. function:: libc/pipe
+.. idio:function:: libc/pipe
 
    Call :manpage:`pipe(2)`.
 
@@ -858,7 +858,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/pipe-reader`:
 
-.. function:: libc/pipe-reader v
+.. idio:function:: libc/pipe-reader v
 
    :param v: the result of calling :ref:`pipe <libc/pipe>`
    :type v: ``C/pointer``
@@ -866,7 +866,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/pipe-writer`:
 
-.. function:: libc/pipe-writer v
+.. idio:function:: libc/pipe-writer v
 
    :param v: the result of calling :ref:`pipe <libc/pipe>`
    :type v: ``C/pointer``
@@ -874,7 +874,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/read`:
 
-.. function:: libc/read fd [count]
+.. idio:function:: libc/read fd [count]
 
    Call :manpage:`read(2)`.
 
@@ -894,7 +894,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/rmdir`:
 
-.. function:: libc/rmdir pathname
+.. idio:function:: libc/rmdir pathname
 
    Call :manpage:`rmdir(2)`.
 
@@ -905,7 +905,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/setpgpid`:
 
-.. function:: libc/setpgpid pid pgid
+.. idio:function:: libc/setpgpid pid pgid
 
    Call :manpage:`setpgpid(2)`.
 
@@ -918,7 +918,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/setrlimit`:
 
-.. function:: libc/setrlimit resource rlim
+.. idio:function:: libc/setrlimit resource rlim
 
    Call :manpage:`setrlimit(2)`.
 
@@ -950,7 +950,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/signal`:
 
-.. function:: libc/signal sig handler
+.. idio:function:: libc/signal sig handler
 
    Call :manpage:`signal(2)`.
 
@@ -967,7 +967,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/sleep`:
 
-.. function:: libc/sleep seconds
+.. idio:function:: libc/sleep seconds
 
    Call :manpage:`sleep(3)`.
 
@@ -981,7 +981,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/stat`:
 
-.. function:: libc/stat pathname
+.. idio:function:: libc/stat pathname
 
    Call :manpage:`stat(2)`.
 
@@ -993,7 +993,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/S_ISBLK`:
 
-.. function:: libc/S_ISBLK mode
+.. idio:function:: libc/S_ISBLK mode
 
    Call the :lname:`C` macro ``S_ISBLK``.
 
@@ -1003,7 +1003,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/S_ISCHR`:
 
-.. function:: libc/S_ISCHR mode
+.. idio:function:: libc/S_ISCHR mode
 
    Call the :lname:`C` macro ``S_ISCHR``.
 
@@ -1013,7 +1013,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/S_ISDIR`:
 
-.. function:: libc/S_ISDIR mode
+.. idio:function:: libc/S_ISDIR mode
 
    Call the :lname:`C` macro ``S_ISDIR``.
 
@@ -1023,7 +1023,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/S_ISREG`:
 
-.. function:: libc/S_ISREG mode
+.. idio:function:: libc/S_ISREG mode
 
    Call the :lname:`C` macro ``S_ISREG``.
 
@@ -1033,7 +1033,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/S_ISLNK`:
 
-.. function:: libc/S_ISLNK mode
+.. idio:function:: libc/S_ISLNK mode
 
    Call the :lname:`C` macro ``S_ISLNK``.
 
@@ -1043,7 +1043,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/S_ISFIFO`:
 
-.. function:: libc/S_ISFIFO mode
+.. idio:function:: libc/S_ISFIFO mode
 
    Call the :lname:`C` macro ``S_ISFIFO``.
 
@@ -1053,7 +1053,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/S_ISSOCK`:
 
-.. function:: libc/S_ISSOCK mode
+.. idio:function:: libc/S_ISSOCK mode
 
    Call the :lname:`C` macro ``S_ISSOCK``.
 
@@ -1063,7 +1063,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/strerror`:
 
-.. function:: libc/strerror errnum
+.. idio:function:: libc/strerror errnum
 
    Call :manpage:`strerror(3)`.
 
@@ -1075,7 +1075,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/strsignal`:
 
-.. function:: libc/strsignal sig
+.. idio:function:: libc/strsignal sig
 
    Call :manpage:`strsignal(3)`.
 
@@ -1092,7 +1092,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/tcgetattr`:
 
-.. function:: libc/tcgetattr fd
+.. idio:function:: libc/tcgetattr fd
 
    Call :manpage:`tcgetattr(3)`.
 
@@ -1104,7 +1104,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/tcgetpgrp`:
 
-.. function:: libc/tcgetpgrp fd
+.. idio:function:: libc/tcgetpgrp fd
 
    Call :manpage:`tcgetpgrp(3)`.
 
@@ -1116,7 +1116,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/tcsetattr`:
 
-.. function:: libc/tcsetattr fd options termios
+.. idio:function:: libc/tcsetattr fd options termios
 
    Call :manpage:`tcsetattr(3)`.
 
@@ -1138,7 +1138,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/tcsetpgrp`:
 
-.. function:: libc/tcsetpgrp fd pgrp
+.. idio:function:: libc/tcsetpgrp fd pgrp
 
    Call :manpage:`tcsetpgrp(3)`.
 
@@ -1151,7 +1151,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/times`:
 
-.. function:: libc/times
+.. idio:function:: libc/times
 
    Call :manpage:`times(3)`.
 
@@ -1162,7 +1162,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/uname`:
 
-.. function:: libc/uname
+.. idio:function:: libc/uname
 
    Call :manpage:`uname(3)`.
 
@@ -1174,7 +1174,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/unlink`:
 
-.. function:: libc/unlink pathname
+.. idio:function:: libc/unlink pathname
 
    Call :manpage:`unlink(2)`.
 
@@ -1185,7 +1185,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/waitpid`:
 
-.. function:: libc/waitpid pid options
+.. idio:function:: libc/waitpid pid options
 
    Call :manpage:`waitpid(2)`.
 
@@ -1210,7 +1210,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/WIFEXITED`:
 
-.. function:: libc/WIFEXITED status
+.. idio:function:: libc/WIFEXITED status
 
    Call the :lname:`C` macro ``WIFEXITED``.
 
@@ -1220,7 +1220,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/WEXITSTATUS`:
 
-.. function:: libc/WEXITSTATUS status
+.. idio:function:: libc/WEXITSTATUS status
 
    Call the :lname:`C` macro ``WEXITSTATUS``.
 
@@ -1230,7 +1230,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/WIFSIGNALLED`:
 
-.. function:: libc/WIFSIGNALLED status
+.. idio:function:: libc/WIFSIGNALLED status
 
    Call the :lname:`C` macro ``WIFSIGNALLED``.
 
@@ -1240,7 +1240,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/WTERMSIG`:
 
-.. function:: libc/WTERMSIG status
+.. idio:function:: libc/WTERMSIG status
 
    Call the :lname:`C` macro ``WTERMSIG``.
 
@@ -1250,7 +1250,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/WIFSTOPPED`:
 
-.. function:: libc/WIFSTOPPED status
+.. idio:function:: libc/WIFSTOPPED status
 
    Call the :lname:`C` macro ``WIFSTOPPED``.
 
@@ -1260,7 +1260,7 @@ to pass an :lname:`Idio` string with an embedded ASCII NUL into
 
 .. _`libc/write`:
 
-.. function:: libc/write fd str
+.. idio:function:: libc/write fd str
 
    Call :manpage:`write(2)`.
 
@@ -1354,7 +1354,7 @@ give rise to the fundamental to pattern matching in :lname:`Idio`.
 
 .. _`libc/regcomp`:
 
-.. function:: libc/regcomp rx [flags]
+.. idio:function:: libc/regcomp rx [flags]
 
    Call :manpage:`regcomp(3)`.
 
@@ -1378,7 +1378,7 @@ give rise to the fundamental to pattern matching in :lname:`Idio`.
 
 .. _`libc/regexec`:
 
-.. function:: libc/regexec rx str [flags]
+.. idio:function:: libc/regexec rx str [flags]
 
    Call :manpage:`regexec(3)`.
 
@@ -1411,7 +1411,7 @@ functions (technically, templates).
 
 .. _`regex-case`:
 
-.. function:: regex-case str *clauses*
+.. idio:function:: regex-case str *clauses*
 
    ``regex-case`` works like ``case`` in that it takes a sequence of
    clauses where the first element of each clause is a regular
@@ -1445,7 +1445,7 @@ them with ``.*`` and ``.`` respectively giving us:
 
 .. _`pattern-case`:
 
-.. function:: pattern-case str *clauses*
+.. idio:function:: pattern-case str *clauses*
 
    .. code-block:: idio
 
@@ -1479,7 +1479,7 @@ Structures and Accessors
 
 .. _`libc/struct-rlimit-ref`:
 
-.. function:: libc/struct-rlimit-ref rlimit member
+.. idio:function:: libc/struct-rlimit-ref rlimit member
 
    :param rlimit:
    :type rlimit: ``C/pointer`` to a ``struct rlimit``
@@ -1490,7 +1490,7 @@ Structures and Accessors
 
 .. _`libc/struct-rlimit-set!`:
 
-.. function:: libc/struct-rlimit-set! rlimit member val
+.. idio:function:: libc/struct-rlimit-set! rlimit member val
 
    :param rlimit:
    :type rlimit: ``C/pointer`` to a ``struct rlimit``
@@ -1520,7 +1520,7 @@ Structures and Accessors
 
 .. _`libc/struct-rusage-ref`:
 
-.. function:: libc/struct-rusage-ref rusage member
+.. idio:function:: libc/struct-rusage-ref rusage member
 
    :param rusage:
    :type rusage: ``C/pointer`` to a ``struct rusage``
@@ -1630,7 +1630,7 @@ Structures and Accessors
 
 .. _`libc/struct-stat-ref`:
 
-.. function:: libc/struct-stat-ref stat member
+.. idio:function:: libc/struct-stat-ref stat member
 
    :param stat:
    :type stat: ``C/pointer`` to a ``struct stat``
@@ -1693,7 +1693,7 @@ Structures and Accessors
 
 .. _`libc/struct-termios-ref`:
 
-.. function:: libc/struct-termios-ref termios member
+.. idio:function:: libc/struct-termios-ref termios member
 
    :param termios:
    :type termios: ``C/pointer`` to a ``struct termios``
@@ -1704,7 +1704,7 @@ Structures and Accessors
 
 .. _`libc/struct-termios-set!`:
 
-.. function:: libc/struct-termios-set! termios member val
+.. idio:function:: libc/struct-termios-set! termios member val
 
    :param termios:
    :type termios: ``C/pointer`` to a ``struct termios``
@@ -1735,7 +1735,7 @@ Structures and Accessors
 
 .. _`libc/struct-timespec-ref`:
 
-.. function:: libc/struct-timespec-ref timespec member
+.. idio:function:: libc/struct-timespec-ref timespec member
 
    :param timespec:
    :type timespec: ``C/pointer`` to a ``struct timespec``
@@ -1746,7 +1746,7 @@ Structures and Accessors
 
 .. _`libc/struct-timespec-set!`:
 
-.. function:: libc/struct-timespec-set! timespec member val
+.. idio:function:: libc/struct-timespec-set! timespec member val
 
    :param timespec:
    :type timespec: ``C/pointer`` to a ``struct timespec``
@@ -1777,7 +1777,7 @@ Structures and Accessors
 
 .. _`libc/struct-timeval-ref`:
 
-.. function:: libc/struct-timeval-ref timeval member
+.. idio:function:: libc/struct-timeval-ref timeval member
 
    :param timeval:
    :type timeval: ``C/pointer`` to a ``struct timeval``
@@ -1788,7 +1788,7 @@ Structures and Accessors
 
 .. _`libc/struct-timeval-set!`:
 
-.. function:: libc/struct-timeval-set! timeval member val
+.. idio:function:: libc/struct-timeval-set! timeval member val
 
    :param timeval:
    :type timeval: ``C/pointer`` to a ``struct timeval``
@@ -1799,7 +1799,7 @@ Structures and Accessors
    :raises: :val:`^rt-parameter-type-error` :val:`^rt-parameter-value-error`
    :rtype: ``#<unspec>``
 
-.. function:: libc/add-struct-timeval tv1 tv2
+.. idio:function:: libc/add-struct-timeval tv1 tv2
 
    :param tv1:
    :type tv1: ``C/pointer`` to a ``struct timeval``
@@ -1807,7 +1807,7 @@ Structures and Accessors
    :type tv2: ``C/pointer`` to a ``struct timeval``
    :rtype: ``C/pointer`` to a :ref:`struct timeval <libc/struct timeval>`
 
-.. function:: libc/subtract-struct-timeval tv1 tv2
+.. idio:function:: libc/subtract-struct-timeval tv1 tv2
 
    :param tv1:
    :type tv1: ``C/pointer`` to a ``struct timeval``
@@ -1817,7 +1817,7 @@ Structures and Accessors
 
 .. _`libc/struct-timeval-as-string`:
 
-.. function:: libc/struct-timeval-as-string timeval
+.. idio:function:: libc/struct-timeval-as-string timeval
 
    :param timeval:
    :type timeval: ``C/pointer`` to a ``struct timeval``
@@ -1854,7 +1854,7 @@ Structures and Accessors
 
 .. _`libc/struct-tms-ref`:
 
-.. function:: libc/struct-tms-ref tms member
+.. idio:function:: libc/struct-tms-ref tms member
 
    :param tms:
    :type tms: ``C/pointer`` to a ``struct tms``
@@ -1898,7 +1898,7 @@ Structures and Accessors
 
 .. _`libc/struct-utsname-ref`:
 
-.. function:: libc/struct-utsname-ref utsname member
+.. idio:function:: libc/struct-utsname-ref utsname member
 
    :param utsname:
    :type utsname: ``C/pointer`` to a ``struct utsname``
