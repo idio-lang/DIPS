@@ -34,6 +34,7 @@ straight in.
    simple-types/index
    compound-types/index
    r0.1/index
+   r0.2/index
    shell/index
    advanced/index
    extensions/index
