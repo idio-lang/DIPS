@@ -57,7 +57,8 @@ with the base ``<object>`` class) to print nothing or whatever.
 CLOS goes a bit further with some concepts to do with methods.  In
 addition to what are called primary methods it has the idea of methods
 that should be run before or after any corresponding primary methods
-and even methods that should be run around other methods.
+and even methods that should be run around other methods (whatever
+that means).
 
 A final word on the :abbr:`meta-object-protocol (MOP)` which is a
 mechanism by which the behaviour of the object system can be
@@ -108,18 +109,18 @@ Memory Model
 
 The underlying memory model in :lname:`Tiny CLOS` is a :lname:`Scheme`
 vector, akin to an :lname:`Idio` array.  Anything could have been
-used, we just want to access individual slots.
+used, we just want to access individual elements.
 
-The first three slots represent the meta-class, the instance proc and
-a lock.  The lock is used to prevent the instance proc being used for
-non-generic functions -- something we can do in other ways.
+The first three elements represent the meta-class, the instance proc
+and a lock.  The lock is used to prevent the instance proc being used
+for non-generic functions -- something we can do in other ways.
 
 The instance proc itself is a slightly disjoint concept.  The idea is
-that if this value is found to be in functional position, about to be
-applied to zero or more arguments, then we want something to run to
-implement behaviour.  A vector (array) in functional position isn't
-going to do much so we want something to substitute in, in its place,
-to actually do some work.
+that if this (instance) value is found to be in functional position,
+about to be applied to zero or more arguments, then we want something
+to run to implement behaviour.  A vector (array) in functional
+position isn't going to do much so we want something to substitute in,
+in its place, to actually do some work.
 
 All instances will have an instance proc -- that's just the way the
 data structure is laid out -- but it is only a useful concept for
@@ -127,8 +128,8 @@ generic functions, which are the only things we expect to find in
 functional position (and therefore need the instance proc to implement
 behaviour).
 
-The remaining slots are either descriptive (for a class) or data (for
-instances of classes).
+The remaining elements are either descriptive (for a class) or data
+(for instances of classes).
 
 :lname:`Tiny CLOS` goes a step further and instead of returning an
 instance, the vector, perhaps, returns a function which, when invoked,
@@ -166,7 +167,8 @@ used as an index into an association list of :samp:`({function}
 {vector})` tuples which itself is a private variable for a suite of
 functions that need access to it.
 
-A class has slots which describe the elements of the class:
+A class has slots which describe the elements of instances of the
+class:
 
 * direct super-classes
 
@@ -225,7 +227,8 @@ now:
 
 * ``direct-supers`` is ``#n`` -- to be modified in a moment
 
-* ``direct-slots`` is this list of slots names that we're iterating through right now
+* ``direct-slots`` is this list of slots names that we're iterating
+  through right now
 
 * ``cpl`` is ``#n`` -- to be modified in a moment
 
@@ -303,7 +306,7 @@ Finally we can create the remaining base classes:
   ``<class>`` and no direct slots.
 
   I'll be honest, I've not quite got a finger on what an entity-class
-  is in this (or any) context.  However, it appears in...
+  is in this (or any other) context.  However, it appears in...
 
 * ``<generic>`` the base class of generic functions
 
@@ -356,18 +359,18 @@ The :lname:`Tiny CLOS` mechanism is a little bit exposed:
    the given parameter specializers and the given function definition
 
 There's a couple of slightly confusing aspects here in that there
-appear to be two extra arguments supplied to the function definition:
-``call-next-method`` and ``initargs``, neither of which appear in the
-list of specializers.
+appear to be two extra arguments supplied to the method's function
+definition: ``call-next-method`` and ``initargs``, neither of which
+appear in the list of specializers.
 
-``call-next-method`` is a thunk we can call to do the moral equivalent
-of calling ``super``.  It's always provided so there's no need to have
-it in the specializers.
+* ``call-next-method`` is a thunk we can call to do the moral
+  equivalent of calling ``super``.  It's always provided to methods so
+  there's no need to have it in the specializers.
 
-``initargs`` seems, to me, to be anomalous.  I think it should appear
-as a specializer where, as we don't know what it is and therefore
-can't give it a specializer, it will automatically be given ``<top>``
-as a specializer.  I've tacked those on as comments.
+* ``initargs`` seems, to me, to be anomalous.  I think it should
+  appear as a specializer where, as we don't know what it is and
+  therefore can't give it a specializer, it will automatically be
+  given ``<top>`` as a specializer.  I've tacked those on as comments.
 
 .. code-block:: scheme
 
@@ -396,11 +399,11 @@ as a specializer.  I've tacked those on as comments.
 	   ...)))
 
 I find the :lname:`Scheme` above harder to read than I feel it should
-be.  It all looks a bit by rote and indeed :lname:`STklos` leads us to
-our preferred style through the template, :ref:`define-method
-<ref:object/define-method>`, which looks like a regular function
-declaration except with the formal parameters optionally qualified by
-a class:
+be -- and I've cut out the actual behaviour code!  It all looks a bit
+by rote and indeed :lname:`STklos` leads us to our preferred style
+through the template, :ref:`define-method <ref:object/define-method>`,
+which looks like a regular function declaration except with the formal
+parameters optionally qualified by a class:
 
 .. code-block:: idio
 
@@ -483,7 +486,8 @@ So, let's review.  ``add-method`` is going to set the instance proc of
 some generic function to be the result of calling the generic function
 ``compute-apply-generic``.  The act of invoking a generic function is
 to actually call the instance proc of the generic function instead.
-So ``compute-apply-generic`` needs an instance proc, right?  That
+
+So, ``compute-apply-generic`` needs an instance proc, right?  That
 should sort it.
 
 Here, as :ref-author:`Kiczales` notes, we need a couple of carefully
@@ -498,14 +502,14 @@ crafted functions.
    because that'll work.
 
    Technically, of course, we don't call the method *per se* but,
-   rather, apply the function in the method's ``procedure`` slot to
-   the supplied arguments.
+   rather, :ref:`apply <ref:apply>` the function in the method's
+   ``procedure`` slot to the supplied arguments.
 
    Of interest, as we don't know (read: can't figure out) what the
-   next methods should be for this one-off, as we called it blindly
-   without looking at the specializers, we simply pass ``#f`` for
-   ``call-next-method`` and trust that whatever this method is won't
-   call it.
+   next methods should be for this one-off -- as we called it blindly
+   without looking at the specializers -- we simply pass ``#f`` for
+   ``call-next-method`` and trust that, whatever this method is, it
+   won't call it.
 
 #. we need to ``add-method`` a genuine method to
    ``compute-apply-generic`` which
@@ -545,6 +549,17 @@ crafted functions.
    That's an important distinction, the one-shot function effectively
    called ``(lambda (call-next-method generic) ...)`` which returned a
    new instance proc for *next time*, not this time.
+
+.. sidebox::
+
+   I suppose there's a chance that someone "living on the edge" might
+   want to add their own method to ``compute-apply-generic`` or its
+   three friends so that the last/first trick means we will always run
+   the code we expect.
+
+   Unless that user was *really* out there and messed with the list of
+   methods...  There's some commentary about problems with shared
+   mutable state down below.
 
 As it happens, that's it for ``compute-apply-generic``, we don't (need
 to) touch it again.  It has a special clause for itself (never used)
@@ -646,7 +661,7 @@ again.
 complicated job of its own -- something has to implement
 ``call-next-method``.  Fortunately it's been given a sorted list of
 applicable methods, what it has to do is massage those into a callable
-chain.
+chain of thunks.
 
 That's the job of the internal function, ``one-step``.  This is a bit
 complicated but let's ask what it should look like.
@@ -687,6 +702,8 @@ The variants are for:
 
 * ``<object>`` which does nothing interesting, just returning the
   ``object`` passed in
+
+  Other variants do a bit more work here as we'll see below.
 
 * ``<class>`` which is expecting ``initargs`` to optionally have
   :samp:`'direct-supers {supers}` and :samp:`'direct-slots {slots}`
@@ -738,12 +755,166 @@ and the result is just the list of non-duplicated names.
 
 The generic function is defined for the specializer ``<class>``.
 
+Slot Options I
+^^^^^^^^^^^^^^
+
+However, the code for ``compute-slots`` seems unexpectedly complex
+seeing as it appears to want to just collect distinct slots names from
+across the super-classes.  It's not aided by curiously named values
+like ``others`` which appear to serve little purpose.
+
+The complexity exists for handling slot options -- despite
+:lname:`Tiny CLOS` stating at the start of :file:`tiny-clos.scm`,
+"Classes, with instance slots, but no slot options."
+
+For a visualization of slot options we can take a peek at the
+:lname:`Common Lisp` HyperSpec for `defclass
+<http://www.lispworks.com/documentation/lw71/CLHS/Body/m_defcla.htm>`_.
+
+Slot options allow you to augment the nominal :samp:`{slot-name}` with
+things like :samp:`({slot-name} :initarg {keyword} :initform {func})`
+such that when you come to initialize an instance of the class you can
+specifically override the default value for that slot.  (There's an
+obvious implicit ``:initarg`` keyword, that of the slot's name
+prefixed with a colon.)
+
+So that's cool 'n all but we hit a problem with multiple inheritance.
+What happens if our two super-classes, presumably from different
+libraries/authors use the same slot name but different, say,
+``:initarg`` values?  Why, you use *both*, of course!
+
+Wait, though!  That won't work for other slot options such as
+``:initform`` where it doesn't make any sense to have more than one
+(default) initializer.
+
+It isn't immediately obvious what should happen if both of your
+super-classes have legitimately defined an ``:initform``.  Maybe you
+take the first (CPL ordered), maybe you raise an error -- although if
+the libraries are not yours then there's no obvious fix.
+
+Back to the code.  As ``compute-slots``, or rather, the internal
+function, ``collect``, walks over the list of slots it can pick up on
+the head of the list, ``current``, and that slot's ``name`` and then
+walk over the rest of the list of slots collecting those it hasn't
+seen but also collecting those with the same slot name into ``others``
+-- although ``other-similarly-named-slots`` might have been a more
+descriptive variable name.  Or perhaps a comment.  Maybe it's more
+obvious to other people.
+
+When we come to update the ``result`` for looping round, we append the
+tails of each of the ``others`` lists, ie. just the slot options and
+not the slot name, onto ``current`` which has the slot name and the
+current slot options.
+
+.. rst-class :: center
+
+\*
+
+One fault, dare I say it, which you can't really complain about
+because the code has no slot options so I guess it was never tested,
+is that when we append the tails of ``others`` we really should be
+appending the tails of the reverse of ``others``.
+
+The reason is that we iterate over the "to do" list in CPL-order and
+therefore ``others`` is built up in the reverse of CPL order.  If we
+append the slot options of the other similarly named slots in reverse
+CPL order then we'll pick up one-shot slot options such as
+``:initform`` in reverse order.  For some CPL, we would expect to get
+the most specific ``:initform``, not the least!
+
+Easily spotted and fixed once you implement slot options.  No harm
+done.
+
 compute-getter-and-setter
 -------------------------
 
 Here, we're looking to determine the getter and setter per slot.  The
 arguments are ``class`` (specialized on ``<class>``), ``slot`` and
 ``allocator``.
+
+``allocator`` is part of the usual twisty-turney :lname:`Scheme`-y way
+of doing things as it is a function to be called with an
+initialization function.  In :lname:`Tiny CLOS` the initialization
+function for the class specializer ``<class>`` simply returns ``#n``.
+
+The initialization function is added to the list of
+``field-initializers`` and a pair of getter and setter functions
+returned which are appended to the slot name to give the per-slot
+getters-n-setters tuple of :samp:`({name} {getter} {setter})`.
+
+Slots Options II
+^^^^^^^^^^^^^^^^
+
+.. aside::
+
+   Also hinted at by the location of this section.
+
+As :lname:`Tiny CLOS` doesn't implement slot options it is something
+of a mystery as to where they are used.  :lname:`Swindle` gives us
+some clues.
+
+:lname:`Swindle` is a much richer implementation so bear that in mind
+when looking at :file:`tiny-clos.rkt` in the `Swindle sources
+<https://github.com/racket/swindle.git>`_.
+
+Of interest, the :lname:`Swindle` ``allocator`` function returns the
+index of the slot.  We'll see why in a moment.
+
+Here, :lname:`Swindle` gathers the various slot-options in the slot
+description using ``getarg`` -- and ``getargs`` for ``:initarg``
+covering the multiple possible ``:initarg`` keywords.
+
+It defines two functions:
+
+* ``init`` which is either defined to be:
+
+  .. aside::
+
+     Nobody said following this would be easy...
+
+  * a function invoking ``initializer`` -- another slot option which
+    is a function to initialize the slot
+
+  * a function that returns ``initvalue`` -- another slot option,
+    defaulting to ``???`` which is ultimately :lname:`Racket`'s
+    undefined value.  I guess ``#f`` would be another possibility
+    albeit you're in that grey area of uninitialized values -- was
+    ``#f`` the class-supplied initial value or is it genuinely
+    uninitialised?
+
+* ``init-slot`` a function, passed some variable number of ``args``,
+  to look in ``args`` for the slot option ``:initarg`` keywords and if
+  not then apply ``init`` (just defined) to ``args``
+
+Finally, then, the code can call ``allocator`` with ``init-slot`` and
+get back the slot index.
+
+The method also returns ``g+s`` the getter and setter for this slot
+which use the slot index (from calling ``allocator``) to create its
+nominal ``vector-ref`` and ``vector-set!`` functions.
+
+.. rst-class:: center
+
+   \*
+
+All well and good, we now have a slot-specific ``init`` function in
+``field-initializers``.  How do we use it?
+
+.. sidebox::
+
+   If someone were to create an ``initialize`` method for some
+   derivation of ``<object>`` then the onus is on them to either
+   ``(call-next-method)`` to find their way back here or handle slot
+   initialization themselves.
+
+When ``make-instance`` (see next section) has created (allocated) an
+instance it will invoke the generic function ``initialize`` and in
+this case we're looking to the method for ``<object>``.
+
+``initialize`` will have been passed the original ``initargs`` (naming
+overload!) arguments to ``make-instance`` which can then call each of
+the ``field-initializer`` ``init-slot``\ s with ``initargs`` in turn
+so that they can seek out their ``:initarg``\ (s) arguments etc..
 
 make-instance II
 ----------------
@@ -794,7 +965,14 @@ STklos_ looks to add a reasonable chunk of the bootstrap in :lname:`C`
 ``compute-apply-generic`` principles (called ``apply-generic`` and
 similarly in :file:`lib/object.stk`) the code for actual ``<generic>``
 instances is handled in :lname:`C`.  Which seems like a good thing as
-the mechanism is quite slow.
+(looking ahead) the pure :lname:`Idio` mechanism is quite slow.
+
+:lname:`STklos` also plays some tricks with the getters and setters.
+In the first instance it uses a :samp:`({name} {init-func} {getter})`
+tuple where :samp:`{getter}` defaults to being the (integer) index of
+the slot.  When it comes to accessing the slot it can test to see if
+the getter is an integer and if so access the slot directly otherwise
+call the (presumed) function.
 
 Swindle
 -------
@@ -838,7 +1016,8 @@ In the follow-up he makes another interesting point:
    Hmm...  *\*scratches chin\**
 
 That's an intriguing idea.  In essence it would require that generic
-functions become localized to modules.
+functions become localized to modules.  That, in turn, would mean you
+could not build on the work of others.
 
 .. include:: ../../commit.rst
 

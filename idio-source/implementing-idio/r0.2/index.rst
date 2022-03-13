@@ -16,6 +16,7 @@ implement an object system.
    :maxdepth: 2
 
    clos
+   ios
 
 .. include:: ../../commit.rst
 
