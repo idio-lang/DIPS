@@ -523,6 +523,7 @@ A broad range without being too specific:
    Linux, Ubuntu 18, x86-64, 64, gcc 8
    Linux, Debian 10, x86-64, 64, gcc 8
    Linux, CentOS Stream/8/7/6, x86-64, 64, gcc
+   SunOS, Oracle 11.4, x86-64, 64, gcc 11
    SunOS, OpenIndiana Hipster, x86-64, 64, gcc 9
    SunOS, OpenIndiana a151, x86-64, 64, gcc 4
    BSD, FreeBSD 13, x86-64, 64, clang 11
