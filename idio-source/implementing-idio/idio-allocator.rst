@@ -354,6 +354,13 @@ available to us.
    <https://lwn.net/Articles/834289/>`_ which precludes the use of
    bits 59-56.
 
+   There is further commentary on `pointer tagging
+   <https://lwn.net/SubscriberLink/888914/e81588082fa3b858/>`_ with
+   reference to hardware support for masking high-order bits.  The
+   summary being that the existing implementations (March 2022) are
+   less than ideal for Linux (preventing the kernel from validating
+   pointers) precluding their use.
+
 Other processes are using memory, including us, so we'll aim a bit
 lower.  Any number which generates an allocation over 4GB is good
 enough as it demonstrates 64-bit handling and we're in no position to
