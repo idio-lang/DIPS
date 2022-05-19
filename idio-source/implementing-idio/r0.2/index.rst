@@ -17,6 +17,8 @@ implement an object system.
 
    clos
    ios
+   map
+   names
 
 .. include:: ../../commit.rst
 
