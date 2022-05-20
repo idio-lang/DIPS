@@ -643,6 +643,8 @@ Having said all that about the *frame*, we can repeat it in kind for
 
 #. the calling code's *env* is restored from the stack
 
+.. _`function creation`:
+
 Creation
 ^^^^^^^^
 

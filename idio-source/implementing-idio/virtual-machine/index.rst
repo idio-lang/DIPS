@@ -38,6 +38,7 @@ Clearly the second is at hand.  The first is, arguably, more dramatic.
 
    lookups
    register-machine
+   debugging
 
 .. include:: ../../commit.rst
 
