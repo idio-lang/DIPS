@@ -23,7 +23,7 @@ and ``--vm-reports``:
 
    make clean
    make debug && .local/bin/idio --vm-reports test
-   less vm-perf.log
+   less vm-perf
 
 .. sidebox::
 
@@ -38,7 +38,7 @@ ph-of / pt-of
 -------------
 
 ``map`` (or whichever of the ``#n`` closures documented in
-:file:`vm-perf.log` is ``map``) is relatively rich and isn't necessary
+:file:`vm-perf` is ``map``) is relatively rich and isn't necessary
 when you just want the ``ph`` or ``pt`` of the elements in a list.
 There are specific functions to do just that.
 

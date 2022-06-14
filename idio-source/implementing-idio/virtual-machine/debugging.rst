@@ -348,8 +348,8 @@ gc-stats
 
 Garbage collector stats.
 
-vm-perf.log
------------
+vm-perf
+-------
 
 .. note::
 

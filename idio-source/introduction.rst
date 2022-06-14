@@ -520,14 +520,14 @@ A broad range without being too specific:
 
    Linux, Fedora 36, x86-64, 64, gcc 12
    Linux, openSUSE Leap 15, x86-64, 64, gcc 7
-   Linux, Ubuntu 20/18, x86-64, 64, gcc 8
+   Linux, Ubuntu 22/20/18, x86-64, 64, gcc 11/9/8
    Linux, Debian 11/10, x86-64, 64, gcc 10/8
    Linux, CentOS Stream & 8/7/6, x86-64, 64, gcc
    SunOS, Oracle 11.4, x86-64, 64, gcc 11
    SunOS, OpenIndiana Hipster, x86-64, 64, gcc 9
    SunOS, OpenIndiana a151, x86-64, 64, gcc 4
    BSD, FreeBSD 13, x86-64, 64, clang 11
-   BSD, OpenBSD 6.9, x86-64, 64, clang 10
+   BSD, OpenBSD 7/6.9, x86-64, 64, clang 13/10
    BSD, NetBSD 9.2, x86-64, 64, gcc 7
    Darwin, macOS 12.3, x86-64, 64, clang 12
    Darwin, macOS 10.15.7, x86-64, 64, clang 11

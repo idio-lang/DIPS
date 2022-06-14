@@ -94,8 +94,8 @@ continuing to locate it at the end of the user's allocation means it
 is just as likely to be stomped over as anything else.
 
 Of course, if you know how the :samp:`{overhead}` and memory guards
-work and recognising that they are immediately before and after your
-allocated memory (broadly, ``a[-2]`` and ``a[n+1]``) you can probably
+work and, recognising that they are immediately before and after your
+allocated memory (broadly, ``a[-2]`` and ``a[n+1]``), you can probably
 "adjust" both for fun and profit.
 
 As a partial mitigation, the :lname:`Bash` code supports a malloc
@@ -120,9 +120,9 @@ overheads) and we leave it at that.
 However, you can see that any bucket allocation is going to waste
 increasingly large amounts of memory as any 2\ :sup:`n` request by you
 is going to go into a 2\ :sup:`n+1` bucket.  Although there are some
-potential positives if you :manpage:`realloc(3)` and keep within the
-2\ :sup:`n` (minus overheads) limits as the code only need tweak the
-allocated size field.
+potential positives, for example, if you :manpage:`realloc(3)` and
+keep within the 2\ :sup:`n` (minus overheads) limits, the code only
+need tweak the allocated size field.
 
 The buckets have to live somewhere and so they are tacked onto a
 chain.  We need a chain per bucket size and so there's a
@@ -454,10 +454,10 @@ between the two.  The code assumes we have a big-endian machine and we
 can set the range magic number to be an odd number (and thus not
 ending in two zeros).
 
-In the :lname:`Bash` code the ``CHAIN`` macro uses a pointer a ``char
-*`` inside the block.  That ``sizeof (char *)`` offset means we skip
-over the ``ovu_magic``, ``ovu_bucket`` and ``ovu_rmagic`` fields on
-all platforms.
+In the :lname:`Bash` code the ``CHAIN`` macro uses a pointer to a
+``char *`` inside the block.  That ``sizeof (char *)`` offset means we
+skip over the ``ovu_magic``, ``ovu_bucket`` and ``ovu_rmagic`` fields
+on all platforms.
 
 Given the block is 64-bit aligned that means on a 64-bit platform
 you're setting the ``next`` pointer in the (nominally) user-allocated
@@ -504,8 +504,8 @@ The implementation of ``malloc``, ``calloc``, ``realloc`` and ``free``
 works pretty much as you might expect with having to rummage around
 finding buckets etc..
 
-If you have a debug build then :file:`./vm-perf.log` will have some
-allocator stats for you.
+If you have run a debug build with ``--vm-reports`` then the file
+:file:`./vm-perf` will have some allocator stats for you.
 
 This is where I thought there might be some improvements to be had.
 If you look at the stats you can see that one of two of the chains are

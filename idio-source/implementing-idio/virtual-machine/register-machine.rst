@@ -253,7 +253,7 @@ specific tasks then we should consider taking them.
 
 Just to get a feel for those numbers, the current test suite produces
 the following numbers (run a debug build with ``--vm-reports`` and
-look in :file:`./vm-perf.log`):
+look in :file:`./vm-perf`):
 
 .. csv-table::
    :widths: auto

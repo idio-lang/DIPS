@@ -19,6 +19,7 @@ implement an object system.
    ios
    map
    names
+   lifting
 
 .. include:: ../../commit.rst
 
