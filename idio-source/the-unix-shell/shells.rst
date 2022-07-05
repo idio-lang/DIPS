@@ -5,6 +5,11 @@
 Unix Shells
 ***********
 
+.. sidebox::
+
+   ``chubot`` has more details on his `Unix Shell: History and Trivia
+   <https://www.oilshell.org/blog/2021/08/history-trivia.html>`_ page.
+
 The word *shell* itself was coined by `Louis Pouzin
 <https://en.wikipedia.org/wiki/Louis_Pouzin>`_ after implementing
 `RUNCOM <https://en.wikipedia.org/wiki/Run_commands>`_ (from which we
@@ -108,8 +113,8 @@ alternatives.
 :ref-author:`Axel Liljencrantz`'s friendly interactive shell, fish_
 (first released in 2005) is focused on usability and interactive use.
 
-:ref-author:`Andy Chu`'s Oil_ shell (first released in 2017) is trying
-to be a better POSIX shell for programmers.
+:ref-author:`Andy Chu`, ``chubot``\ 's Oil_ shell (first released
+in 2017) is trying to be a better POSIX shell for programmers.
 
 :ref-author:`Laurence Morgan`'s Murex_ shell (official release
 pending) is designed for DevOps productivity.

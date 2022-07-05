@@ -529,18 +529,19 @@ A broad range without being too specific:
    BSD, FreeBSD 13, x86-64, 64, clang 11
    BSD, OpenBSD 7/6.9, x86-64, 64, clang 13/10
    BSD, NetBSD 9.2, x86-64, 64, gcc 7
-   Darwin, macOS 12.3, x86-64, 64, clang 12
+   Darwin, macOS 12.4, x86-64, 64, clang 12
    Darwin, macOS 10.15.7, x86-64, 64, clang 11
 
    Linux, Raspbian (Debian 10),  aarch64, 64, gcc 8
    Linux, Fedora 36, aarch64, 64, gcc 12
    Linux, Ubuntu 20, aarch64, 64, gcc 9
+   Darwin, macOS 12.4, arm64, 64, clang 13
 
    Linux, Debian 10, x86-64, 32, gcc 8
    Linux, CentOS 6, x86-64, 32, gcc 4
    SunOS, OpenIndiana a151, x86-64, 32, gcc 4
    BSD, NetBSD 9.2, x86-64, 32, gcc 7
-   Darwin, Mac OS 10.5.8, i386, 32, gcc 4
+   Darwin, Mac OS X 10.5.8, i386, 32, gcc 4
 
    Linux, Raspbian 9, ARMv7, 32, gcc 6
 
