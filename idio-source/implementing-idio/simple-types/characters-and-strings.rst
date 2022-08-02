@@ -101,6 +101,39 @@ https://news.ycombinator.com/item?id=30384223:
     language, country of origin, and time period in which the word was
     written.
 
+And there's plenty of tales of how Unicode doesn't (or can't or won't)
+do the right thing as we step away from digitized documents (which, by
+definition must be using a known character set) into the human world.
+Starting with this from :ref-author:`jake_morrison` in
+https://news.ycombinator.com/item?id=32095502:
+
+    In the 90s I worked on a project to digitize land registration in
+    Taiwan.
+
+    In order to record deeds and property transfers, we needed to
+    enter people's names and official registered addresses into the
+    computer system. The problem was that some people used
+    non-traditional writing variants for their names, and some of
+    their birthplaces were tiny places in China with weird names.
+
+    Someone might write their name with a two-dot water radical
+    instead of three-dot radical. We would print it out in the normal
+    font, and the people would lose their minds, saying that it was
+    wrong. Chinese people can be superstitious about the number of
+    strokes in their name, so adding a stroke might make it unlucky,
+    so they would not buy the property.
+
+    The customer went to the agency responsible for managing the big
+    character set, https://en.wikipedia.org/wiki/CNS_11643 Despite
+    having more characters than anything else on earth, it didn't have
+    those variants. The agency said they would not encode them,
+    because they were not real characters, just printing differences.
+
+    The solution was for the staff in the office to use a "font maker"
+    program to create a custom font with these characters. Then they
+    could print out the deeds using a Chinese variant of Adobe
+    Acrobat, and everyone was happy.
+
 .. rst-class:: center
 
    ---
@@ -179,7 +212,7 @@ expressions of a, U+0061 (LATIN SMALL LETTER A), and а, U+0430
 
 .. aside::
 
-   Interestingly, technology come to our aid as the more web sites
+   Interestingly, technology comes to our aid as the more web sites
    enforce :abbr:`MFA (Multi-Factor Authoentication)` the likes of
    WebAuthn_ will not be so casually fooled.
 
@@ -866,7 +899,7 @@ annoying from time to time.
    have a 1-byte width encoding for ``"hello"`` and a 2 or 4-byte
    encoding for ``"hello"``.  However, those strings will be
    considered ``equal?`` because they have the same length and the
-   same code points.
+   same code point at each of their indices.
 
 As it so happens, for general file access and creation, the
 :lname:`Idio` strings, converted into UTF-8 encoded :lname:`C` strings
@@ -1121,9 +1154,12 @@ non-expression strings and the results of the expressions are ``map``\
 ed against ``->string`` which leaves strings alone and runs the
 "display" variant of the printer for the results of the expressions.
 
+.. aside::
+
+   It might be what you want!
+
 ``->string`` does not perform any splicing so if your expression
-returns a list then you'll get a list in your string.  It might be
-what you want!
+returns a list then you'll get a list in your string.
 
 Writing
 -------

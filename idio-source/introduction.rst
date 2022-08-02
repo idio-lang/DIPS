@@ -529,13 +529,13 @@ A broad range without being too specific:
    BSD, FreeBSD 13, x86-64, 64, clang 11
    BSD, OpenBSD 7/6.9, x86-64, 64, clang 13/10
    BSD, NetBSD 9.2, x86-64, 64, gcc 7
-   Darwin, macOS 12.4, x86-64, 64, clang 12
+   Darwin, macOS 12.5, x86-64, 64, clang 12
    Darwin, macOS 10.15.7, x86-64, 64, clang 11
 
    Linux, Raspbian (Debian 10),  aarch64, 64, gcc 8
    Linux, Fedora 36, aarch64, 64, gcc 12
    Linux, Ubuntu 20, aarch64, 64, gcc 9
-   Darwin, macOS 12.4, arm64, 64, clang 13
+   Darwin, macOS 12.5, arm64, 64, clang 13
 
    Linux, Debian 10, x86-64, 32, gcc 8
    Linux, CentOS 6, x86-64, 32, gcc 4
@@ -546,6 +546,10 @@ A broad range without being too specific:
    Linux, Raspbian 9, ARMv7, 32, gcc 6
 
    Linux, Ubuntu 18 via WSL1, x86-64, 64, gcc 7
+
+   ,, ISA (QEMU),,
+
+   Linux, Ubuntu 22, riscv64, 64, gcc 9
 
 .. rst-class:: smaller
 
