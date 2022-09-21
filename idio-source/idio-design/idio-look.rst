@@ -48,7 +48,7 @@ the core functionality to make some behaviour happen, think about the
 ability to create and manipulate file descriptors, and secondly, some
 syntactic sugar to abstract away the repetitive detail.
 
-So, how should the language *look*?
+So, how should the language *look*\ ?
 
 Line-Oriented
 =============
@@ -307,8 +307,8 @@ continuation character:
 
 But, be honest, it looks a bit clumsy.  And I can say that with some
 confidence as I had, out of a duty to see it through, written *all*
-the complex multi-clause forms using this style.  (What an *idiot*!  I
-sense growing sagacity of the language name...).
+the complex multi-clause forms using this style.  (What an *idiot*\ !
+I sense growing sagacity of the language name...).
 
 This gives us the dreadful:
 

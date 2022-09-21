@@ -154,8 +154,8 @@ honest, that's about all the reading you need to do for a
 
 However, we want to read a line at a time which means going back for
 more until we hit the end of the line (or the end of the file).  Hmm,
-how do we signal *that*?  Well, the obvious thing to do is have a set
-of :lname:`Idio` values which cover those bases.  We can return an
+how do we signal *that*\ ?  Well, the obvious thing to do is have a
+set of :lname:`Idio` values which cover those bases.  We can return an
 *eol* or an *eof* :lname:`Idio` value as the expression we've just
 "read" and the next guy up the chain can make a decision themselves.
 

@@ -659,7 +659,7 @@ Of course that means that any backgrounded not-stopped jobs continue.
        street and someone tells you a new fact you forget how to walk.
 
     When I typed that, I'll be honest, I had a mental panic thinking,
-    "What a *disaster*!  Are we not in control?" as I'd not thought
+    "What a *disaster*\ !  Are we not in control?" as I'd not thought
     about the functionality using that expression and `couldn't see
     the wood for the trees
     <https://www.collinsdictionary.com/dictionary/english/cant-see-the-wood-for-the-trees>`_.

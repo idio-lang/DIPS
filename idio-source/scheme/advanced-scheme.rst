@@ -773,7 +773,7 @@ String Ports
 ------------
 
 This is a bit more interesting.  Instead of ports meaning an interface
-to files, how about an interface to *strings*?
+to files, how about an interface to *strings*\ ?
 
 :socrates:`Eh?`
 
@@ -790,9 +790,9 @@ For an *input* string port you need to be able to:
 
 - *close* one -- stop using it?
 
-- *seek* and *tell*?  Well those sound like jumping about to different
-  indexes in the string, setting or returning the current pointer into
-  the string.  Can't be that hard.
+- *seek* and *tell*\ ?  Well those sound like jumping about to
+  different indexes in the string, setting or returning the current
+  pointer into the string.  Can't be that hard.
 
 As it is an *input* port then all write operations should fail on
 principle.
@@ -810,9 +810,10 @@ hood:
 
 - *close* -- stop using it?  Maybe set a flag.
 
-- *seek* and *tell*?  Well those sound like jumping about to different
-  indexes in the string -- so we should have been maintaining a
-  current pointer into the string like above.  Can't be that hard.
+- *seek* and *tell*\ ?  Well those sound like jumping about to
+  different indexes in the string -- so we should have been
+  maintaining a current pointer into the string like above.  Can't be
+  that hard.
 
 As it is an *output* port then all read operations are invalid.
 However, unlike files, where we have an (externally) examinable result
@@ -955,8 +956,8 @@ Consider a little snippet of :lname:`C`:
    int i = a + b * c;
    ...
 
-There are (arguably) four continuations there, *four*!  Let's break it
-down.  As a starter for ten, we know from :lname:`C`'s operator
+There are (arguably) four continuations there, *four*\ !  Let's break
+it down.  As a starter for ten, we know from :lname:`C`'s operator
 precedence rules that ``a + b * c`` is really ``a + (b * c)`` that is,
 the calculation of ``b * c`` is performed first and the result passed
 to the next sub-expression, ``a + []`` -- with ``[]`` standing in for

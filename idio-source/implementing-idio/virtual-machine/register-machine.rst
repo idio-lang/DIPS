@@ -747,7 +747,7 @@ sub-element of a wider piece of work) and leave a value, *probably*
 
 This has now evaluated the second argument to ``+``.  The next action
 after evaluating an argument is to push *val* onto the stack.  How
-very handy that the function call to ``*`` left the value in *val*!
+very handy that the function call to ``*`` left the value in *val*\ !
 Our stack now has ``+``, ``1`` and ``6``.
 
 Finally, we can start the function protocol for ``+`` where ``6`` and

@@ -6,11 +6,13 @@ Characters and Strings
 
 *We're not in Kansas any more, Toto!*
 
-.. sidebox:: Actually, I did the easy :lname:`C`-style strings and
-             characters initially but went back and re-wrote it all
-             and can now pretend I did it properly in the first place.
+.. aside::
 
-	     No-one will ever know!
+   Actually, I did the easy :lname:`C`-style strings and characters
+   initially but went back and re-wrote it all and can now pretend I
+   did it properly in the first place.
+
+   No-one will ever know!
 
 There's no beating about the bush, we need to handle proper
 multi-character set strings from the get-go.  We don't want a
@@ -217,7 +219,10 @@ expressions of a, U+0061 (LATIN SMALL LETTER A), and а, U+0430
    WebAuthn_ will not be so casually fooled.
 
 Browsers, hopefully, have gotten better at alerting users to the
-duplicitous ``bаnk.com``.
+duplicitous ``bаnk.com``.  For more of the same *[pun intended]*, try
+the Unicode `confusables
+<https://util.unicode.org/UnicodeJsps/confusables.jsp?a=bank.com&r=None>`_
+page.
 
 Your choice of font introduces another issue.  There are around 150
 thousand code points defined (of the 1,114,112 possible code points)
@@ -263,39 +268,68 @@ whatever is passed to it and actions whatever the string manipulation
 the user invokes.  If the result is non-conformant then so be it.
 *User error.*
 
+.. rst-class:: center
+
+---
+
 We *might* have to consider matters such as `Collation
 <https://www.unicode.org/reports/tr10/>`_ of strings -- as we may not
 be using any system-provided collation library (which you would hope
 would have considered it).  But we really don't want to.  That
 document is 29 thousand words long!
 
-    For those, like me, who often wonder about the Rest of the World
-    there are non-obvious examples such as:
+For those, like me, who often wonder about the Rest of the World
+there are non-obvious examples such as:
 
-    * the set [ "Ähnlich", "Äpfel", "Bären", "Käfer", "küssen" ] would
-      have the strings beginning with Ä sorted to the end as Ä is one
-      of three additional characters and comes after the regular Latin
-      Z in the `Swedish alphabet
-      <https://en.wikipedia.org/wiki/Swedish_alphabet>`_.
+* the set [ "Ähnlich", "Äpfel", "Bären", "Käfer", "küssen" ] would
+  have the strings beginning with Ä sorted to the end as Ä is one of
+  three additional characters and comes after the regular Latin Z in
+  the `Swedish alphabet
+  <https://en.wikipedia.org/wiki/Swedish_alphabet>`_.
 
-    * in Danish, Aalborg sorts after Zaragoza because aa in personal
-      and geographical names is å (borrowed from the Swedish) and
-      sorts after z (a decision made 7 years after re-introducing the
-      letter in 1948).
+* in Danish, Aalborg sorts after Zaragoza because aa in personal and
+  geographical names is å (borrowed from the Swedish) and sorts after
+  z (a decision made 7 years after re-introducing the letter in 1948).
 
-      This also has the side-effect of the regular expression
-      ``[a-z][a-z]`` does not match å in a Danish locale even though
-      it can be expressed as a digraph (``aa``).
+  This also has the side-effect of the regular expression
+  ``[a-z][a-z]`` does not match å in a Danish locale even though it
+  can be expressed as a digraph (``aa``).
 
-    * German allows for a distinct collation order for telephone
-      listings
+* German allows for a distinct collation order for telephone listings
 
-    Of course it would be naïve to believe that there were not a
-    soupçon of names like Cæsar and Zoë roaming around in `English
-    text
-    <https://en.wikipedia.org/wiki/English_terms_with_diacritical_marks>`_,
-    I wasn't né stupid.  I have no idea what the collation algorithm
-    for them is, though.
+Of course it would be naïve to believe that there were not a soupçon
+of names like Cæsar and Zoë roaming around in `English text
+<https://en.wikipedia.org/wiki/English_terms_with_diacritical_marks>`_,
+I wasn't né stupid.  I have no idea what the collation algorithm for
+them is, though.
+
+.. aside::
+
+   `Ethnologue
+   <https://www.ethnologue.com/enterprise-faq/how-many-languages-world-are-unwritten-0>`_
+   estimate there are some 4000 writing systems associated with the,
+   roughly, 7000 living languages.  Wikipedia has a `list of writing
+   systems <https://en.wikipedia.org/wiki/List_of_writing_systems>`_
+   which tags most of Europe as Latin where we've already noted that
+   Europe has some funny old language rules.
+
+   Interestingly, Omniglot claim that there are only 38 `writing
+   systems in current use
+   <https://omniglot.com/writing/stats.htm#writing>`_ tagging the
+   majority as Latin.
+
+I'm willing to bet that almost any decision you make on the subject of
+human languages and therefore their translation into digital form will
+be wrong because of some societal convention you were unaware was even
+a possibility.
+
+I sense it will be a while before humanity adopts a common language
+with a normal form and until then seeking correctness will be a
+full-time job.
+
+.. rst-class:: center
+
+---
 
 We can almost certainly ignore Unicode's view on `Regular Expressions
 <https://www.unicode.org/reports/tr18/>`_ as their view has been
@@ -352,7 +386,7 @@ The first plane, plane 0, is called the `Basic Multilingual Plane
 Planes 1, 2 and 3 are supplementary to BMP and are filled to various
 degrees.
 
-Planes 4 through 13 are *unassigned*!
+Planes 4 through 13 are *unassigned*\ !
 
 Plane 14 contains a small number of special-purpose "characters".
 
@@ -403,7 +437,7 @@ code points across groups in the same word: 1\ :raw-html:`&#x0662;`\
 12345 with a code point from each of the first five of those groups
 (Latin-1, Arabic-Indic, Extended Arabic-Indic, NKO, Devanagari).  Does
 it make any sense to mix these character sets *in the same
-expression*?
+expression*\ ?
 
 It becomes increasingly complex to reason about these things and the
 inter-relationship between character sets at which point we start
@@ -645,7 +679,7 @@ other as required.
 
 .. aside::
 
-   You *monster*!  Why are you trying to modify a string *at all*?
+   You *monster*\ !  Why are you trying to modify a string *at all*\ ?
 
 The only real problem is that anyone wanting to *modify* an element in
 a string array might get caught out by trying to stuff a 4 byte code
@@ -936,7 +970,7 @@ Pathname Expansion
 """"""""""""""""""
 
 As if pathnames as an unencoded string aren't complicated enough we
-want *wildcards*!
+want *wildcards*\ !
 
 :lname:`Bash` has a reasonably pragmatic approach to wildcards.  From
 :manpage:`bash(1)`, **Pathname Expansion**:

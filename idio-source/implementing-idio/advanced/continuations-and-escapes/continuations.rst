@@ -32,7 +32,7 @@ Implementation
 State
 -----
 
-The obvious first question is what constitutes the program's *state*?
+The obvious first question is what constitutes the program's *state*\ ?
 A second, less obvious, question is what does *not* constitute the
 program's state?
 
@@ -950,7 +950,7 @@ That value is passed to ``abort-top!`` as it was before but this time
 there is an extra hole on the list and ``abort-top!`` now invokes the
 continuation :samp:`{[k-return]}` with the value (``4``).  That means
 we return into the body of ``control`` with the value (``4`` -- still,
-*phew*!) which we, uh, discard.
+*phew*\ !) which we, uh, discard.
 
 In this case, the body of ``control`` continues with whatever the
 second ``...`` is and the value from that is what is returned by

@@ -345,21 +345,8 @@ available to us.
 
 .. sidebox::
 
-   Remembering, of course, that no current x86 CPU architecture lets
-   you address more than 48 bits of physical address space anyway:
-   `Virtual Address space
-   <https://en.wikipedia.org/wiki/X86-64#Virtual_address_space_details>`_.
-
-   Although I see Linux now supports ARM64's `Memory Tagging Extension
-   <https://lwn.net/Articles/834289/>`_ which precludes the use of
-   bits 59-56.
-
-   There is further commentary on `pointer tagging
-   <https://lwn.net/SubscriberLink/888914/e81588082fa3b858/>`_ with
-   reference to hardware support for masking high-order bits.  The
-   summary being that the existing implementations (March 2022) are
-   less than ideal for Linux (preventing the kernel from validating
-   pointers) precluding their use.
+   See :ref:`Address Space` for some notes on physically addressable
+   memory.
 
 Other processes are using memory, including us, so we'll aim a bit
 lower.  Any number which generates an allocation over 4GB is good
@@ -431,7 +418,6 @@ The :lname:`libc` allocator is different still.  On a 32-bit CentOS 6
 VM I can ``make-array`` 2\ :sup:`29` + 2\ :sup:`27` but not 2\
 :sup:`29` + 2\ :sup:`28`.  Maybe some
 :manpage:`sbrk(2)`/:manpage:`mmap(2)` features.
-
 
 next pointers
 ^^^^^^^^^^^^^

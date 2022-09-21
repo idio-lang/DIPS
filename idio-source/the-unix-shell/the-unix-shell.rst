@@ -887,10 +887,10 @@ The real bugbears are :ref:`brace expansion <brace expansion>`,
 <shell pathname expansion>` (and parameter/array expansion) because
 they *change the number of words* in the command expression.
 
-That's *bonkers*!  Are there any other languages which actively change
-the number of words they are processing?  (There must be, I can't
-think of any.)  It defies any form of programmatic rigour when you
-can't determine the arguments you have to hand:
+That's *bonkers*\ !  Are there any other languages which actively
+change the number of words they are processing?  (There must be, I
+can't think of any.)  It defies any form of programmatic rigour when
+you can't determine the arguments you have to hand:
 
 .. code-block:: bash
 
@@ -1004,7 +1004,7 @@ I use parameter expansion *a lot*.  I particularly use it for
 manipulating pathnames where :program:`dirname` and
 :program:`basename` can be replaced with ``${FOO%/*}`` and
 ``${FOO##*/}`` respectively.  Who doesn't want to do array pattern
-substitution, ``${array[*]/%\/bin/\/lib}``?  Who, *who*?
+substitution, ``${array[*]/%\/bin/\/lib}``?  Who, *who*\ ?
 
 Others might think this mix of terse syntax and pattern-matching gives
 :lname:`Perl` a good name.

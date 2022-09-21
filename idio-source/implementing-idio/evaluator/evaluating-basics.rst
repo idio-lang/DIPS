@@ -330,7 +330,7 @@ The Result of the Meaning
 -------------------------
 
 Not yet defined is what ``idio_meaning()`` is meant to return.  What
-is it meant to *do*?
+is it meant to *do*\ ?
 
 Our goal, from inferring some meaning from the lists of lists the
 reader gave us, will be to head off to the code generator so we

@@ -254,6 +254,8 @@ both do the right thing to extract them.
 
 Nothing special to do here, then.
 
+.. _`limitations`:
+
 Limitations
 ^^^^^^^^^^^
 
@@ -343,6 +345,8 @@ That would leave the map function's body looking like:
 
 rather then having the entirety of the ``map2`` function's body code
 embedded in it.
+
+.. _`Lambda Lifting I`:
 
 Lambda Lifting I
 ----------------

@@ -166,7 +166,7 @@ tie things together.
       }
 
    which is a bit more complicated and creates the :lname:`Idio`
-   symbol ``:=``(from the :lname:`C` string ``":="``) and assigns the
+   symbol ``:=`` (from the :lname:`C` string ``":="``) and assigns the
    result to the :lname:`C` variable ``idio_S_colon_eq``.
 
 Special Cases

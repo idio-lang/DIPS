@@ -264,19 +264,80 @@ adequately handled by :ref:`bignums`.  One day.
 In the meanwhile, the tag is reserved by the
 ``IDIO_PLACEHOLDER_TYPE``.
 
-64-bit Virtual Address Space
-============================
+.. _`Address Space`:
 
-Whilst we are having flights of fancy with fake pointers, no current
-CPU architecture lets you address more than 48 bits of physical
-address space regardless of whether you could afford that much RAM.
-`Virtual Address space
-<https://en.wikipedia.org/wiki/X86-64#Virtual_address_space_details>`_
-shows a large splodge of literally inaccessible memory.
+Address Space
+-------------
 
-In principle that could be :strike:`ab`\ used in a similar way.  The
-advantage of which is that maths might be easier to manage as there's
-no shifting required when you mask-off the tag.
+.. sidebox::
+
+   Although, somewhat unheralded, some Intel chips from 2018 can
+   `address 57 bits <https://en.wikipedia.org/wiki/X86#Chronology>`_
+   with an extra `page table
+   <https://en.wikipedia.org/wiki/Intel_5-level_paging>`_.
+
+Remember, of course, that no current (early 2020s!) x86 CPU
+architecture lets you address more than 48 bits of physical address
+space anyway, see `Virtual Address space
+<https://en.wikipedia.org/wiki/X86-64#Virtual_address_space_details>`_.
+
+Although I see Linux now supports ARM64's `Memory Tagging Extension
+<https://lwn.net/Articles/834289/>`_ which precludes the use of bits
+59-56.
+
+There is further commentary on `pointer tagging
+<https://lwn.net/SubscriberLink/888914/e81588082fa3b858/>`_ with
+reference to hardware support for masking high-order bits.  The
+summary being that the existing implementations (March 2022) are less
+than ideal for Linux (preventing the kernel from validating pointers)
+precluding their use.
+
+.. rst-class:: center
+
+   ---
+
+The corollary to this is :ref-author:`Andy Hertzfeld`'s `Mea Culpa
+<https://www.folklore.org/StoryView.py?project=Macintosh&story=Mea_Culpa.txt>`_
+decision to put flag bits in the top 8 bits of the original Macintosh,
+given that the 32 bit Motorola 68000 used a 24 bit address bus.
+
+The Macintosh II used the Motorola 68020 which used all 32 bits and
+precluded any such efficiency.  The real problem being that the flag
+placement trick had crept into third party applications and it took a
+year or so to upgrade the software base to be "32 bit clean."
+
+NaN Boxing
+----------
+
+As a slight diversion, we can cogitate on NaN boxing.
+:ref-author:`Bob Nystrom`'s :ref-title:`Crafting Interpreters` covers
+this nicely in his `NaN Boxing
+<https://craftinginterpreters.com/optimization.html#nan-boxing>`_
+section so we'll just highlight the gist.
+
+Everything (-ish) is a :lname:`C` double (or can be stuffed into the
+equivalent 8 bytes).  IEEE 754 allows for some exceptional numbers,
+notably, Not-a-Number (NaN) instances, for example the result of
+dividing by zero.  Thanks to the way NaNs are implemented, there's
+quite a lot of possible NaNs available and only a few of which are
+defined.
+
+The trick is to extend the set of "quiet" NaNs (as opposed to
+"signalling" NaNs, eg. division by zero).  The quiet NaNs can use some
+50 bits of mantissa (plus the sign bit, if you care).
+
+.. aside::
+
+   NaN-boxing might not work, though, if I buy that Intel Alder Lake
+   CPU and *[checks notes]* 128 **Peta**-bytes of RAM.
+
+The 50 (or 51) bits is interesting because, if you recall from
+earlier, current x86_64 systems can only address 48 bits of address
+space.  Hmm, 48 is less than 50, for sure, so we could put our
+pointers in the mantissa bits of a quiet NaN.  Not just that but those
+mantissa bits are in the same position as the address bits so there's
+no bit shifting required.  *Whoa!*
+
 
 Reading
 =======

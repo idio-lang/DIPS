@@ -1,5 +1,7 @@
 .. include:: ../../global.rst
 
+.. _`Variable Lookups`:
+
 ****************
 Variable Lookups
 ****************
@@ -424,7 +426,7 @@ pre-resolved to :samp:`{i}` as well.
 
 .. rst-class:: center
 
----
+   ---
 
 All this double-dereferencing and extra per-module symbol and value
 index tables seems a bit over the top.  It does allow us to not have
@@ -437,7 +439,7 @@ needn't be part of the distributed code, anyway.
 
 .. rst-class:: center
 
----
+   ---
 
 Perhaps, not hugely surprisingly, that all sounds very much like the
 business of the Unix link loader part of whose job is to resolve any
@@ -454,7 +456,7 @@ is re-written to contain the actual memory location of the variable
 
 .. rst-class:: center
 
----
+   ---
 
 Augmenting Modules
 ------------------
