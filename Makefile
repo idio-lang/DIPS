@@ -23,5 +23,6 @@ source :
 	mkdir -p source
 	(cd sphinx-source; tar cf - *) | (cd source; tar xf -)
 	(cd idio-source; tar cf - *) | (cd source; tar xf -)
+	sed -i -e "s/^release = .*/release = '${IDIO_VERSION}'/" source/conf.py
 
 .PHONY : source
