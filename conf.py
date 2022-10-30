@@ -91,6 +91,7 @@ html_theme_options = {
     'extra_nav_links': {
         'Home': '/',
         'Guide': '/docs/guide/',
+	'By Example': '/docs/idio-by-example/',
         'Reference': '/docs/ref/',
         'Getting': '/get.html',
         'Roadmap': '/roadmap.html',
