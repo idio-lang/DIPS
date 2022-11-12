@@ -544,23 +544,6 @@ More work required.
 
 ---
 
-The standout sections of code snippets and console interaction look
-like:
-
-.. code-block:: sh
-
-   ls -l *.txt
-
-.. sidebox:: There have been several efforts to recreate green screen
-             fonts, like glasstty_, but that's taking old-school
-             authenticity too far.
-
-where, the Internet tells me, the `colours are accurate for green
-screen VDUs`_ together with the usual inline representations for code
-like ``$PATH`` etc..
-
-
-
 Man pages, see :manpage:`man(1)`, are most likely to refer to whatever
 primary development system I happen to be using -- almost certainly a
 Linux variant.  Solaris and BSDs may vary.
