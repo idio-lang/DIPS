@@ -1,0 +1,25 @@
+.. include:: ../../global.rst
+
+********
+RFC 6234
+********
+
+.. aside::
+
+   SHA256 and friends to you and me.
+
+RFC6234_, US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF),
+provides not only a definition of these Secure Hash Algorithms but,
+conveniently, a :lname:`C` reference implementation.
+
+Following in the footsteps of many, :lname:`Idio` takes this code
+verbatim and adds some :lname:`Idio`-specific wrappers.
+
+We now have the ability to generate and verify that messages and files
+have been communicated without interference.
+
+We'll use this to verify that the pre-compiled object files have the
+contents we expect.
+
+.. include:: ../../commit.rst
+
