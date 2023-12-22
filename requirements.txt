@@ -1,3 +1,7 @@
+# Could not import extension sphinxcontrib.bibtex (exception: No module named 'pkg_resources')
+# appears to relate to a bad setuptools
+setuptools
+
 sphinx
-sphinxcontrib-bibtex
+sphinxcontrib.bibtex
 sphinx_git
